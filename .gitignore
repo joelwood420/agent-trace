@@ -1,0 +1,25 @@
+# Rust
+target/
+
+# Node / Vite
+node_modules/
+ui/dist/
+*.log
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Env / secrets
+.env
+.env.*
+
+# Raw transcripts: never commit real ones. Only sanitised fixtures are allowed.
+*.jsonl
+!fixtures/**/*.jsonl
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
