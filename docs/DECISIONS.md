@@ -25,6 +25,10 @@ UI packages (`ui/package.json`):
 | `vite`, `@vitejs/plugin-react`, `typescript`, `@types/react`, `@types/react-dom`, `@types/node` | Build and type checking. Vite and TypeScript are named in CLAUDE.md. These came with the Vite React template. |
 | `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `globals` | `npm run lint`. The current Vite template ships oxlint instead; ESLint was swapped in because it is the requested and more widely known linter. |
 
+No UI package was added for M2 step 4. The diagram layout is hand-written, and UI unit tests use Node's built-in test runner (`node --test`), which runs TypeScript directly in Node 24, so no test framework is needed.
+
+The app crate (`snitchcraft`) depends on the workspace's own `trace-view` crate to build the diagram model.
+
 `trace-view` uses `adapter-claude-code` as a dev-dependency only, so its tests and example can load the Claude Code fixture. The library itself depends only on `trace-core`, `serde` and `serde_json`.
 
 ## Decisions
@@ -152,3 +156,43 @@ Both commands are `async` and do their file reading in `spawn_blocking`, so a la
 ### 2026-10-04: The app is called Snitchcraft
 
 The working name `looptrace` is replaced by Snitchcraft, with the tagline "snitches get traces". The app crate, UI package, window title, bundle identifier (`dev.snitchcraft.app`) and snapshot env var (`SNITCHCRAFT_UPDATE_SNAPSHOTS`) use the new name. The library crates keep their descriptive names (`trace-core`, `trace-view`, `adapter-claude-code`) because they name what each crate does, not the brand.
+
+### 2026-10-04: load_session returns the diagram model, and node_detail is a third command
+
+`load_session` builds the trace in Rust and returns `{ diagram, skipped }`: the `trace-view` session diagram plus the lines that could not be used. The UI never receives raw trace events, so it cannot reinterpret them. Events the trace rejects (which would be an adapter bug) are added to `skipped` instead of failing the whole session.
+
+`node_detail(project, session_id, trace_id)` returns the full content of one trace node, or `null` if there is none. It is listed in `build.rs` and granted as `allow-node-detail`, so the window can now call exactly three commands. It validates `project` and `session_id` the same way as `load_session`, and rejects an empty or very long trace id.
+
+### 2026-10-04: The last loaded session's trace is kept in memory
+
+Clicking a box would otherwise re-read and re-parse the transcript every time. The app keeps one entry, the most recently loaded session's trace, behind a mutex. `load_session` always reads the file fresh and replaces the entry; `node_detail` uses the entry when the project and session id match and otherwise loads that session and caches it. One entry is enough because the UI shows one session at a time, and it keeps memory use bounded.
+
+### 2026-10-04: Diagram layout is a hand-written indented tree
+
+Positions are computed in `ui/src/layout.ts`, a pure function with unit tests. It is a top-down tree drawn like an outline: the children of a prompt, subagent or summary are stacked below their parent and indented, in order, and a model call's tool calls sit to its right on the same row. A classic centred tree (or dagre/elkjs) puts all of a prompt's model calls side by side, and real prompts have dozens to hundreds of model calls (one checked session had 245 in a single prompt), which makes rows thousands of pixels wide. The indented layout grows downwards, keeps time order top to bottom, and needs no library. Every box of a kind has a fixed size and single-line text, so the layout is exact without measuring the DOM.
+
+A diagram opens fitted when it fits at a readable zoom, otherwise at the top-left at zoom 0.7 to 1, so a long prompt opens on its first steps. The view is left aligned so opening the details panel does not hide part of the tree. A minimap is shown only for diagrams with more than 30 boxes, since on small ones it only covers boxes.
+
+### 2026-10-04: Expanded and collapsed state is UI state only
+
+Which boxes are open is kept in the UI per session (a map from box id to open or closed); boxes not in the map use `collapsed_by_default`. "Expand all" and "Collapse all" act on the current prompt. Box ids are stable across reloads, so "Reload" keeps what was open.
+
+### 2026-10-04: UI unit tests use Node's built-in test runner
+
+`npm test` runs `node --test` on `src/**/*.test.ts`. Node 24 runs TypeScript directly by stripping types, so no test framework or extra package is needed. Test files are type-checked by `tsconfig.node.json` (Node types) and left out of `tsconfig.app.json`; they may only import modules that do not touch the DOM (`layout.ts`, `format.ts`, `grouping.ts`, `types.ts`). The layout tests run against the sanitised fixture's real diagram and check that no boxes overlap, groups contain their tool calls, and collapsing hides children.
+
+### 2026-10-04: Dev-only mock mode for viewing the UI in a browser
+
+Opening the Vite dev server with `?mock` replays the command responses for the sanitised fixture from `ui/src/mock/fixture-data.json`. A Rust test in `src-tauri` generates that file from the real command code and fails if it is out of date, so the mock cannot drift from the backend. The mock is loaded with a dynamic import behind `import.meta.env.DEV`, which is `false` in production builds, so neither the code nor the data is in `ui/dist` (checked by searching the built bundle for fixture strings). This made it possible to check the layout with browser screenshots, which the Tauri window does not allow.
+
+### 2026-10-04: freezePrototype stays on; one d3-color statement is rewritten at build time
+
+With Tauri's `freezePrototype` on, `Object.prototype` is frozen. d3-color, which React Flow uses for zoom and pan, runs `prototype.constructor = constructor` on a plain object at load time, and assigning a property that exists on a frozen prototype throws in strict mode. The whole UI failed to load in the app window (it worked in a normal browser, which is why the mock mode did not catch it). The fix keeps the hardening and rewrites that single statement to the equivalent `Object.defineProperty` call with a small Vite plugin in `vite.config.ts`, applied both to the production build and to the dev server's dependency pre-bundling. If d3-color changes and the statement disappears, the build fails so the fix gets reviewed. The alternative was turning `freezePrototype` off.
+
+### 2026-10-04: How the production CSP was checked for style injection
+
+The production CSP allows styles only from bundled files. All UI styles are in `index.css`, `app.css` and React Flow's `@xyflow/react/dist/style.css`, imported from `main.tsx`, and React Flow itself does not inject style tags. The only `createElement("style")` in the built bundle is React DOM's support for `<style precedence>` elements, which the app never renders. Box sizes and positions are set through React `style` props, which go through the DOM and are not blocked by `style-src`.
+
+### 2026-10-04: Diagram boxes are keyboard accessible
+
+Each box is a focusable element with the button role: Tab moves between boxes and Enter or Space opens the details, like a click. React Flow's own node focus is turned off because its built-in hint talks about moving and deleting nodes, which this read-only viewer does not allow. Status is shown by colour and also by an icon and a word, so it does not rely on colour alone.

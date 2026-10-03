@@ -6,14 +6,16 @@ A local desktop app that watches Claude Code sessions and draws a diagram of wha
 
 It is a learning and debugging tool for understanding how an agent harness behaves. The trace format is harness-agnostic, so other harnesses can emit it too.
 
-> Screenshot coming with M2, when the app has a UI.
+![Snitchcraft showing one prompt of the sanitised sample session: a summary of four repeated Bash calls, a tool call that started a subagent, and the details panel for that tool call](docs/screenshot.png)
+
+*The sanitised sample session from `fixtures/`, not a real one.*
 
 ## Status
 
 | Milestone | Description | Status |
 |---|---|---|
 | M1 | Replay a finished session from a file (schema, adapter, CLI tree printer) | Done |
-| M2 | Tauri app shell that renders one diagram per prompt | In progress: app shell and backend done, diagram next |
+| M2 | Tauri app shell that renders one diagram per prompt | In progress: app, session browser, diagram and details panel done; final review next |
 | M3 | Live file watching | Planned |
 | M4 | Proxy capture of raw API requests | Planned |
 | M5 | Toy Rust harness that emits the trace format natively | Planned |
@@ -67,7 +69,7 @@ cargo run -p trace-view --example print_diagram -- fixtures\claude-code\basic\00
 - `crates/trace-core`: the trace schema (Run > Turn > ModelCall > ToolCall). No I/O, nothing harness-specific.
 - `crates/adapter-claude-code`: converts Claude Code JSONL transcripts into `trace-core` events.
 - `crates/trace-view`: turns a trace into the diagram model the UI draws. Harness-agnostic, no I/O. See `docs/VIEW-MODEL.md`.
-- `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only.
+- `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only, and builds the diagram model.
 - `ui/`: the web UI shown inside the app window (React, TypeScript, Vite, React Flow).
 - `fixtures/`: sanitised example transcripts used by tests.
 - `docs/`: schema description, diagram view model, design decisions, and notes on harness behaviour.
@@ -96,18 +98,37 @@ cargo tauri build
 
 `cargo tauri build` downloads the WiX and NSIS installer tools from GitHub the first time it runs. The app itself makes no network requests.
 
+### Using the app
+
+1. Pick a session on the left. Sessions are grouped by project, newest first.
+2. Pick a prompt. Its diagram opens in the middle: the prompt at the top, its model calls below in order, and each model call's tool calls to its right.
+3. Click any box to see its full content on the right: prompt and output text, tool input and result, token usage, stop reason, metadata and the raw transcript lines.
+
+Boxes marked "Repeated" (runs of similar calls) and "Subagent" start collapsed; use their Show button, or "Expand all". A dashed box around tool calls means they were requested together. Status is shown by colour and by a word (ok, error, running).
+
+### Viewing the UI in a browser (development only)
+
+To check the UI without the desktop app, run the UI dev server and open it with `?mock`. It replays the sanitised sample session from `fixtures/`, never your own sessions.
+
+```powershell
+cd ui; npm run dev
+# then open http://localhost:5173/?mock
+```
+
+Add `&delay=2000` to slow responses down, or `&fail=list`, `&fail=load` or `&fail=detail` to see how errors are shown. Mock mode is not included in production builds.
+
 ## Test and lint
 
 ```powershell
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all
-cd ui; npm run lint; npm run typecheck; npm run build; cd ..
+cd ui; npm run lint; npm run typecheck; npm test; npm run build; cd ..
 ```
 
 ## Privacy
 
-The app is read-only and never modifies anything under `.claude`. It can only read session files under `%USERPROFILE%\.claude\projects\`, and its window can only call two backend commands: list sessions and load one session. It has no file system, shell or network plugins. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
+The app is read-only and never modifies anything under `.claude`. It can only read session files under `%USERPROFILE%\.claude\projects\`, and its window can only call three backend commands: list sessions, load one session, and show the details of one item in it. It has no file system, shell or network plugins. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
 
 ## Licence
 
