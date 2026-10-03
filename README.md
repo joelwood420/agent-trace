@@ -54,12 +54,19 @@ Run: Example text 1690.  [9m27s]
 
 Add `--stats` to print only node counts and skipped lines, which is handy for checking that the adapter understands a session without printing its content.
 
+Print the diagram model the UI will draw: one tree per prompt, with parallel groups, collapsed subagents and summaries of repeated calls. Add `--json` for the raw JSON, or `--counts` for counts only.
+
+```powershell
+cargo run -p trace-view --example print_diagram -- fixtures\claude-code\basic\00000000-0000-4000-8000-000000000002.jsonl
+```
+
 ## Layout
 
 - `crates/trace-core`: the trace schema (Run > Turn > ModelCall > ToolCall). No I/O, nothing harness-specific.
 - `crates/adapter-claude-code`: converts Claude Code JSONL transcripts into `trace-core` events.
+- `crates/trace-view`: turns a trace into the diagram model the UI draws. Harness-agnostic, no I/O. See `docs/VIEW-MODEL.md`.
 - `fixtures/`: sanitised example transcripts used by tests.
-- `docs/`: schema description, design decisions, and notes on harness behaviour.
+- `docs/`: schema description, diagram view model, design decisions, and notes on harness behaviour.
 
 ## Build and test on Windows
 
