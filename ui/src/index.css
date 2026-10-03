@@ -1,0 +1,9 @@
+:root {
+  font-family: system-ui, 'Segoe UI', sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 1rem;
+}
