@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The main window may list and load sessions. Nothing else: no file system, shell, network or other plugin access.",
+  "windows": ["main"],
+  "permissions": ["allow-list-sessions", "allow-load-session"]
+}
