@@ -166,7 +166,7 @@ fn node_detail_gives_full_content() {
 /// The JSON the UI receives for the example trace must match the checked-in
 /// snapshot, so the contract cannot change without a visible diff. To
 /// accept an intended change, run the tests with the environment variable
-/// `LOOPTRACE_UPDATE_SNAPSHOTS=1` and review the snapshot diff.
+/// `SNITCHCRAFT_UPDATE_SNAPSHOTS=1` and review the snapshot diff.
 #[test]
 fn json_shape_matches_snapshot() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -174,7 +174,7 @@ fn json_shape_matches_snapshot() {
         .join("snapshots")
         .join("example-trace.diagram.json");
     let actual = to_json(&build_session(&example_trace()));
-    if std::env::var_os("LOOPTRACE_UPDATE_SNAPSHOTS").is_some() {
+    if std::env::var_os("SNITCHCRAFT_UPDATE_SNAPSHOTS").is_some() {
         let mut text = serde_json::to_string_pretty(&actual).expect("serialise");
         text.push('\n');
         std::fs::write(&path, text).expect("write snapshot");

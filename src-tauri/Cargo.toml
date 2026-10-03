@@ -1,5 +1,5 @@
 [package]
-name = "looptrace"
+name = "snitchcraft"
 description = "Desktop app that draws what a coding agent did for each prompt."
 version.workspace = true
 edition.workspace = true

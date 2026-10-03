@@ -1,4 +1,4 @@
-//! The looptrace desktop app. The backend reads Claude Code transcripts
+//! The Snitchcraft desktop app. The backend reads Claude Code transcripts
 //! (read-only), builds the diagram model in Rust, and hands it to the web UI
 //! through three commands.
 

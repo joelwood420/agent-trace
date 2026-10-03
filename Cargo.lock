@@ -1674,23 +1674,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
 
 [[package]]
-name = "looptrace"
-version = "0.1.0"
-dependencies = [
- "adapter-claude-code",
- "anyhow",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "thiserror 2.0.21",
- "trace-core",
- "trace-view",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "markup5ever"
 version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2758,6 +2741,23 @@ name = "smallvec"
 version = "1.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f9395f0f0eee849a9b707b2f06bb92a6a422090e2123bb2ef8e87a0e61892a8e"
+
+[[package]]
+name = "snitchcraft"
+version = "0.1.0"
+dependencies = [
+ "adapter-claude-code",
+ "anyhow",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "thiserror 2.0.21",
+ "trace-core",
+ "trace-view",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "socket2"

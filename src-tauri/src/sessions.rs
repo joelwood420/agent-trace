@@ -723,7 +723,7 @@ mod tests {
     /// The UI's dev-only mock mode (`?mock` in the browser) replays the
     /// command responses for the sanitised fixture from a checked-in JSON
     /// file. This test keeps that file identical to what the commands return.
-    /// Set `LOOPTRACE_UPDATE_SNAPSHOTS=1` to rewrite it after a change.
+    /// Set `SNITCHCRAFT_UPDATE_SNAPSHOTS=1` to rewrite it after a change.
     #[test]
     fn ui_mock_data_matches_the_commands() {
         let root = fixture_root();
@@ -759,7 +759,7 @@ mod tests {
             .join("fixture-data.json");
         let mut text = serde_json::to_string_pretty(&expected).expect("serialise");
         text.push('\n');
-        if std::env::var_os("LOOPTRACE_UPDATE_SNAPSHOTS").is_some() {
+        if std::env::var_os("SNITCHCRAFT_UPDATE_SNAPSHOTS").is_some() {
             std::fs::write(&path, &text).expect("write mock data");
             return;
         }
@@ -768,14 +768,14 @@ mod tests {
         assert!(
             actual == expected,
             "ui/src/mock/fixture-data.json is out of date. Run the tests with \
-             LOOPTRACE_UPDATE_SNAPSHOTS=1 set and review the diff."
+             SNITCHCRAFT_UPDATE_SNAPSHOTS=1 set and review the diff."
         );
     }
 
     /// A fresh empty folder under the system temp folder.
     fn temp_dir(name: &str) -> PathBuf {
         let dir =
-            std::env::temp_dir().join(format!("looptrace-test-{}-{name}", std::process::id()));
+            std::env::temp_dir().join(format!("snitchcraft-test-{}-{name}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).expect("mkdir");
         dir

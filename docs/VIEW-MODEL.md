@@ -163,7 +163,7 @@ Returned by `node_detail(trace, trace_id)`, or nothing if the id is unknown.
 
 ## Example
 
-The JSON for `fixtures/trace-core/example-trace.jsonl` is checked in at `crates/trace-view/tests/snapshots/example-trace.diagram.json`. A test fails if the output changes, so the contract cannot drift without a visible diff. To accept an intended change, run the tests with `LOOPTRACE_UPDATE_SNAPSHOTS=1` set and review the diff.
+The JSON for `fixtures/trace-core/example-trace.jsonl` is checked in at `crates/trace-view/tests/snapshots/example-trace.diagram.json`. A test fails if the output changes, so the contract cannot drift without a visible diff. To accept an intended change, run the tests with `SNITCHCRAFT_UPDATE_SNAPSHOTS=1` set and review the diff.
 
 To see the model for any session:
 
