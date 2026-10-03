@@ -11,7 +11,7 @@ It is a learning and debugging tool for understanding how an agent harness behav
 | Milestone | Description | Status |
 |---|---|---|
 | M1 | Replay a finished session from a file (schema, adapter, CLI tree printer) | Done |
-| M2 | Tauri app shell that renders one diagram per prompt | Planned |
+| M2 | Tauri app shell that renders one diagram per prompt | In progress: app shell and backend done, diagram next |
 | M3 | Live file watching | Planned |
 | M4 | Proxy capture of raw API requests | Planned |
 | M5 | Toy Rust harness that emits the trace format natively | Planned |
@@ -58,24 +58,47 @@ Add `--stats` to print only node counts and skipped lines, which is handy for ch
 
 - `crates/trace-core`: the trace schema (Run > Turn > ModelCall > ToolCall). No I/O, nothing harness-specific.
 - `crates/adapter-claude-code`: converts Claude Code JSONL transcripts into `trace-core` events.
+- `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only.
+- `ui/`: the web UI shown inside the app window (React, TypeScript, Vite, React Flow).
 - `fixtures/`: sanitised example transcripts used by tests.
 - `docs/`: schema description, design decisions, and notes on harness behaviour.
 
-## Build and test on Windows
+## Build and run on Windows
 
-Requirements: Rust stable with the MSVC toolchain (Visual Studio Build Tools with the C++ workload).
+Requirements:
 
-In PowerShell:
+- Rust stable with the MSVC toolchain (Visual Studio Build Tools with the C++ workload).
+- Microsoft Edge WebView2 runtime (included in Windows 11).
+- Node.js 24 or later with npm.
+- The Tauri CLI: `cargo install tauri-cli --version "^2" --locked`
+
+In PowerShell, from the repo root:
+
+```powershell
+# Once: install the UI packages
+cd ui; npm ci; cd ..
+
+# Run the app in development mode (also starts the UI dev server)
+cargo tauri dev
+
+# Build a release app and Windows installers into target\release\bundle\
+cargo tauri build
+```
+
+`cargo tauri build` downloads the WiX and NSIS installer tools from GitHub the first time it runs. The app itself makes no network requests.
+
+## Test and lint
 
 ```powershell
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all
+cd ui; npm run lint; npm run typecheck; npm run build; cd ..
 ```
 
 ## Privacy
 
-The app is read-only and never modifies anything under `.claude`. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
+The app is read-only and never modifies anything under `.claude`. It can only read session files under `%USERPROFILE%\.claude\projects\`, and its window can only call two backend commands: list sessions and load one session. It has no file system, shell or network plugins. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
 
 ## Licence
 

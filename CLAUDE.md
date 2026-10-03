@@ -73,13 +73,15 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 
 ## Commands
 
-- Run app in dev: `cargo tauri dev` (from M2, once `src-tauri/` exists)
-- Build app: `cargo tauri build` (from M2)
+- Install the Tauri CLI once: `cargo install tauri-cli --version "^2" --locked`
+- Install UI packages once: `cd ui; npm ci`
+- Run app in dev: `cargo tauri dev` (from the repo root; starts the Vite dev server itself)
+- Build app: `cargo tauri build` (builds the UI first; installers land in `target\release\bundle\`)
 - Rust tests: `cargo test --workspace`
 - Lint: `cargo clippy --workspace --all-targets -- -D warnings`
 - Format: `cargo fmt --all`
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
-- UI checks: `cd ui; npm run lint; npm run typecheck` (from M2, once `ui/` exists)
+- UI checks: `cd ui; npm run lint; npm run typecheck; npm run build`
 
 If a command here turns out to be wrong after scaffolding, fix this file.
 
@@ -106,13 +108,15 @@ You are doing the implementation and I will mostly not read the code. That means
 
 ## Current milestone
 
-M1: replay a finished session from a file.
+M2: Tauri app shell that loads a saved session and renders one diagram per prompt.
 
-1. Define the `trace-core` schema and write `docs/SCHEMA.md`.
-2. Write the adapter to parse a sanitised fixture transcript into trace events.
-3. Add a small CLI example that prints the resulting trace as an indented tree.
+1. Tauri scaffold and minimal permissions.
+2. Backend commands to list and load sessions.
+3. Diagram model in Rust (`crates/trace-view`).
+4. UI: session list, prompt list, diagram, details panel.
+5. README screenshot and docs.
 
-Out of scope for now: the Tauri app, live watching, API proxy capture, token cost breakdowns, and the toy harness.
+Out of scope for now: live watching, API proxy capture, token cost breakdowns, and the toy harness.
 
 ## Later milestones (for context only)
 

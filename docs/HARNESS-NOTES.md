@@ -5,6 +5,8 @@ Observations about how Claude Code behaves (loop structure, compaction, subagent
 ## Transcript files
 
 - Each session is one JSONL file: `<project folder>/<session id>.jsonl`.
+- The project folder name is the project's path with separators and some other characters replaced by `-` (a drive path like `C:\work\demo` becomes `C--work-demo`). The original path cannot be recovered exactly, because a `-` in a folder name looks the same.
+- A session can have several `ai-title` lines as Claude Code revises the title. The last one is the current title.
 - Each subagent gets its own file: `<project folder>/<session id>/subagents/agent-<id>.jsonl`. Lines in these files have `isSidechain: true` and an `agentId`.
 - Besides `user` and `assistant` lines, transcripts contain many bookkeeping line types: `attachment`, `system` (with subtypes such as `turn_duration` and `stop_hook_summary`), `mode`, `permission-mode`, `ai-title`, `last-prompt`, `file-history-snapshot`, `cost-state`, `queue-operation` and others.
 - Message lines are linked by `uuid` and `parentUuid`, which form a chain through the conversation.
