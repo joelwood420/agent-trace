@@ -1685,6 +1685,7 @@ dependencies = [
  "tauri-build",
  "thiserror 2.0.21",
  "trace-core",
+ "trace-view",
  "tracing",
  "tracing-subscriber",
 ]

@@ -1,5 +1,6 @@
 //! The looptrace desktop app. The backend reads Claude Code transcripts
-//! (read-only) and hands trace events to the web UI through two commands.
+//! (read-only), builds the diagram model in Rust, and hands it to the web UI
+//! through three commands.
 
 // Hide the extra console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -7,10 +8,12 @@
 mod sessions;
 
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use tauri::Manager;
+use trace_view::NodeDetail;
 
-use sessions::{LoadedSession, SessionError, SessionSummary};
+use sessions::{SessionCache, SessionError, SessionSummary, SessionView};
 
 /// Where the Claude Code projects folder is, resolved once at startup.
 struct AppPaths {
@@ -24,6 +27,9 @@ impl AppPaths {
     }
 }
 
+/// The most recently loaded session's trace, shared by the commands.
+struct AppCache(Arc<SessionCache>);
+
 /// Lists session transcripts under the projects folder, newest first.
 #[tauri::command(rename_all = "snake_case")]
 async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionSummary>, String> {
@@ -33,22 +39,43 @@ async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionS
     Ok(sessions)
 }
 
-/// Loads one session and returns its trace events and skipped lines.
+/// Loads one session and returns its diagram model and skipped lines.
 /// `project` and `session_id` must be values returned by `list_sessions`.
 #[tauri::command(rename_all = "snake_case")]
 async fn load_session(
     paths: tauri::State<'_, AppPaths>,
+    cache: tauri::State<'_, AppCache>,
     project: String,
     session_id: String,
-) -> Result<LoadedSession, String> {
+) -> Result<SessionView, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let loaded = run_blocking(move || sessions::load_session(&root, &project, &session_id)).await?;
+    let cache = Arc::clone(&cache.0);
+    let view = run_blocking(move || cache.load_session(&root, &project, &session_id)).await?;
     tracing::info!(
-        events = loaded.events.len(),
-        skipped = loaded.skipped.len(),
+        prompts = view.diagram.prompts.len(),
+        skipped = view.skipped.len(),
         "loaded session"
     );
-    Ok(loaded)
+    Ok(view)
+}
+
+/// Full content of one trace node of a session, or `null` if the session has
+/// no node with that id. Uses the trace kept by `load_session` when it is the
+/// same session, so clicking boxes does not re-read the file.
+#[tauri::command(rename_all = "snake_case")]
+async fn node_detail(
+    paths: tauri::State<'_, AppPaths>,
+    cache: tauri::State<'_, AppCache>,
+    project: String,
+    session_id: String,
+    trace_id: String,
+) -> Result<Option<NodeDetail>, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let cache = Arc::clone(&cache.0);
+    let detail =
+        run_blocking(move || cache.node_detail(&root, &project, &session_id, &trace_id)).await?;
+    tracing::info!(found = detail.is_some(), "loaded node detail");
+    Ok(detail)
 }
 
 /// Runs file work on a blocking thread so the UI stays responsive, and turns
@@ -86,9 +113,14 @@ fn main() -> anyhow::Result<()> {
                 }
             };
             app.manage(AppPaths { projects_root });
+            app.manage(AppCache(Arc::new(SessionCache::new())));
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![list_sessions, load_session])
+        .invoke_handler(tauri::generate_handler![
+            list_sessions,
+            load_session,
+            node_detail
+        ])
         .run(tauri::generate_context!())?;
     Ok(())
 }
