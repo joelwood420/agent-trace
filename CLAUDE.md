@@ -1,4 +1,4 @@
-# looptrace (working name)
+# Snitchcraft
 
 A local desktop app that watches Claude Code sessions in real time and renders a diagram of what the agent did for each prompt: model calls, tool calls, results, context growth, and stop reasons.
 

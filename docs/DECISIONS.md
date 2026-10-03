@@ -6,14 +6,14 @@ Significant decisions and the reasons for them. Every added dependency is record
 
 | Crate | Used by | Why |
 |---|---|---|
-| `serde` | trace-core, trace-view, looptrace (src-tauri) | Derive JSON (de)serialisation for the schema and view model types. Named in CLAUDE.md. |
-| `serde_json` | trace-core, adapter-claude-code, trace-view, looptrace | JSON values for tool inputs and metadata, the JSONL wire format, and defensive parsing of transcript lines. Named in CLAUDE.md. |
-| `thiserror` | trace-core, adapter-claude-code, looptrace | Error types for invalid trace events and unreadable files. Named in CLAUDE.md for library crates. |
-| `tracing` | adapter-claude-code, looptrace | Logs skipped transcript lines and app activity. Named in CLAUDE.md. |
-| `tauri` 2 | looptrace (src-tauri) | The desktop app framework. Named in CLAUDE.md. Pinned to major version 2 because 3.0 alphas exist on crates.io. |
-| `tauri-build` 2 | looptrace (build script) | Required by Tauri to embed the config and generate command permissions. |
-| `tracing-subscriber` | looptrace | Prints `tracing` logs to the terminal. Only the default `fmt` output, no extra features. |
-| `anyhow` | looptrace | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
+| `serde` | trace-core, trace-view, snitchcraft (src-tauri) | Derive JSON (de)serialisation for the schema and view model types. Named in CLAUDE.md. |
+| `serde_json` | trace-core, adapter-claude-code, trace-view, snitchcraft | JSON values for tool inputs and metadata, the JSONL wire format, and defensive parsing of transcript lines. Named in CLAUDE.md. |
+| `thiserror` | trace-core, adapter-claude-code, snitchcraft | Error types for invalid trace events and unreadable files. Named in CLAUDE.md for library crates. |
+| `tracing` | adapter-claude-code, snitchcraft | Logs skipped transcript lines and app activity. Named in CLAUDE.md. |
+| `tauri` 2 | snitchcraft (src-tauri) | The desktop app framework. Named in CLAUDE.md. Pinned to major version 2 because 3.0 alphas exist on crates.io. |
+| `tauri-build` 2 | snitchcraft (build script) | Required by Tauri to embed the config and generate command permissions. |
+| `tracing-subscriber` | snitchcraft | Prints `tracing` logs to the terminal. Only the default `fmt` output, no extra features. |
+| `anyhow` | snitchcraft | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
 
 UI packages (`ui/package.json`):
 
@@ -116,7 +116,7 @@ Unlike the trace schema, which leaves out unknown optional fields, the view mode
 ### 2026-10-04: Diagram ids are the kind plus a trace id
 
 Box ids are `<kind>:<trace id>`, and synthetic boxes use the id of the node they belong to (`parallel_group:<model call id>`, `summary:<first box id>`). This makes them unique without counters and stable across reloads, which React Flow needs to keep layout and expanded state when M3 updates a diagram live.
-### 2026-10-04: App crate is a plain binary called `looptrace`
+### 2026-10-04: App crate is a plain binary called `snitchcraft`
 
 `src-tauri` builds one binary with a `sessions` module for the file logic. Tauri's template also builds a library for mobile targets, which this app does not need.
 
@@ -148,3 +148,7 @@ Both commands are `async` and do their file reading in `spawn_blocking`, so a la
 
 `list_sessions` reads each transcript line by line and parses only lines that contain `"ai-title"`, keeping the last title. This is simple and was fast enough for the sessions on the development machine, but it reads whole files. If listing gets slow with many large sessions, it can read only the tail of each file or cache by modified time.
 
+
+### 2026-10-04: The app is called Snitchcraft
+
+The working name `looptrace` is replaced by Snitchcraft, with the tagline "snitches get traces". The app crate, UI package, window title, bundle identifier (`dev.snitchcraft.app`) and snapshot env var (`SNITCHCRAFT_UPDATE_SNAPSHOTS`) use the new name. The library crates keep their descriptive names (`trace-core`, `trace-view`, `adapter-claude-code`) because they name what each crate does, not the brand.

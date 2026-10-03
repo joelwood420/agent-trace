@@ -467,7 +467,7 @@ mod tests {
     /// A fresh empty folder under the system temp folder.
     fn temp_dir(name: &str) -> PathBuf {
         let dir =
-            std::env::temp_dir().join(format!("looptrace-test-{}-{name}", std::process::id()));
+            std::env::temp_dir().join(format!("snitchcraft-test-{}-{name}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).expect("mkdir");
         dir

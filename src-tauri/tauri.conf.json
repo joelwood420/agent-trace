@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "looptrace",
+  "productName": "Snitchcraft",
   "version": "0.1.0",
-  "identifier": "dev.looptrace.app",
+  "identifier": "dev.snitchcraft.app",
   "build": {
     "devUrl": "http://localhost:5173",
     "frontendDist": "../ui/dist",
@@ -20,7 +20,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "looptrace",
+        "title": "Snitchcraft",
         "width": 1280,
         "height": 800,
         "minWidth": 640,

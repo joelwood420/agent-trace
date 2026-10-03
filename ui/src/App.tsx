@@ -28,7 +28,10 @@ export default function App() {
 
   return (
     <main>
-      <h1>looptrace</h1>
+      <header>
+        <h1>Snitchcraft</h1>
+        <p className="tagline">snitches get traces</p>
+      </header>
       {state.status === 'loading' && <p>Looking for sessions...</p>}
       {state.status === 'ready' && <p>Found {state.sessions.length} sessions.</p>}
       {state.status === 'error' && <p role="alert">Could not list sessions: {state.message}</p>}

@@ -1,6 +1,6 @@
 # Trace schema
 
-This is the format any agent harness can emit so that looptrace can draw it. It is defined in `crates/trace-core`. A complete example lives in `fixtures/trace-core/example-trace.jsonl`.
+This is the format any agent harness can emit so that Snitchcraft can draw it. It is defined in `crates/trace-core`. A complete example lives in `fixtures/trace-core/example-trace.jsonl`.
 
 ## The idea in one paragraph
 

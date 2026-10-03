@@ -1,4 +1,4 @@
-//! The looptrace desktop app. The backend reads Claude Code transcripts
+//! The Snitchcraft desktop app. The backend reads Claude Code transcripts
 //! (read-only) and hands trace events to the web UI through two commands.
 
 // Hide the extra console window on Windows in release builds.
