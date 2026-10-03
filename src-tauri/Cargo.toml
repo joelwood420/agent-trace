@@ -1,0 +1,25 @@
+[package]
+name = "looptrace"
+description = "Desktop app that draws what a coding agent did for each prompt."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+adapter-claude-code.workspace = true
+trace-core.workspace = true
+tauri = { version = "2", features = [] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber = "0.3"
+anyhow = "1"
+
+[lints]
+workspace = true

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/*"]
+members = ["crates/*", "src-tauri"]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,6 +10,7 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 trace-core = { path = "crates/trace-core" }
+adapter-claude-code = { path = "crates/adapter-claude-code" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
 thiserror = "2.0.21"

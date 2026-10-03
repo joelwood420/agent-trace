@@ -6,10 +6,24 @@ Significant decisions and the reasons for them. Every added dependency is record
 
 | Crate | Used by | Why |
 |---|---|---|
-| `serde` | trace-core, trace-view | Derive JSON (de)serialisation for the schema types. Named in CLAUDE.md. |
-| `serde_json` | trace-core, adapter-claude-code, trace-view | JSON values for tool inputs and metadata, the JSONL wire format, and defensive parsing of transcript lines. Named in CLAUDE.md. |
-| `thiserror` | trace-core, adapter-claude-code | Error types for invalid trace events and unreadable files. Named in CLAUDE.md for library crates. |
-| `tracing` | adapter-claude-code | Logs skipped transcript lines. Named in CLAUDE.md. |
+| `serde` | trace-core, trace-view, looptrace (src-tauri) | Derive JSON (de)serialisation for the schema and view model types. Named in CLAUDE.md. |
+| `serde_json` | trace-core, adapter-claude-code, trace-view, looptrace | JSON values for tool inputs and metadata, the JSONL wire format, and defensive parsing of transcript lines. Named in CLAUDE.md. |
+| `thiserror` | trace-core, adapter-claude-code, looptrace | Error types for invalid trace events and unreadable files. Named in CLAUDE.md for library crates. |
+| `tracing` | adapter-claude-code, looptrace | Logs skipped transcript lines and app activity. Named in CLAUDE.md. |
+| `tauri` 2 | looptrace (src-tauri) | The desktop app framework. Named in CLAUDE.md. Pinned to major version 2 because 3.0 alphas exist on crates.io. |
+| `tauri-build` 2 | looptrace (build script) | Required by Tauri to embed the config and generate command permissions. |
+| `tracing-subscriber` | looptrace | Prints `tracing` logs to the terminal. Only the default `fmt` output, no extra features. |
+| `anyhow` | looptrace | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
+
+UI packages (`ui/package.json`):
+
+| Package | Why |
+|---|---|
+| `react`, `react-dom` | UI framework. Named in CLAUDE.md. |
+| `@xyflow/react` | React Flow, for the diagram. Named in CLAUDE.md. |
+| `@tauri-apps/api` | `invoke()` to call the backend commands. Kept on the same minor version as the `tauri` crate (2.11), since the Tauri CLI warns about mismatches. |
+| `vite`, `@vitejs/plugin-react`, `typescript`, `@types/react`, `@types/react-dom`, `@types/node` | Build and type checking. Vite and TypeScript are named in CLAUDE.md. These came with the Vite React template. |
+| `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `globals` | `npm run lint`. The current Vite template ships oxlint instead; ESLint was swapped in because it is the requested and more widely known linter. |
 
 `trace-view` uses `adapter-claude-code` as a dev-dependency only, so its tests and example can load the Claude Code fixture. The library itself depends only on `trace-core`, `serde` and `serde_json`.
 
@@ -102,3 +116,35 @@ Unlike the trace schema, which leaves out unknown optional fields, the view mode
 ### 2026-10-04: Diagram ids are the kind plus a trace id
 
 Box ids are `<kind>:<trace id>`, and synthetic boxes use the id of the node they belong to (`parallel_group:<model call id>`, `summary:<first box id>`). This makes them unique without counters and stable across reloads, which React Flow needs to keep layout and expanded state when M3 updates a diagram live.
+### 2026-10-04: App crate is a plain binary called `looptrace`
+
+`src-tauri` builds one binary with a `sessions` module for the file logic. Tauri's template also builds a library for mobile targets, which this app does not need.
+
+### 2026-10-04: Clippy and tests do not need the built UI
+
+Debug builds of a Tauri 2 app point the window at the dev server (`build.devUrl`) and do not embed `ui/dist`, so `cargo clippy` and `cargo test` work from a clean checkout without running npm first. This was checked by running clippy with `ui/dist` removed. Only `cargo tauri build` embeds the UI, and its `beforeBuildCommand` builds it first. CI therefore runs the Rust job and a separate UI job (`npm ci`, lint, typecheck, build) side by side.
+
+### 2026-10-04: Only two commands are reachable from the window
+
+`src-tauri/build.rs` lists the app commands with `AppManifest::commands`, so Tauri generates `allow-list-sessions` and `allow-load-session` permissions and denies any command not granted. `capabilities/default.json` grants exactly those two to the `main` window and nothing else: no `core:default`, no plugins. Without the list, every registered command would be open to every window. If the UI later needs a core API (for example window or event functions), the matching `core:` permission must be added to the capability.
+
+### 2026-10-04: Strict content security policy
+
+The production CSP allows scripts, styles, fonts and images only from the app itself (`'self'`, plus `data:` images), IPC through `ipc:` and `http://ipc.localhost`, and nothing else: no remote origins, objects, frames or form targets. `devCsp` additionally allows inline styles and the Vite dev server's websocket on `localhost:5173`, which hot reload needs. `freezePrototype` is on and the asset protocol is off. React sets inline styles through the DOM, which CSP does not block. If a library needs `<style>` tags injected at runtime, `style-src` has to be loosened, and that should be recorded here.
+
+### 2026-10-04: Session file access is validated in Rust
+
+The UI can only name a session by project folder name and session id, both returned by `list_sessions`. `load_session` accepts each only if it is a single plain path component (not empty, not `.` or `..`, no `/`, `\`, `:` or NUL), then canonicalises the file and checks it is still inside the projects folder, which also stops links that point elsewhere. The projects folder comes from Tauri's home directory lookup at startup. All file logic takes the folder as a parameter so tests run against `fixtures/` instead of the real home folder.
+
+### 2026-10-04: Command arguments use snake_case
+
+The commands are declared with `rename_all = "snake_case"`, so the UI calls `invoke('load_session', { project, session_id })`, matching the snake_case field names in every response. Tauri's default would be camelCase arguments next to snake_case results.
+
+### 2026-10-04: Commands run file work on a blocking thread
+
+Both commands are `async` and do their file reading in `spawn_blocking`, so a large session never freezes the window. Errors are returned as plain messages, never as panics.
+
+### 2026-10-04: Session list reads titles by scanning
+
+`list_sessions` reads each transcript line by line and parses only lines that contain `"ai-title"`, keeping the last title. This is simple and was fast enough for the sessions on the development machine, but it reads whole files. If listing gets slow with many large sessions, it can read only the tail of each file or cache by modified time.
+
