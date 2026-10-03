@@ -20,5 +20,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  // The unit tests run in Node, so they are checked here with Node's types.
+  // They may only import DOM-free modules (layout.ts, format.ts, types.ts).
+  "include": ["vite.config.ts", "src/**/*.test.ts"]
 }
