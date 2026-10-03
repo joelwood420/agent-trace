@@ -1,0 +1,210 @@
+{
+  "duration_ms": null,
+  "ended_at_ms": null,
+  "harness": "example-harness",
+  "markers": [],
+  "prompts": [
+    {
+      "duration_ms": null,
+      "ended_at_ms": null,
+      "index": 0,
+      "prompt_preview": "Add a greeting to hello.txt and check the docs folder.",
+      "root": {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "collapsed_by_default": false,
+                    "context_tokens": null,
+                    "detail_label": null,
+                    "duration_ms": 100,
+                    "id": "tool_call:tc-1",
+                    "kind": "tool_call",
+                    "label": "Read(hello.txt)",
+                    "output_tokens": null,
+                    "started_at_ms": 1767225601900,
+                    "status": "ok",
+                    "trace_ids": [
+                      "tc-1"
+                    ]
+                  },
+                  {
+                    "children": [],
+                    "collapsed_by_default": false,
+                    "context_tokens": null,
+                    "detail_label": null,
+                    "duration_ms": 50,
+                    "id": "tool_call:tc-2",
+                    "kind": "tool_call",
+                    "label": "ListFiles(docs/*)",
+                    "output_tokens": null,
+                    "started_at_ms": 1767225601900,
+                    "status": "ok",
+                    "trace_ids": [
+                      "tc-2"
+                    ]
+                  }
+                ],
+                "collapsed_by_default": false,
+                "context_tokens": null,
+                "detail_label": "Read, ListFiles",
+                "duration_ms": 100,
+                "id": "parallel_group:mc-1",
+                "kind": "parallel_group",
+                "label": "2 tool calls in parallel",
+                "output_tokens": null,
+                "started_at_ms": 1767225601900,
+                "status": "ok",
+                "trace_ids": [
+                  "tc-1",
+                  "tc-2"
+                ]
+              }
+            ],
+            "collapsed_by_default": false,
+            "context_tokens": 2312,
+            "detail_label": "example-model-1, stop: tool_use",
+            "duration_ms": 1800,
+            "id": "model_call:mc-1",
+            "kind": "model_call",
+            "label": "Model call",
+            "output_tokens": 40,
+            "started_at_ms": 1767225600100,
+            "status": "ok",
+            "trace_ids": [
+              "mc-1"
+            ]
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "collapsed_by_default": false,
+                        "context_tokens": 500,
+                        "detail_label": "example-model-2, stop: end_turn",
+                        "duration_ms": 900,
+                        "id": "model_call:mc-3",
+                        "kind": "model_call",
+                        "label": "Model call",
+                        "output_tokens": 8,
+                        "started_at_ms": 1767225603100,
+                        "status": "ok",
+                        "trace_ids": [
+                          "mc-3"
+                        ]
+                      }
+                    ],
+                    "collapsed_by_default": true,
+                    "context_tokens": 500,
+                    "detail_label": "1 model call, 0 tool calls",
+                    "duration_ms": null,
+                    "id": "subagent:run-2",
+                    "kind": "subagent",
+                    "label": "Review docs/intro.md",
+                    "output_tokens": 8,
+                    "started_at_ms": 1767225603000,
+                    "status": "ok",
+                    "trace_ids": [
+                      "run-2",
+                      "turn-2"
+                    ]
+                  }
+                ],
+                "collapsed_by_default": false,
+                "context_tokens": null,
+                "detail_label": null,
+                "duration_ms": 1000,
+                "id": "tool_call:tc-3",
+                "kind": "tool_call",
+                "label": "Subagent(Review docs/intro.md)",
+                "output_tokens": null,
+                "started_at_ms": 1767225603000,
+                "status": "ok",
+                "trace_ids": [
+                  "tc-3"
+                ]
+              }
+            ],
+            "collapsed_by_default": false,
+            "context_tokens": 2390,
+            "detail_label": "example-model-1, stop: tool_use",
+            "duration_ms": 1000,
+            "id": "model_call:mc-2",
+            "kind": "model_call",
+            "label": "Model call",
+            "output_tokens": 25,
+            "started_at_ms": 1767225602000,
+            "status": "ok",
+            "trace_ids": [
+              "mc-2"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "compaction",
+            "duration_ms": null,
+            "id": "marker:mk-1",
+            "kind": "marker",
+            "label": "Earlier context was summarised to save space.",
+            "output_tokens": null,
+            "started_at_ms": 1767225604100,
+            "status": "none",
+            "trace_ids": [
+              "mk-1"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": 905,
+            "detail_label": "example-model-1, stop: end_turn",
+            "duration_ms": 800,
+            "id": "model_call:mc-4",
+            "kind": "model_call",
+            "label": "Model call",
+            "output_tokens": 12,
+            "started_at_ms": 1767225604200,
+            "status": "ok",
+            "trace_ids": [
+              "mc-4"
+            ]
+          }
+        ],
+        "collapsed_by_default": false,
+        "context_tokens": 2390,
+        "detail_label": "4 model calls, 3 tool calls",
+        "duration_ms": null,
+        "id": "prompt:turn-1",
+        "kind": "prompt",
+        "label": "Add a greeting to hello.txt and check the docs folder.",
+        "output_tokens": 85,
+        "started_at_ms": 1767225600000,
+        "status": "ok",
+        "trace_ids": [
+          "turn-1"
+        ]
+      },
+      "started_at_ms": 1767225600000,
+      "totals": {
+        "errors": 0,
+        "max_context_tokens": 2390,
+        "model_calls": 4,
+        "output_tokens": 85,
+        "tool_calls": 3
+      },
+      "turn_id": "turn-1"
+    }
+  ],
+  "run_id": "run-1",
+  "started_at_ms": 1767225600000,
+  "title": "Add a greeting"
+}

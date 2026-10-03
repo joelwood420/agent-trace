@@ -149,6 +149,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "trace-view"
+version = "0.1.0"
+dependencies = [
+ "adapter-claude-code",
+ "serde",
+ "serde_json",
+ "trace-core",
+]
+
+[[package]]
 name = "tracing"
 version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"

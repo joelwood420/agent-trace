@@ -1,0 +1,18 @@
+[package]
+name = "trace-view"
+description = "Turns a trace-core trace into a ready-to-render diagram model."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+trace-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+adapter-claude-code = { path = "../adapter-claude-code" }
+
+[lints]
+workspace = true
