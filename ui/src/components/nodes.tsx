@@ -2,7 +2,7 @@
 // the Rust view model says; sizes come from layout.ts so the layout is exact.
 
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent, ReactNode } from 'react'
 
 import { formatDuration, formatTokens } from '../format.ts'
 import type { DiagramNode, Status } from '../types.ts'
@@ -12,10 +12,33 @@ export interface BoxData extends Record<string, unknown> {
   /** `null` if the box cannot be expanded or collapsed, else whether it is open. */
   open: boolean | null
   selected: boolean
-  onToggle: (id: string) => void
+  onToggle: (id: string, open: boolean) => void
+  onSelect: (node: DiagramNode) => void
 }
 
 export type BoxNode = Node<BoxData>
+
+/**
+ * Makes a box reachable with Tab and selectable with Enter or Space. Mouse
+ * clicks are handled by React Flow's `onNodeClick`.
+ */
+function keyboardProps(data: BoxData) {
+  return {
+    role: 'button',
+    tabIndex: 0,
+    'aria-pressed': data.selected,
+    'aria-label': [data.node.label, data.node.detail_label, data.node.status === 'none' ? null : `status ${data.node.status}`]
+      .filter(Boolean)
+      .join(', '),
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.target !== e.currentTarget) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        data.onSelect(data.node)
+      }
+    },
+  }
+}
 
 const STATUS_TEXT: Record<Status, { icon: string; text: string } | null> = {
   ok: { icon: '✓', text: 'ok' },
@@ -69,7 +92,7 @@ function Toggle({ data }: { data: BoxData }) {
       title={data.open ? 'Hide what is inside' : 'Show what is inside'}
       onClick={(e) => {
         e.stopPropagation()
-        data.onToggle(data.node.id)
+        data.onToggle(data.node.id, !data.open)
       }}
     >
       {data.open ? `▾ Hide ${count}` : `▸ Show ${count}`}
@@ -106,7 +129,7 @@ function Shell({ data, tag, labelLine = false, showMetrics = true }: ShellProps)
     </span>
   )
   return (
-    <div className={classes.join(' ')}>
+    <div className={classes.join(' ')} {...keyboardProps(data)}>
       <Handles />
       <div className="box-row">
         {tag && <span className="tag">{tag}</span>}
@@ -162,7 +185,7 @@ export function ParallelGroupNode({ data }: NodeProps<BoxNode>) {
   if (data.selected) classes.push('box-selected')
   const duration = formatDuration(node.duration_ms)
   return (
-    <div className={classes.join(' ')}>
+    <div className={classes.join(' ')} {...keyboardProps(data)}>
       <Handles />
       <div className="group-header">
         <span className="tag">Parallel</span>

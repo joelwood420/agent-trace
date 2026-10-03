@@ -171,7 +171,7 @@ export interface Viewport {
 
 /**
  * Where to start the camera for a diagram of this size in a pane of this
- * size. Small diagrams are fitted and centred. Diagrams that would need a
+ * size. Small diagrams are fitted and centred vertically. Diagrams that would need a
  * tiny zoom to fit are shown from the top instead, at a readable zoom, so a
  * prompt with 40 model calls opens on its first steps rather than as a speck.
  */
@@ -188,12 +188,10 @@ export function initialViewport(
   )
   const minReadable = 0.7
   if (fit >= minReadable) {
+    // Left aligned rather than centred, so opening the details panel (which
+    // narrows the pane) does not hide the right-hand side of the tree.
     const zoom = Math.min(fit, 1)
-    return {
-      x: (paneWidth - width * zoom) / 2,
-      y: Math.max(padding, (paneHeight - height * zoom) / 2),
-      zoom,
-    }
+    return { x: padding, y: Math.max(padding, (paneHeight - height * zoom) / 2), zoom }
   }
   const zoom = Math.min(1, Math.max(minReadable, (paneWidth - 2 * padding) / Math.max(width, 1)))
   return { x: padding, y: padding, zoom }

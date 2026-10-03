@@ -1,19 +1,104 @@
+/* Colour tokens and base styles. Light by default, dark when the system asks. */
+
 :root {
   font-family: system-ui, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
   color-scheme: light dark;
+
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --panel-2: #f0f2f5;
+  --border: #d9dde3;
+  --text: #1d2330;
+  --muted: #5d6675;
+  --accent: #3b5bdb;
+  --selected: #3b5bdb;
+  --edge: #9aa3b2;
+
+  --ok: #1f7a3a;
+  --ok-bg: #e3f4e8;
+  --error: #c0262d;
+  --error-bg: #fde8e8;
+  --running: #9a5b00;
+  --running-bg: #fff2d6;
+  --warning-bg: #fff6dc;
+  --warning-border: #e6c15a;
+
+  --kind-prompt: #3b5bdb;
+  --kind-model: #7048e8;
+  --kind-tool: #0c8599;
+  --kind-group: #0c8599;
+  --kind-subagent: #d9480f;
+  --kind-summary: #5c677d;
+  --kind-marker: #868e96;
+
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c;
+    --panel: #1c2027;
+    --panel-2: #242933;
+    --border: #353c48;
+    --text: #e3e7ee;
+    --muted: #9aa3b2;
+    --accent: #8ea2ff;
+    --selected: #8ea2ff;
+    --edge: #5c6575;
+
+    --ok: #69d38a;
+    --ok-bg: #173323;
+    --error: #ff8a8f;
+    --error-bg: #3d1a1d;
+    --running: #ffc65c;
+    --running-bg: #3a2c10;
+    --warning-bg: #352d14;
+    --warning-border: #8a6d1d;
+
+    --kind-prompt: #8ea2ff;
+    --kind-model: #b197fc;
+    --kind-tool: #3bc9db;
+    --kind-group: #3bc9db;
+    --kind-subagent: #ff922b;
+    --kind-summary: #adb5bd;
+    --kind-marker: #868e96;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  padding: 1rem;
+  background: var(--bg);
+  color: var(--text);
 }
 
-header h1 {
-  margin-bottom: 0;
+button {
+  font: inherit;
+  color: inherit;
 }
 
-.tagline {
-  margin-top: 0.25rem;
-  font-style: italic;
-  opacity: 0.7;
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
