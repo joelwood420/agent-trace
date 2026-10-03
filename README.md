@@ -15,7 +15,7 @@ It is a learning and debugging tool for understanding how an agent harness behav
 | Milestone | Description | Status |
 |---|---|---|
 | M1 | Replay a finished session from a file (schema, adapter, CLI tree printer) | Done |
-| M2 | Tauri app shell that renders one diagram per prompt | In progress: app, session browser, diagram and details panel done; final review next |
+| M2 | Tauri app shell that renders one diagram per prompt | Done |
 | M3 | Live file watching | Planned |
 | M4 | Proxy capture of raw API requests | Planned |
 | M5 | Toy Rust harness that emits the trace format natively | Planned |

@@ -130,6 +130,8 @@ Debug builds of a Tauri 2 app point the window at the dev server (`build.devUrl`
 
 ### 2026-10-04: Only two commands are reachable from the window
 
+Updated: a third command, `node_detail`, was added later. See "load_session returns the diagram model, and node_detail is a third command" below.
+
 `src-tauri/build.rs` lists the app commands with `AppManifest::commands`, so Tauri generates `allow-list-sessions` and `allow-load-session` permissions and denies any command not granted. `capabilities/default.json` grants exactly those two to the `main` window and nothing else: no `core:default`, no plugins. Without the list, every registered command would be open to every window. If the UI later needs a core API (for example window or event functions), the matching `core:` permission must be added to the capability.
 
 ### 2026-10-04: Strict content security policy
@@ -146,7 +148,7 @@ The commands are declared with `rename_all = "snake_case"`, so the UI calls `inv
 
 ### 2026-10-04: Commands run file work on a blocking thread
 
-Both commands are `async` and do their file reading in `spawn_blocking`, so a large session never freezes the window. Errors are returned as plain messages, never as panics.
+The commands (now three, including `node_detail`) are `async` and do their file reading in `spawn_blocking`, so a large session never freezes the window. Errors are returned as plain messages, never as panics.
 
 ### 2026-10-04: Session list reads titles by scanning
 

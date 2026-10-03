@@ -112,6 +112,8 @@ You are doing the implementation and I will mostly not read the code. That means
 
 M2: Tauri app shell that loads a saved session and renders one diagram per prompt.
 
+Status: complete. M3 (live file watching) is next; plan its steps with me before starting.
+
 1. Tauri scaffold and minimal permissions.
 2. Backend commands to list and load sessions.
 3. Diagram model in Rust (`crates/trace-view`).
