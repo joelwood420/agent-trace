@@ -20,3 +20,37 @@ Observations about how Claude Code behaves (loop structure, compaction, subagent
 
 - A tool result comes back as a `user` line whose content is a `tool_result` block with the matching `tool_use_id`, and optionally `is_error`.
 - The same line also has a `toolUseResult` field with richer, tool-specific data (for example `stdout`/`stderr` for shell commands, or patch details for file edits). Its shape differs per tool.
+
+## Tools run while the model is still answering
+
+- In a response that asks for several tools, the lines can interleave: the first `tool_use` line, then that tool's result, then the next `tool_use` line of the same response. Claude Code starts running a tool as soon as its block has streamed in, before the rest of the response arrives.
+- So tool calls from one response are concurrent, and a response's lines are not always next to each other in the file.
+
+## Timing
+
+- There is no "request sent" timestamp. The best estimate is the time of the line that triggered the request: the user prompt or the previous tool result.
+- `attachment` lines (reminders, tool lists, environment info) are written when a response arrives, just before its first `assistant` line, so their timestamps are not request times. Using them made some model calls look like they took a few milliseconds.
+- `system` lines with subtype `turn_duration` close each main-session turn and carry `durationMs`. Subagent transcripts have no such line.
+- `usage` on an `assistant` line can be a mid-stream snapshot: one subagent line had `stop_reason: null` and `output_tokens: 16`. The most complete values seen for the response should be used.
+
+## Subagents from forked skills
+
+- A skill can run as a forked subagent. The `Skill` tool returns at once, with `toolUseResult` containing `status: "forked"`, `background: true` and an `agentId`.
+- The subagent's transcript is `subagents/agent-<agentId>.jsonl`, with sidecar files `agent-<agentId>.meta.json` (has `agentType` and a `description`), `.forked-skill.json` and `.forked-skill.marker.json`.
+- The subagent's first line is a `user` line marked `isMeta: true`: its task. Every line in the file has `isSidechain: true`.
+- When the subagent finishes, the result reaches the main session as a new user line starting with `<task-notification>`, with `origin.kind = "task-notification"` and `promptSource = "system"`. This starts a new turn that the user did not type.
+
+## Hooks
+
+- Hook activity shows up three ways: `attachment` lines with types like `hook_success`, `hook_additional_context` and `hook_non_blocking_error` (with `hookEvent`, for example `SessionStart` or `PreToolUse`, and for tool hooks a `toolUseID`), and a `system` line with subtype `stop_hook_summary` at the end of each turn.
+
+## Local actions
+
+- A slash command typed by the user (for example `/model`) is written as `user` lines whose text starts with `<command-name>` and `<local-command-stdout>`, plus a meta `<local-command-caveat>` line. Newer sessions also write it as a `system` line with subtype `local_command`.
+- A shell command typed with `!` is written as `<bash-input>` followed by `<bash-stdout>` and `<bash-stderr>`.
+- None of these reach the model as a turn.
+
+## Other line types seen
+
+- `system` subtypes: `informational` (a warning shown to the user, with `level`) and `away_summary` (a recap shown when the user returns).
+- Session-level lines: `ai-title` (generated title), `agent-name`, `agent-setting`, `continued-in` (with `continuedInSessionId`, when a session continues in a new file).

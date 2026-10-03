@@ -7,8 +7,9 @@ Significant decisions and the reasons for them. Every added dependency is record
 | Crate | Used by | Why |
 |---|---|---|
 | `serde` | trace-core | Derive JSON (de)serialisation for the schema types. Named in CLAUDE.md. |
-| `serde_json` | trace-core | JSON values for tool inputs and metadata, and the JSONL wire format. Named in CLAUDE.md. |
-| `thiserror` | trace-core | Error type for invalid trace events. Named in CLAUDE.md for library crates. |
+| `serde_json` | trace-core, adapter-claude-code | JSON values for tool inputs and metadata, the JSONL wire format, and defensive parsing of transcript lines. Named in CLAUDE.md. |
+| `thiserror` | trace-core, adapter-claude-code | Error types for invalid trace events and unreadable files. Named in CLAUDE.md for library crates. |
+| `tracing` | adapter-claude-code | Logs skipped transcript lines. Named in CLAUDE.md. |
 
 ## Decisions
 
@@ -47,3 +48,23 @@ Cache reads and writes are needed to compute context size, which is a main thing
 ### 2026-10-04: Integration tests may use expect()
 
 `clippy.toml` allows `expect()` only inside `#[test]` functions. Integration test files are test-only code, so they allow `clippy::expect_used` at the top of the file for their fixture-loading helpers.
+
+### 2026-10-04: Adapter node ids come from transcript ids
+
+Runs are `run:<session id>` or `run:agent-<agent id>`, turns and markers use the line's `uuid`, model calls use `model:<message.id>`, and tool calls use `tool:<tool_use id>`. These are stable across re-reads of the same file, which live watching needs.
+
+### 2026-10-04: The adapter is incremental
+
+`Parser::push_line` takes one line and returns the events it produced, re-sending nodes as they fill in. M1 feeds it a whole file, but M3 can feed it lines as they are written without a redesign.
+
+### 2026-10-04: Which lines become nodes
+
+Attachments are context injected into the prompt, not steps, so they are dropped, except hook results, which become `hook` markers. Known bookkeeping line types are ignored on purpose. Anything else is reported as skipped with a reason and logged, never a panic. Markers that happen before the first prompt (session-start hooks, local commands) are children of the Run.
+
+### 2026-10-04: Hand-written timestamp parser
+
+Transcript timestamps are fixed-format RFC 3339. A 60-line parser with tests avoids a date-time dependency for one function.
+
+### 2026-10-04: Fixtures are sanitised from real sessions (chosen by the project owner)
+
+A local script (kept out of the repo) copies an excerpt of a real session and replaces every string except an allowlist of format values (line types, roles, stop reasons, tool names, model ids), remaps every id consistently, and shifts timestamps to 2026-01-01 while keeping gaps. It then fails if any original string of 5 or more characters, the username, or the home path appears in the output. Each flagged generic word (JSON schema keywords, tool names) was reviewed by hand.

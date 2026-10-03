@@ -23,3 +23,6 @@ src-tauri/gen/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local-only tools and scratch files
+.local/

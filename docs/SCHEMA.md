@@ -18,6 +18,7 @@ Run                      a whole session
     Marker               something notable that is not a call
 ```
 
+- A `Run`'s children are its turns, plus markers for anything that happened outside a turn (for example a hook that ran when the session started).
 - A `Turn`'s children are its model calls and markers, in the order they happened.
 - A `ModelCall`'s children are the tool calls it requested. All tool calls under the same model call were requested together, so they may run in parallel.
 - A subagent is a `Run` whose parent is the `ToolCall` that started it.

@@ -8,6 +8,9 @@ rust-version.workspace = true
 
 [dependencies]
 trace-core.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
 
 [lints]
 workspace = true
