@@ -73,12 +73,12 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 
 ## Commands
 
-- Run app in dev: `cargo tauri dev`
-- Build app: `cargo tauri build`
+- Run app in dev: `cargo tauri dev` (from M2, once `src-tauri/` exists)
+- Build app: `cargo tauri build` (from M2)
 - Rust tests: `cargo test --workspace`
 - Lint: `cargo clippy --workspace --all-targets -- -D warnings`
 - Format: `cargo fmt --all`
-- UI checks: `cd ui && npm run lint && npm run typecheck`
+- UI checks: `cd ui; npm run lint; npm run typecheck` (from M2, once `ui/` exists)
 
 If a command here turns out to be wrong after scaffolding, fix this file.
 
