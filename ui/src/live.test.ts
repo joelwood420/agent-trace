@@ -8,6 +8,7 @@ import {
   findNode,
   isForSession,
   isNewer,
+  keepPromptIndex,
   needsDetailRefetch,
   newPromptIndexes,
   statusMessage,
@@ -98,4 +99,11 @@ test('live steps grow and keep increasing versions', () => {
   const versions = steps().map((s) => (s.type === 'updated' ? s.view.version : -1))
   assert.deepEqual(versions, [...versions].sort((a, b) => a - b))
   assert.equal(new Set(versions).size, versions.length)
+})
+
+test('keepPromptIndex keeps the prompt while it exists', () => {
+  assert.equal(keepPromptIndex(2, 5), 2)
+  assert.equal(keepPromptIndex(null, 3), 0)
+  assert.equal(keepPromptIndex(4, 3), 0)
+  assert.equal(keepPromptIndex(1, 0), null)
 })

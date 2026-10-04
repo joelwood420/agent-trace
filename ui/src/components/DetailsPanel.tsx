@@ -13,6 +13,8 @@ interface Props {
   project: string
   sessionId: string
   node: DiagramNode
+  /** Goes up when the box's trace nodes changed in a live update, to refetch. */
+  refreshKey: number
   onClose: () => void
 }
 
@@ -30,13 +32,17 @@ const KIND_NAMES: Record<DiagramNode['kind'], string> = {
   marker: 'Marker',
 }
 
-export default function DetailsPanel({ api, project, sessionId, node, onClose }: Props) {
+export default function DetailsPanel({ api, project, sessionId, node, refreshKey, onClose }: Props) {
   const key = `${project}/${sessionId}/${node.id}`
   const [fetched, setFetched] = useState<Fetched | null>(null)
+  // A live update hands over a new node object each time; keying the fetch on
+  // its content means only a real change (or `refreshKey`) fetches again.
+  const traceIdsKey = node.trace_ids.join('|')
 
   useEffect(() => {
     let cancelled = false
-    Promise.all(node.trace_ids.map((id) => api.nodeDetail(project, sessionId, id)))
+    const traceIds = traceIdsKey === '' ? [] : traceIdsKey.split('|')
+    Promise.all(traceIds.map((id) => api.nodeDetail(project, sessionId, id)))
       .then((details) => {
         if (!cancelled) setFetched({ key, status: 'ready', details })
       })
@@ -46,7 +52,7 @@ export default function DetailsPanel({ api, project, sessionId, node, onClose }:
     return () => {
       cancelled = true
     }
-  }, [api, project, sessionId, node, key])
+  }, [api, project, sessionId, node.id, traceIdsKey, refreshKey, key])
 
   const current = fetched?.key === key ? fetched : null
 

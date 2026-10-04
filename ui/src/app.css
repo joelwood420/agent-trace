@@ -83,6 +83,75 @@
   white-space: nowrap;
 }
 
+.session-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.session-title-row .session-title {
+  min-width: 0;
+}
+
+/* --- Live markers --- */
+
+.live-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.live-badge-dot,
+.live-dot {
+  display: inline-block;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.live-badge-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* A prompt that just arrived in a live session. */
+.item-new {
+  animation: new-prompt 4s ease-out;
+}
+
+@keyframes new-prompt {
+  from {
+    background: var(--running-bg);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-new {
+    animation: none;
+    outline: 2px solid var(--running-bg);
+    outline-offset: -2px;
+  }
+}
+
 .scroll {
   overflow-y: auto;
   min-height: 0;

@@ -49,3 +49,12 @@ export function statusMessage(status: LiveStatus | null): string | null {
       return null
   }
 }
+
+/**
+ * The prompt to show after a new view arrives: keep the current one while it
+ * still exists, otherwise fall back to the first prompt (or none).
+ */
+export function keepPromptIndex(current: number | null, count: number): number | null {
+  if (count === 0) return null
+  return current !== null && current < count ? current : 0
+}

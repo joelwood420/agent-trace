@@ -5,7 +5,8 @@ import { useMemo, useState } from 'react'
 
 import { formatBytes, formatDuration, formatRelative, formatTokens, plural, shortId } from '../format.ts'
 import { groupSessions } from '../grouping.ts'
-import type { DiagramNode, SessionSummary, SessionView } from '../types.ts'
+import { statusMessage } from '../live.ts'
+import type { DiagramNode, LiveStatus, SessionSummary, SessionView } from '../types.ts'
 
 export type Loadable<T> =
   | { status: 'loading' }
@@ -73,6 +74,7 @@ export function SessionList({ sessions, now, onOpen, onRetry }: SessionListProps
                     <li key={s.session_id}>
                       <button type="button" className="item" onClick={() => onOpen(s)}>
                         <span className="item-title" title={s.title ?? s.session_id}>
+                          {s.live && <span className="live-dot" title="Written in the last 10 minutes" aria-label="live" />}
                           {s.title ?? `Session ${shortId(s.session_id)}`}
                         </span>
                         <span className="item-meta">
@@ -96,6 +98,10 @@ interface SessionPanelProps {
   view: Loadable<SessionView>
   selectedPrompt: number | null
   selectedNodeId: string | null
+  /** The last live status the backend sent, or null before the first one. */
+  liveStatus: LiveStatus | null
+  /** Indexes of prompts that just arrived, highlighted for a moment. */
+  newPrompts: ReadonlySet<number>
   onBack: () => void
   onReload: () => void
   onSelectPrompt: (index: number) => void
@@ -103,7 +109,9 @@ interface SessionPanelProps {
 }
 
 export function SessionPanel(props: SessionPanelProps) {
-  const { session, view } = props
+  const { session, view, liveStatus } = props
+  const live = view.status === 'ready' && view.value.live && liveStatus !== 'deleted'
+  const notice = statusMessage(liveStatus)
   return (
     <nav className="sidebar-section" aria-label="Prompts">
       <div className="sidebar-heading">
@@ -114,12 +122,25 @@ export function SessionPanel(props: SessionPanelProps) {
           Reload
         </button>
       </div>
-      <h2 className="session-title" title={session.title ?? session.session_id}>
-        {session.title ?? `Session ${shortId(session.session_id)}`}
-      </h2>
+      <div className="session-title-row">
+        <h2 className="session-title" title={session.title ?? session.session_id}>
+          {session.title ?? `Session ${shortId(session.session_id)}`}
+        </h2>
+        {live && (
+          <span className="live-badge" title="This session is being written and updates as it grows">
+            <span className="live-badge-dot" aria-hidden="true" />
+            Live
+          </span>
+        )}
+      </div>
       <p className="muted small" title={session.project}>
         {session.project_label} - <span className="mono">{shortId(session.session_id)}</span>
       </p>
+      {notice !== null && (
+        <div className="notice notice-warning" role="status">
+          {notice}
+        </div>
+      )}
 
       {view.status === 'loading' && <p className="muted loading">Loading session...</p>}
       {view.status === 'error' && (
@@ -139,6 +160,7 @@ function SessionContents({
   diagramView,
   selectedPrompt,
   selectedNodeId,
+  newPrompts,
   onSelectPrompt,
   onSelectMarker,
 }: SessionPanelProps & { diagramView: SessionView }) {
@@ -201,7 +223,7 @@ function SessionContents({
             <li key={p.turn_id}>
               <button
                 type="button"
-                className={`item${p.index === selectedPrompt ? ' item-selected' : ''}`}
+                className={`item${p.index === selectedPrompt ? ' item-selected' : ''}${newPrompts.has(p.index) ? ' item-new' : ''}`}
                 aria-current={p.index === selectedPrompt ? 'true' : undefined}
                 onClick={() => onSelectPrompt(p.index)}
               >

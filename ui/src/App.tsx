@@ -6,7 +6,11 @@ import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
 import { formatDuration, formatTokens, plural } from './format.ts'
 import { collapsibleIds } from './layout.ts'
-import type { DiagramNode, SessionSummary, SessionView } from './types.ts'
+import { findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
+import type { DiagramNode, LiveMessage, LiveStatus, SessionSummary, SessionView } from './types.ts'
+
+/** How long a prompt that arrived live stays highlighted. */
+const NEW_PROMPT_MS = 4000
 
 const NOT_IN_APP =
   'This page is the Snitchcraft user interface and needs the desktop app to read sessions. ' +
@@ -23,8 +27,35 @@ export default function App() {
   const [promptIndex, setPromptIndex] = useState<number | null>(null)
   const [openState, setOpenState] = useState<ReadonlyMap<string, boolean>>(new Map())
   const [selected, setSelected] = useState<DiagramNode | null>(null)
+  const [liveStatus, setLiveStatus] = useState<LiveStatus | null>(null)
+  const [newPrompts, setNewPrompts] = useState<ReadonlySet<number>>(new Set())
+  // Goes up when the selected box's trace nodes changed, so the details refetch.
+  const [detailRefresh, setDetailRefresh] = useState(0)
   // Ignores responses to requests that were overtaken by a newer one.
   const loadToken = useRef(0)
+  // The view on screen, read by the live handler to drop older versions.
+  const viewRef = useRef<SessionView | null>(null)
+  // The selected box, read by the live handler to decide on a details refetch.
+  const selectedRef = useRef<DiagramNode | null>(null)
+  // Timers that end the highlight of new prompts.
+  const highlightTimers = useRef(new Set<ReturnType<typeof setTimeout>>())
+
+  useEffect(() => {
+    selectedRef.current = selected
+  }, [selected])
+
+  const clearHighlights = useCallback(() => {
+    for (const timer of highlightTimers.current) clearTimeout(timer)
+    highlightTimers.current.clear()
+    setNewPrompts(new Set())
+  }, [])
+
+  useEffect(() => {
+    const timers = highlightTimers.current
+    return () => {
+      for (const timer of timers) clearTimeout(timer)
+    }
+  }, [])
 
   const listSessions = useCallback((which: Api) => {
     which
@@ -32,6 +63,12 @@ export default function App() {
       .then((value) => {
         setSessions({ status: 'ready', value })
         setListedAt(Date.now())
+        // Keep the open session's title and live flag current.
+        setSession((current) => {
+          if (current === null) return null
+          const fresh = value.find((s) => s.project === current.project && s.session_id === current.session_id)
+          return fresh ?? current
+        })
       })
       .catch((err: unknown) => setSessions({ status: 'error', message: errorMessage(err) }))
   }, [])
@@ -42,9 +79,60 @@ export default function App() {
       .then((chosen) => {
         setApi(chosen)
         listSessions(chosen)
+        chosen
+          .watchSessions(() => listSessions(chosen))
+          .catch((err: unknown) => console.warn('Could not watch the session list:', errorMessage(err)))
       })
       .catch((err: unknown) => setSessions({ status: 'error', message: errorMessage(err) }))
   }, [listSessions])
+
+  /** Shows a view unless an equal or newer version is already on screen. */
+  const showView = useCallback((value: SessionView) => {
+    if (!isNewer(viewRef.current, value)) return false
+    viewRef.current = value
+    setView({ status: 'ready', value })
+    setPromptIndex((current) => keepPromptIndex(current, value.diagram.prompts.length))
+    return true
+  }, [])
+
+  const highlightPrompts = useCallback((indexes: number[]) => {
+    if (indexes.length === 0) return
+    setNewPrompts((prev) => new Set([...prev, ...indexes]))
+    for (const index of indexes) {
+      const timer = setTimeout(() => {
+        highlightTimers.current.delete(timer)
+        setNewPrompts((prev) => {
+          const next = new Set(prev)
+          next.delete(index)
+          return next
+        })
+      }, NEW_PROMPT_MS)
+      highlightTimers.current.add(timer)
+    }
+  }, [])
+
+  /** Applies a message pushed by the backend while session `s` is open. */
+  const handleLive = useCallback(
+    (token: number, s: SessionSummary, message: LiveMessage) => {
+      if (token !== loadToken.current || !isForSession(message, s)) return
+      if (message.type === 'status') {
+        setLiveStatus(message.status)
+        return
+      }
+      const previous = viewRef.current
+      const next = message.view
+      if (!showView(next)) return
+      highlightPrompts(newPromptIndexes(previous?.diagram ?? null, next.diagram))
+      // The selected box may be gone (the details close) or may have changed.
+      setSelected((sel) => (sel ? findNode(next.diagram, sel.id) : null))
+      const sel = selectedRef.current
+      const updated = sel ? findNode(next.diagram, sel.id) : null
+      if (updated && needsDetailRefetch(updated, message.changed_trace_ids)) {
+        setDetailRefresh((n) => n + 1)
+      }
+    },
+    [showView, highlightPrompts],
+  )
 
   const refreshSessions = () => {
     if (!api) return
@@ -55,23 +143,22 @@ export default function App() {
   const openSession = (s: SessionSummary, keepPrompt = false) => {
     if (!api) return
     const token = ++loadToken.current
+    // Every load starts again at version 1, so forget the old view.
+    viewRef.current = null
     setSession(s)
     setView({ status: 'loading' })
     setSelected(null)
+    setLiveStatus(null)
+    clearHighlights()
     if (!keepPrompt) {
       setPromptIndex(null)
       setOpenState(new Map())
     }
     api
-      .loadSession(s.project, s.session_id, () => {})
+      .loadSession(s.project, s.session_id, (message) => handleLive(token, s, message))
       .then((value) => {
         if (token !== loadToken.current) return
-        setView({ status: 'ready', value })
-        setPromptIndex((current) => {
-          const count = value.diagram.prompts.length
-          if (count === 0) return null
-          return current !== null && current < count ? current : 0
-        })
+        showView(value)
       })
       .catch((err: unknown) => {
         if (token !== loadToken.current) return
@@ -81,9 +168,12 @@ export default function App() {
 
   const closeSession = () => {
     loadToken.current++
+    viewRef.current = null
     setSession(null)
     setSelected(null)
     setPromptIndex(null)
+    setLiveStatus(null)
+    clearHighlights()
   }
 
   const selectPrompt = (index: number) => {
@@ -127,6 +217,8 @@ export default function App() {
             view={view}
             selectedPrompt={promptIndex}
             selectedNodeId={selected?.id ?? null}
+            liveStatus={liveStatus}
+            newPrompts={newPrompts}
             onBack={closeSession}
             onReload={() => openSession(session, true)}
             onSelectPrompt={selectPrompt}
@@ -201,6 +293,7 @@ export default function App() {
           project={session.project}
           sessionId={session.session_id}
           node={selected}
+          refreshKey={detailRefresh}
           onClose={() => setSelected(null)}
         />
       )}

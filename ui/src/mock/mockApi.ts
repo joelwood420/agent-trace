@@ -71,6 +71,8 @@ export function createMockApi(params: URLSearchParams): Api {
         return view
       }
       let next = 1
+      // An overlapping call may have started a replay while this one waited.
+      stopReplay()
       timer = setInterval(() => {
         const step = steps[next]
         if (step) {
