@@ -1,21 +1,33 @@
-// The three backend commands. In the app they go through Tauri's `invoke`.
+// The backend commands. In the app they go through Tauri's `invoke`, and live
+// updates arrive over Tauri channels.
 // In development only, opening the UI in a normal browser with `?mock` in the
 // URL replays responses for the sanitised fixture instead (see mock/).
 
-import { invoke } from '@tauri-apps/api/core'
+import { Channel, invoke } from '@tauri-apps/api/core'
 
-import type { NodeDetail, SessionSummary, SessionView } from './types.ts'
+import type { LiveMessage, NodeDetail, SessionSummary, SessionView } from './types.ts'
 
 export interface Api {
   listSessions(): Promise<SessionSummary[]>
-  loadSession(project: string, sessionId: string): Promise<SessionView>
+  /** Loads a session and keeps it live: later changes arrive through `onMessage`. */
+  loadSession(project: string, sessionId: string, onMessage: (message: LiveMessage) => void): Promise<SessionView>
   nodeDetail(project: string, sessionId: string, traceId: string): Promise<NodeDetail | null>
+  /** Calls `onChange` whenever the session list may have changed. */
+  watchSessions(onChange: () => void): Promise<void>
 }
 
 const tauriApi: Api = {
   listSessions: () => invoke<SessionSummary[]>('list_sessions'),
-  loadSession: (project, sessionId) =>
-    invoke<SessionView>('load_session', { project, session_id: sessionId }),
+  loadSession: (project, sessionId, onMessage) => {
+    const channel = new Channel<LiveMessage>()
+    channel.onmessage = onMessage
+    return invoke<SessionView>('load_session', { project, session_id: sessionId, on_update: channel })
+  },
+  watchSessions: (onChange) => {
+    const channel = new Channel<Record<string, never>>()
+    channel.onmessage = () => onChange()
+    return invoke<void>('watch_sessions', { on_change: channel })
+  },
   nodeDetail: (project, sessionId, traceId) =>
     invoke<NodeDetail | null>('node_detail', {
       project,

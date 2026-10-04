@@ -63,7 +63,7 @@ export default function App() {
       setOpenState(new Map())
     }
     api
-      .loadSession(s.project, s.session_id)
+      .loadSession(s.project, s.session_id, () => {})
       .then((value) => {
         if (token !== loadToken.current) return
         setView({ status: 'ready', value })

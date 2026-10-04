@@ -2,6 +2,14 @@
 // types exactly; see docs/VIEW-MODEL.md and docs/SCHEMA.md. The UI only
 // renders these and never reinterprets raw transcript data.
 
+/** Mirrors `LiveStatus` in src-tauri/src/live.rs. */
+export type LiveStatus = 'watching' | 'no_watcher' | 'deleted'
+
+/** Mirrors `LiveMessage` in src-tauri/src/live.rs: pushed while a session is open. */
+export type LiveMessage =
+  | { type: 'updated'; project: string; session_id: string; view: SessionView; changed_trace_ids: string[] }
+  | { type: 'status'; project: string; session_id: string; status: LiveStatus }
+
 /** One session file, as returned by `list_sessions`. */
 export interface SessionSummary {
   project: string
