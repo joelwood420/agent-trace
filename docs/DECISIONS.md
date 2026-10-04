@@ -14,6 +14,7 @@ Significant decisions and the reasons for them. Every added dependency is record
 | `tauri-build` 2 | snitchcraft (build script) | Required by Tauri to embed the config and generate command permissions. |
 | `tracing-subscriber` | snitchcraft | Prints `tracing` logs to the terminal. Only the default `fmt` output, no extra features. |
 | `anyhow` | snitchcraft | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
+| `notify` 8 | snitchcraft | Watches the projects folder for transcript changes (M3). Named in CLAUDE.md. Version 8 is the latest stable; 9 is a release candidate. No debouncer crate: the worker batches events itself. |
 
 UI packages (`ui/package.json`):
 
@@ -132,6 +133,8 @@ Debug builds of a Tauri 2 app point the window at the dev server (`build.devUrl`
 
 Updated: a third command, `node_detail`, was added later. See "load_session returns the diagram model, and node_detail is a third command" below.
 
+Updated in M3: a fourth command, `watch_sessions`, was added with its `allow-watch-sessions` permission. See "Live updates use channels, not events" below.
+
 `src-tauri/build.rs` lists the app commands with `AppManifest::commands`, so Tauri generates `allow-list-sessions` and `allow-load-session` permissions and denies any command not granted. `capabilities/default.json` grants exactly those two to the `main` window and nothing else: no `core:default`, no plugins. Without the list, every registered command would be open to every window. If the UI later needs a core API (for example window or event functions), the matching `core:` permission must be added to the capability.
 
 ### 2026-10-04: Strict content security policy
@@ -166,6 +169,8 @@ The working name `looptrace` is replaced by Snitchcraft, with the tagline "snitc
 `node_detail(project, session_id, trace_id)` returns the full content of one trace node, or `null` if there is none. It is listed in `build.rs` and granted as `allow-node-detail`, so the window can now call exactly three commands. It validates `project` and `session_id` the same way as `load_session`, and rejects an empty or very long trace id.
 
 ### 2026-10-04: The last loaded session's trace is kept in memory
+
+Updated in M3: the kept session is now the open live session, shared with the watcher thread (`Shared::active` in `src-tauri/src/watch.rs`). `node_detail` for any other session reads it without keeping it.
 
 Clicking a box would otherwise re-read and re-parse the transcript every time. The app keeps one entry, the most recently loaded session's trace, behind a mutex. `load_session` always reads the file fresh and replaces the entry; `node_detail` uses the entry when the project and session id match and otherwise loads that session and caches it. One entry is enough because the UI shows one session at a time, and it keeps memory use bounded.
 
@@ -222,3 +227,15 @@ Claude Code writes no "session ended" line and any session can be resumed, so th
 ### 2026-10-05: Views carry a version number
 
 Each `SessionView` has a `version` that goes up with every update of the open session. A live update can reach the UI before the reply to `load_session`, so the UI keeps whichever view has the higher version.
+
+### 2026-10-05: Live updates use channels, not events
+
+Tauri events would need the window to be granted the core event permissions to listen. A channel passed as a command argument needs none. `load_session` takes a channel for the open session's updates and `watch_sessions` takes one for session list changes, so the only new window permission is `allow-watch-sessions`.
+
+### 2026-10-05: One watcher thread, plus polling as a safety net
+
+A single recursive `notify` watcher on the projects folder covers new sessions, growing sessions and new subagent files. On Windows a change notice for a file another process keeps open can arrive late, so the open session is also polled once a second. Polling only reads the open session's new bytes and the list of its subagent files, so it costs almost nothing. If the watcher cannot start (for example the projects folder does not exist yet), polling still keeps the open session live and the UI says the session list needs a manual refresh. The worker is a plain thread rather than a tokio task, since it only waits on a channel with a timeout.
+
+### 2026-10-05: The session list change signal is sent at most every 2 seconds
+
+`list_sessions` reads every transcript to find titles, so the UI should not re-run it on every write. The signal carries no data; the UI calls `list_sessions` again.

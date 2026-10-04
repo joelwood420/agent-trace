@@ -1,24 +1,26 @@
 //! The Snitchcraft desktop app. The backend reads Claude Code transcripts
 //! (read-only), builds the diagram model in Rust, and hands it to the web UI
-//! through three commands.
+//! through four commands. A watcher thread keeps the open session live and
+//! pushes updates to the UI over Tauri channels.
 
 // Hide the extra console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-// The live watcher that calls `LiveSession::refresh` and sends `LiveMessage`
-// to the UI is not wired up yet, so parts of this module are unused for now.
-#[allow(dead_code)]
 mod live;
 mod sessions;
+mod watch;
 
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use std::sync::atomic::Ordering;
 
 use tauri::Manager;
+use tauri::ipc::Channel;
 use trace_view::NodeDetail;
 
-use live::LiveSession;
+use live::{LiveMessage, LiveSession, LiveStatus};
 use sessions::{SessionError, SessionSummary, SessionView};
+use watch::{Active, SessionsChanged, Shared, Sink};
 
 /// Where the Claude Code projects folder is, resolved once at startup.
 struct AppPaths {
@@ -32,11 +34,6 @@ impl AppPaths {
     }
 }
 
-/// The open session, shared by the commands. Clicking boxes in the diagram
-/// asks this session for details instead of re-reading the transcript.
-#[derive(Default)]
-struct Open(Arc<Mutex<Option<LiveSession>>>);
-
 /// Lists session transcripts under the projects folder, newest first.
 #[tauri::command(rename_all = "snake_case")]
 async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionSummary>, String> {
@@ -48,21 +45,45 @@ async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionS
 
 /// Loads one session, keeps it as the open session, and returns its
 /// diagram model and skipped lines. `project` and `session_id` must be values
-/// returned by `list_sessions`.
+/// returned by `list_sessions`. The watch status, and later updates of the
+/// session, are sent through `on_update`. Loading another session replaces
+/// this one.
 #[tauri::command(rename_all = "snake_case")]
 async fn load_session(
     paths: tauri::State<'_, AppPaths>,
-    open: tauri::State<'_, Open>,
+    shared: tauri::State<'_, Arc<Shared>>,
     project: String,
     session_id: String,
+    on_update: Channel<LiveMessage>,
 ) -> Result<SessionView, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let open = Arc::clone(&open.0);
+    let shared = Arc::clone(&shared);
     let view = run_blocking(move || {
-        let live = LiveSession::open(&root, &project, &session_id)?;
-        let view = live.view();
-        let mut guard = open.lock().map_err(|_| SessionError::CachePoisoned)?;
-        *guard = Some(live);
+        let session = LiveSession::open(&root, &project, &session_id)?;
+        let view = session.view();
+        let status = if shared.watcher_ok.load(Ordering::SeqCst) {
+            LiveStatus::Watching
+        } else {
+            LiveStatus::NoWatcher
+        };
+        let sink: Box<dyn Sink<LiveMessage>> = Box::new(on_update);
+        let mut guard = shared
+            .active
+            .lock()
+            .map_err(|_| SessionError::CachePoisoned)?;
+        *guard = Some(Active { session, sink });
+        // Sent under the lock so the status arrives before any update from
+        // the watcher. A channel send only queues work for the webview.
+        if let Some(active) = guard.as_ref() {
+            let message = LiveMessage::Status {
+                project,
+                session_id,
+                status,
+            };
+            if !active.sink.send(message) {
+                tracing::debug!("could not send the live status");
+            }
+        }
         Ok(view)
     })
     .await?;
@@ -81,19 +102,25 @@ async fn load_session(
 #[tauri::command(rename_all = "snake_case")]
 async fn node_detail(
     paths: tauri::State<'_, AppPaths>,
-    open: tauri::State<'_, Open>,
+    shared: tauri::State<'_, Arc<Shared>>,
     project: String,
     session_id: String,
     trace_id: String,
 ) -> Result<Option<NodeDetail>, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let open = Arc::clone(&open.0);
+    let shared = Arc::clone(&shared);
     let detail = run_blocking(move || {
         sessions::check_trace_id(&trace_id)?;
         {
-            let guard = open.lock().map_err(|_| SessionError::CachePoisoned)?;
-            if let Some(live) = guard.as_ref().filter(|l| l.is(&project, &session_id)) {
-                return Ok(live.node_detail(&trace_id));
+            let guard = shared
+                .active
+                .lock()
+                .map_err(|_| SessionError::CachePoisoned)?;
+            if let Some(active) = guard
+                .as_ref()
+                .filter(|a| a.session.is(&project, &session_id))
+            {
+                return Ok(active.session.node_detail(&trace_id));
             }
         }
         let live = LiveSession::open(&root, &project, &session_id)?;
@@ -102,6 +129,23 @@ async fn node_detail(
     .await?;
     tracing::info!(found = detail.is_some(), "loaded node detail");
     Ok(detail)
+}
+
+/// Sends a signal through `on_change` whenever the session list may have
+/// changed, at most every two seconds. The signal carries no data; the UI
+/// calls `list_sessions` again. A later call replaces the channel.
+#[tauri::command(rename_all = "snake_case")]
+fn watch_sessions(
+    shared: tauri::State<'_, Arc<Shared>>,
+    on_change: Channel<SessionsChanged>,
+) -> Result<(), String> {
+    let mut guard = shared
+        .list_sink
+        .lock()
+        .map_err(|_| SessionError::CachePoisoned.to_string())?;
+    *guard = Some(Box::new(on_change));
+    tracing::info!("watching the session list");
+    Ok(())
 }
 
 /// Runs file work on a blocking thread so the UI stays responsive, and turns
@@ -138,14 +182,23 @@ fn main() -> anyhow::Result<()> {
                     None
                 }
             };
+            let shared = Arc::new(Shared::default());
+            if let Some(root) = projects_root.clone() {
+                // The app still works without the thread; sessions are just
+                // not live.
+                if let Err(err) = watch::spawn(root, Arc::clone(&shared)) {
+                    tracing::error!(error = %err, "could not start the watcher thread");
+                }
+            }
             app.manage(AppPaths { projects_root });
-            app.manage(Open::default());
+            app.manage(shared);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             list_sessions,
             load_session,
-            node_detail
+            node_detail,
+            watch_sessions
         ])
         .run(tauri::generate_context!())?;
     Ok(())
