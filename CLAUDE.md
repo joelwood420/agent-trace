@@ -127,4 +127,4 @@ Out of scope for now: live watching, API proxy capture, token cost breakdowns, a
 - M2: Tauri app shell that loads a saved session and renders one diagram per prompt
 - M3: live file watching with diagrams updating as a session runs
 - M4: proxy capture of raw API requests (system prompt, tool definitions, compaction)
-- M5: toy harness in Rust that emits `trace-core` events natively
+- M5: toy harness in Rust that emits `trace-core` events natively. Try a fast decision model (for example Jev) inside the loop for routing and stop checks, and trace each decision call as its own node so wrong routing choices are visible.

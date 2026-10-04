@@ -198,3 +198,7 @@ The production CSP allows styles only from bundled files. All UI styles are in `
 ### 2026-10-04: Diagram boxes are keyboard accessible
 
 Each box is a focusable element with the button role: Tab moves between boxes and Enter or Space opens the details, like a click. React Flow's own node focus is turned off because its built-in hint talks about moving and deleting nodes, which this read-only viewer does not allow. Status is shown by colour and also by an icon and a word, so it does not rely on colour alone.
+
+### 2026-10-04: Decision models belong in the harness, not the viewer
+
+Fast decision models such as Jev (TypeSafe AI, released 2026-09-15) answer typed questions about a piece of text with choices, scores, or probabilities. They were considered as a way to explain traces in Snitchcraft and rejected for that: they give their own judgement of the text, not the agent's real reasons, most labels they could add are already exact in the trace, and using one would send private transcripts to a third party. Instead, the M5 toy harness will try one inside its loop for routing and stop checks, and Snitchcraft will trace each decision call as its own node. That shows how often a router chose wrong, which is the debugging use this project exists for.
