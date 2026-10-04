@@ -157,6 +157,8 @@ The commands (now three, including `node_detail`) are `async` and do their file 
 
 `list_sessions` reads each transcript line by line and parses only lines that contain `"ai-title"`, keeping the last title. This is simple and was fast enough for the sessions on the development machine, but it reads whole files. If listing gets slow with many large sessions, it can read only the tail of each file or cache by modified time.
 
+Updated in M3: while a session runs, the session list is refreshed every few seconds, so rereading every transcript each time became wasteful. Titles are now cached in a `TitleCache` keyed by path, with the size and modified time they were read at. A transcript is read again only when either changes, so a refresh rereads just the sessions that grew. Entries for files that disappear are dropped on the next listing.
+
 
 ### 2026-10-04: The app is called Snitchcraft
 
@@ -218,7 +220,7 @@ A foreground Agent call only reports its subagent's id in the tool result when t
 
 ### 2026-10-05: The backend sends a full diagram on every update (chosen by the project owner)
 
-While a session runs, the backend keeps its parsers open and reads only new lines, but after each change it rebuilds the whole diagram model and sends it to the UI. This keeps all diagram logic in Rust and the UI a plain renderer. Diagrams are a few kilobytes, so resending is cheap. Revisit this and send only the changes if diagrams grow large enough for updates to feel slow, or when the M5 harness streams events directly.
+While a session runs, the backend keeps its parsers open and reads only new lines, but after each change it rebuilds the whole diagram model and sends it to the UI. This keeps all diagram logic in Rust and the UI a plain renderer. Measured on the sample session, the view is about 400 bytes of JSON per box (its 52 boxes come to about 21 KB), so a long real session can be hundreds of KB per update. That is still fine for a local channel at the update rate a session produces. Revisit this and send only the changes if diagrams grow large enough for updates to feel slow, or when the M5 harness streams events directly.
 
 ### 2026-10-05: A session is live if written in the last 10 minutes (chosen by the project owner)
 
@@ -238,4 +240,26 @@ A single recursive `notify` watcher on the projects folder covers new sessions, 
 
 ### 2026-10-05: The session list change signal is sent at most every 2 seconds
 
-`list_sessions` reads every transcript to find titles, so the UI should not re-run it on every write. The signal carries no data; the UI calls `list_sessions` again.
+`list_sessions` looks at every transcript to find titles, so the UI should not re-run it on every write. The signal carries no data; the UI calls `list_sessions` again.
+
+The signal is also sent at least once every 60 seconds even when no file changed, so the live dots in the list go out once a session has been quiet for 10 minutes. A refresh triggered by the signal that fails keeps the last good list on screen and logs a warning; only startup and the Refresh button show the error state.
+
+### 2026-10-05: Only the newest load becomes the open session
+
+Reading a large session can take longer than reading a small one, so two quick clicks could finish in the wrong order and leave the first session live while the second is on screen. Each `load_session` call takes a ticket from a counter before it starts, and installs its session only if no newer load has started since. A stale load still returns its view, which the UI ignores because it tracks its own newest load.
+
+### 2026-10-05: A change in the live flag alone is sent as an update
+
+The open session's `live` flag depends on the clock as well as the file, so it can change without new lines. A refresh that finds no new lines compares the flag with the one last sent and, if it changed, sends an update with a new version and no changed nodes. This keeps the decision in the backend so the UI stays a renderer.
+
+### 2026-10-05: A transcript that comes back after being deleted is read from the start
+
+A file that reappears after a delete is a new file, so reading on from the old offset would be wrong. The next refresh that finds it starts a new follower, sends an update with the whole trace, and the watcher then sends a watching status so the UI clears its "no longer exists" message.
+
+### 2026-10-05: A subagent read error does not fail the poll
+
+By the time subagent files are read, the main transcript's new lines are already consumed. A read error on a subagent is logged and that subagent is tried again on the next poll; its read position only moves after a successful read, so nothing is lost or read twice.
+
+### 2026-10-05: Watcher events are batched for 250 ms
+
+After the first file event, the worker keeps collecting events until 250 ms have passed, then acts once. Claude Code often writes several lines in quick succession, and this turns a burst into one refresh. With no events the worker still wakes every 250 ms to run the once-a-second poll.

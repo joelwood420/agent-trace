@@ -259,13 +259,17 @@ fn run(root: &Path, shared: &Shared, rx: &mpsc::Receiver<notify::Result<notify::
     let mut scheduler = Scheduler::new(Instant::now());
     loop {
         match rx.recv_timeout(BATCH) {
-            Ok(event) => handle_event(root, shared, &mut scheduler, event),
+            Ok(event) => {
+                // Collect the rest of the burst, then act once.
+                let end = Instant::now() + BATCH;
+                handle_event(root, shared, &mut scheduler, event);
+                collect_until(rx, end, |event| {
+                    handle_event(root, shared, &mut scheduler, event);
+                });
+            }
             Err(RecvTimeoutError::Timeout) => {}
             // No watcher: wait as if for events, then poll.
             Err(RecvTimeoutError::Disconnected) => std::thread::sleep(BATCH),
-        }
-        while let Ok(event) = rx.try_recv() {
-            handle_event(root, shared, &mut scheduler, event);
         }
         let due = scheduler.due(Instant::now());
         if due.refresh_session {
@@ -273,6 +277,26 @@ fn run(root: &Path, shared: &Shared, rx: &mpsc::Receiver<notify::Result<notify::
         }
         if due.list_changed {
             signal_list(shared);
+        }
+    }
+}
+
+/// Passes every message that arrives before `end` to `handle`, then
+/// returns. Returns early if the sender is gone.
+fn collect_until<T>(rx: &mpsc::Receiver<T>, end: Instant, mut handle: impl FnMut(T)) {
+    loop {
+        let left = end.saturating_duration_since(Instant::now());
+        if left.is_zero() {
+            // Take what is already queued, without waiting.
+            while let Ok(message) = rx.try_recv() {
+                handle(message);
+            }
+            return;
+        }
+        match rx.recv_timeout(left) {
+            Ok(message) => handle(message),
+            Err(RecvTimeoutError::Timeout) => {}
+            Err(RecvTimeoutError::Disconnected) => return,
         }
     }
 }
@@ -424,7 +448,7 @@ mod tests {
         let due = s.due(start + Duration::from_millis(10));
         assert!(
             due.refresh_session,
-            "a change to the session refreshes it at once"
+            "a change to the session refreshes it at the end of its batch"
         );
         assert!(!due.list_changed, "list changes wait for the gap");
 
@@ -434,6 +458,32 @@ mod tests {
 
         let due = s.due(start + LIST_GAP + Duration::from_millis(10));
         assert!(!due.refresh_session && !due.list_changed);
+    }
+
+    #[test]
+    fn a_batch_collects_events_until_its_end() {
+        let (tx, rx) = mpsc::channel::<u32>();
+        let sender = std::thread::spawn(move || {
+            for i in 0..10 {
+                if tx.send(i).is_err() {
+                    return;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            // Keep the channel open well past the batch.
+            std::thread::sleep(Duration::from_millis(500));
+        });
+        let start = Instant::now();
+        let mut got = Vec::new();
+        collect_until(&rx, start + BATCH, |i| got.push(i));
+        let took = start.elapsed();
+        assert!(took >= BATCH, "waits for the whole batch, took {took:?}");
+        assert!(took < BATCH * 3, "does not wait much longer, took {took:?}");
+        assert!(
+            got.len() >= 5,
+            "events arriving during the batch are collected: {got:?}"
+        );
+        sender.join().expect("sender");
     }
 
     #[test]

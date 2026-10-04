@@ -57,7 +57,12 @@ export default function App() {
     }
   }, [])
 
-  const listSessions = useCallback((which: Api) => {
+  /**
+   * Fetches the session list. A refresh triggered by the backend's change
+   * signal (`background`) keeps the last good list if it fails; startup and
+   * the Refresh button show the error.
+   */
+  const listSessions = useCallback((which: Api, background = false) => {
     which
       .listSessions()
       .then((value) => {
@@ -70,7 +75,13 @@ export default function App() {
           return fresh ?? current
         })
       })
-      .catch((err: unknown) => setSessions({ status: 'error', message: errorMessage(err) }))
+      .catch((err: unknown) => {
+        if (background) {
+          console.warn('Could not refresh the session list:', errorMessage(err))
+          return
+        }
+        setSessions({ status: 'error', message: errorMessage(err) })
+      })
   }, [])
 
   useEffect(() => {
@@ -80,7 +91,7 @@ export default function App() {
         setApi(chosen)
         listSessions(chosen)
         chosen
-          .watchSessions(() => listSessions(chosen))
+          .watchSessions(() => listSessions(chosen, true))
           .catch((err: unknown) => console.warn('Could not watch the session list:', errorMessage(err)))
       })
       .catch((err: unknown) => setSessions({ status: 'error', message: errorMessage(err) }))
