@@ -1,0 +1,14 @@
+[package]
+name = "capture-core"
+description = "Harness-agnostic format for captured model API calls, with stream rebuild and request diff."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

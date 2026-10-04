@@ -1,0 +1,111 @@
+//! Header filtering. Credentials are dropped, a short allowlist keeps its
+//! values, and everything else is kept by name only.
+
+use crate::record::Header;
+
+/// Value stored for a header whose name is kept but whose value is not.
+pub const OMITTED: &str = "<omitted>";
+
+const KEEP_EXACT: [&str; 6] = [
+    "user-agent",
+    "content-type",
+    "x-app",
+    "x-claude-code-session-id",
+    "request-id",
+    "retry-after",
+];
+
+/// True for a header that can carry a credential: `authorization`,
+/// `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, or any name
+/// containing `token`, `secret` or `auth`. Case-insensitive.
+pub fn is_credential(name: &str) -> bool {
+    let name = name.to_ascii_lowercase();
+    matches!(
+        name.as_str(),
+        "authorization" | "proxy-authorization" | "x-api-key" | "cookie" | "set-cookie"
+    ) || name.contains("token")
+        || name.contains("secret")
+        || name.contains("auth")
+}
+
+/// Filter headers for storage. Names are lowercased and input order is kept.
+/// Credential headers are dropped entirely. Names starting `anthropic-` or
+/// `x-stainless-` and a few others keep their value. All other headers are
+/// kept with the value [`OMITTED`].
+pub fn filter_headers<'a>(headers: impl IntoIterator<Item = (&'a str, &'a str)>) -> Vec<Header> {
+    headers
+        .into_iter()
+        .filter(|(name, _)| !is_credential(name))
+        .map(|(name, value)| {
+            let name = name.to_ascii_lowercase();
+            let keep = name.starts_with("anthropic-")
+                || name.starts_with("x-stainless-")
+                || KEEP_EXACT.contains(&name.as_str());
+            Header {
+                value: if keep {
+                    value.to_string()
+                } else {
+                    OMITTED.to_string()
+                },
+                name,
+            }
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn credential_headers_are_dropped() {
+        let kept = filter_headers([
+            ("Authorization", "Bearer secret-1"),
+            ("x-api-key", "secret-2"),
+            ("Cookie", "a=secret-3"),
+            ("x-session-token", "secret-4"),
+            ("x-client-secret", "secret-5"),
+            ("anthropic-version", "2023-06-01"),
+        ]);
+        let text = format!("{kept:?}");
+        for secret in ["secret-1", "secret-2", "secret-3", "secret-4", "secret-5"] {
+            assert!(!text.contains(secret), "{secret} leaked");
+        }
+        assert_eq!(
+            kept,
+            [Header {
+                name: "anthropic-version".into(),
+                value: "2023-06-01".into()
+            }]
+        );
+    }
+
+    #[test]
+    fn allowlisted_values_are_kept_and_others_omitted() {
+        let kept = filter_headers([
+            ("User-Agent", "claude-cli/0.0.0"),
+            ("x-stainless-os", "Windows"),
+            (
+                "X-Claude-Code-Session-Id",
+                "00000000-0000-4000-8000-000000000002",
+            ),
+            ("x-forwarded-for", "10.0.0.1"),
+        ]);
+        assert_eq!(
+            kept[0],
+            Header {
+                name: "user-agent".into(),
+                value: "claude-cli/0.0.0".into()
+            }
+        );
+        assert_eq!(kept[1].value, "Windows");
+        assert_eq!(kept[2].value, "00000000-0000-4000-8000-000000000002");
+        assert_eq!(
+            kept[3],
+            Header {
+                name: "x-forwarded-for".into(),
+                value: OMITTED.into()
+            }
+        );
+    }
+}

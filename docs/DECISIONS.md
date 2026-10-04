@@ -263,3 +263,15 @@ By the time subagent files are read, the main transcript's new lines are already
 ### 2026-10-05: Watcher events are batched for 250 ms
 
 After the first file event, the worker keeps collecting events until 250 ms have passed, then acts once. Claude Code often writes several lines in quick succession, and this turns a burst into one refresh. With no events the worker still wakes every 250 ms to run the once-a-second poll.
+
+### 2026-10-05: Captures live outside the trace schema (chosen by the project owner)
+
+A captured API call is a different kind of data from a trace node: it is the raw HTTP exchange, not an interpretation of it. It gets its own harness-agnostic format in `crates/capture-core` (see `docs/CAPTURE-FORMAT.md`) and `trace-core` is not changed. A capture is joined to a trace node by the message id, in the app, not in the schema.
+
+### 2026-10-05: serde_json keeps key order
+
+The workspace enables serde_json's `preserve_order` feature. A captured request body keeps its exact key order, which matters because tool input schemas are shown to the model in that order. This changes the order of keys in JSON the app already produces (metadata maps) but not their content. Existing tests and the generated mock files were checked: nothing changed.
+
+### 2026-10-05: Header allowlist for captures
+
+Request and response headers are filtered before they are stored. Credential headers (`authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret` or `auth`) are dropped entirely, not masked, so there is no stored form of a secret to leak or to guess from. Values are kept only for `anthropic-*` and `x-stainless-*` headers and for `user-agent`, `content-type`, `x-app`, `x-claude-code-session-id`, `request-id` and `retry-after`. Every other header keeps its name with the value `<omitted>`, so the capture shows what was sent without storing values that could identify the user or machine.
