@@ -47,9 +47,6 @@ pub enum SessionError {
     /// A trace node id was empty or too long to be one.
     #[error("invalid trace id")]
     InvalidTraceId,
-    /// Another thread panicked while holding the shared live session state.
-    #[error("internal error: live session state is unavailable")]
-    CachePoisoned,
 }
 
 /// One session transcript found under the projects folder.

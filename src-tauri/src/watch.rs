@@ -7,9 +7,9 @@
 //! The watcher only reads. It never writes to, moves or deletes anything.
 
 use std::path::{Component, Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc::{self, RecvTimeoutError};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
@@ -60,6 +60,64 @@ pub struct Shared {
     /// Whether the file watcher started. If not, the open session is still
     /// polled, but the session list is not watched.
     pub watcher_ok: AtomicBool,
+    /// Counts `load_session` calls. Each load takes a ticket from it, and
+    /// only the newest load may install its session (see `install`).
+    pub load_seq: AtomicU64,
+}
+
+impl Shared {
+    /// Takes a ticket for a new load. Later loads get larger tickets.
+    pub fn begin_load(&self) -> u64 {
+        self.load_seq.fetch_add(1, Ordering::SeqCst) + 1
+    }
+
+    /// The open session's lock. A panic while it was held does not leave
+    /// the state broken, so a poisoned lock is recovered.
+    pub fn active(&self) -> MutexGuard<'_, Option<Active>> {
+        lock_or_recover(&self.active)
+    }
+
+    /// The session list channel's lock, recovered if poisoned.
+    pub fn list_sink(&self) -> MutexGuard<'_, Option<Box<dyn Sink<SessionsChanged>>>> {
+        lock_or_recover(&self.list_sink)
+    }
+
+    /// Makes `active` the open session and sends `first` through its sink,
+    /// but only if no newer load has started since `ticket` was taken.
+    /// Returns whether it was installed. A stale session is dropped; its
+    /// caller still returns its view, which the UI ignores because the UI
+    /// tracks its newest load itself.
+    ///
+    /// The check and the install happen under the lock, so when two loads
+    /// finish in any order, the newest one is the one that stays.
+    pub fn install(&self, ticket: u64, active: Active, first: LiveMessage) -> bool {
+        let mut guard = self.active();
+        if self.load_seq.load(Ordering::SeqCst) != ticket {
+            tracing::debug!("a newer load started; not installing this session");
+            return false;
+        }
+        // Sent under the lock so it arrives before any update from the
+        // watcher. A channel send only queues work for the webview.
+        if !active.sink.send(first) {
+            tracing::debug!("could not send the live status");
+        }
+        *guard = Some(active);
+        true
+    }
+}
+
+/// Set once a poisoned lock has been reported, so the log is not flooded.
+static POISON_WARNED: AtomicBool = AtomicBool::new(false);
+
+/// Locks `mutex`, recovering the data if another thread panicked while
+/// holding it. Logs a warning the first time that happens.
+fn lock_or_recover<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(|poisoned: PoisonError<_>| {
+        if !POISON_WARNED.swap(true, Ordering::SeqCst) {
+            tracing::warn!("a thread panicked while holding shared state; recovering it");
+        }
+        poisoned.into_inner()
+    })
 }
 
 /// How long the worker waits for more file events before acting on them.
@@ -156,10 +214,7 @@ pub fn touches_session(root: &Path, path: &Path, project: &str, session_id: &str
 pub fn spawn(root: PathBuf, shared: Arc<Shared>) -> std::io::Result<JoinHandle<()>> {
     let (tx, rx) = mpsc::channel::<notify::Result<notify::Event>>();
     let watcher = match start_watcher(&root, tx) {
-        Ok(watcher) => {
-            shared.watcher_ok.store(true, Ordering::SeqCst);
-            Some(watcher)
-        }
+        Ok(watcher) => Some(watcher),
         Err(err) => {
             tracing::warn!(
                 error = %err,
@@ -168,13 +223,18 @@ pub fn spawn(root: PathBuf, shared: Arc<Shared>) -> std::io::Result<JoinHandle<(
             None
         }
     };
-    std::thread::Builder::new()
+    let watching = watcher.is_some();
+    let thread_shared = Arc::clone(&shared);
+    let handle = std::thread::Builder::new()
         .name("snitchcraft-watch".into())
         .spawn(move || {
             // Keep the watcher alive for as long as the thread runs.
             let _watcher = watcher;
-            run(&root, &shared, &rx);
-        })
+            run(&root, &thread_shared, &rx);
+        })?;
+    // Only now is anything acting on file events.
+    shared.watcher_ok.store(watching, Ordering::SeqCst);
+    Ok(handle)
 }
 
 /// Creates the file watcher and starts watching `root` recursively. On
@@ -231,22 +291,16 @@ fn handle_event(
     if matches!(event.kind, EventKind::Access(_)) {
         return;
     }
-    let touches = match shared.active.lock() {
-        Ok(guard) => guard.as_ref().is_some_and(|active| {
-            event.paths.iter().any(|path| {
-                touches_session(
-                    root,
-                    path,
-                    active.session.project(),
-                    active.session.session_id(),
-                )
-            })
-        }),
-        Err(_) => {
-            tracing::warn!("live session state is unavailable");
-            false
-        }
-    };
+    let touches = shared.active().as_ref().is_some_and(|active| {
+        event.paths.iter().any(|path| {
+            touches_session(
+                root,
+                path,
+                active.session.project(),
+                active.session.session_id(),
+            )
+        })
+    });
     scheduler.file_changed(touches);
 }
 
@@ -254,13 +308,7 @@ fn handle_event(
 /// the lock so updates for one session keep their order; a channel send only
 /// queues work for the webview, so it does not block.
 fn refresh_active(shared: &Shared) {
-    let mut guard = match shared.active.lock() {
-        Ok(guard) => guard,
-        Err(_) => {
-            tracing::warn!("live session state is unavailable");
-            return;
-        }
-    };
+    let mut guard = shared.active();
     let Some(active) = guard.as_mut() else {
         return;
     };
@@ -282,13 +330,7 @@ fn refresh_active(shared: &Shared) {
 
 /// Sends the session list change signal, and forgets the sink if it is gone.
 fn signal_list(shared: &Shared) {
-    let mut guard = match shared.list_sink.lock() {
-        Ok(guard) => guard,
-        Err(_) => {
-            tracing::warn!("session list watcher state is unavailable");
-            return;
-        }
-    };
+    let mut guard = shared.list_sink();
     if let Some(sink) = guard.as_ref() {
         if !sink.send(SessionsChanged {}) {
             tracing::debug!("could not send a session list change; dropping the channel");
@@ -381,6 +423,96 @@ mod tests {
         let due = s.due(start + Duration::from_millis(10));
         assert!(!due.refresh_session);
         assert!(s.due(start + LIST_GAP).list_changed);
+    }
+
+    /// A temp projects root holding the sanitised `basic` fixture.
+    fn fixture_root(name: &str) -> PathBuf {
+        let root =
+            std::env::temp_dir().join(format!("snitchcraft-watch-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("basic")).expect("mkdir");
+        let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("fixtures")
+            .join("claude-code")
+            .join("basic")
+            .join(format!("{SESSION}.jsonl"));
+        std::fs::copy(fixture, root.join("basic").join(format!("{SESSION}.jsonl"))).expect("copy");
+        root
+    }
+
+    const SESSION: &str = "00000000-0000-4000-8000-000000000002";
+
+    fn status(name: &str) -> LiveMessage {
+        LiveMessage::Status {
+            project: name.into(),
+            session_id: SESSION.into(),
+            status: crate::live::LiveStatus::Watching,
+        }
+    }
+
+    /// Two loads, A then B, finishing in the given order. Returns which
+    /// sink holds the open session's status: "a" or "b".
+    fn race(b_first: bool) -> &'static str {
+        let root = fixture_root(if b_first { "race-ba" } else { "race-ab" });
+        let shared = Shared::default();
+        let a_ticket = shared.begin_load();
+        let b_ticket = shared.begin_load();
+        let (a_tx, a_rx) = mpsc::channel::<LiveMessage>();
+        let (b_tx, b_rx) = mpsc::channel::<LiveMessage>();
+        let a = Active {
+            session: LiveSession::open(&root, "basic", SESSION).expect("open a"),
+            sink: Box::new(a_tx),
+        };
+        let b = Active {
+            session: LiveSession::open(&root, "basic", SESSION).expect("open b"),
+            sink: Box::new(b_tx),
+        };
+        if b_first {
+            assert!(shared.install(b_ticket, b, status("b")));
+            assert!(
+                !shared.install(a_ticket, a, status("a")),
+                "older load loses"
+            );
+        } else {
+            assert!(
+                !shared.install(a_ticket, a, status("a")),
+                "older load loses"
+            );
+            assert!(shared.install(b_ticket, b, status("b")));
+        }
+        assert!(a_rx.try_recv().is_err(), "the stale load sends nothing");
+        assert_eq!(b_rx.try_recv().expect("status"), status("b"));
+        // The installed sink is B's: a message sent through it reaches B.
+        let guard = shared.active();
+        let active = guard.as_ref().expect("a session is installed");
+        assert!(active.sink.send(status("probe")));
+        if b_rx.try_recv().is_ok() { "b" } else { "a" }
+    }
+
+    #[test]
+    fn newest_load_wins_when_loads_finish_in_reverse_order() {
+        assert_eq!(race(true), "b");
+    }
+
+    #[test]
+    fn newest_load_wins_when_loads_finish_in_order() {
+        assert_eq!(race(false), "b");
+    }
+
+    #[test]
+    fn a_poisoned_lock_is_recovered() {
+        let shared = Arc::new(Shared::default());
+        let poisoner = Arc::clone(&shared);
+        let result = std::thread::spawn(move || {
+            let _guard = poisoner.active();
+            panic!("poison the lock on purpose");
+        })
+        .join();
+        assert!(result.is_err());
+        assert!(shared.active.is_poisoned());
+        assert!(shared.active().is_none(), "the state is still usable");
+        *shared.list_sink() = None;
     }
 
     #[test]

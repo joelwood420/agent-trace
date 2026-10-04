@@ -58,6 +58,9 @@ async fn load_session(
 ) -> Result<SessionView, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
     let shared = Arc::clone(&shared);
+    // Taken before any work, so a load that started later always wins, even
+    // if it finishes first.
+    let ticket = shared.begin_load();
     let view = run_blocking(move || {
         let session = LiveSession::open(&root, &project, &session_id)?;
         let view = session.view();
@@ -67,23 +70,12 @@ async fn load_session(
             LiveStatus::NoWatcher
         };
         let sink: Box<dyn Sink<LiveMessage>> = Box::new(on_update);
-        let mut guard = shared
-            .active
-            .lock()
-            .map_err(|_| SessionError::CachePoisoned)?;
-        *guard = Some(Active { session, sink });
-        // Sent under the lock so the status arrives before any update from
-        // the watcher. A channel send only queues work for the webview.
-        if let Some(active) = guard.as_ref() {
-            let message = LiveMessage::Status {
-                project,
-                session_id,
-                status,
-            };
-            if !active.sink.send(message) {
-                tracing::debug!("could not send the live status");
-            }
-        }
+        let message = LiveMessage::Status {
+            project,
+            session_id,
+            status,
+        };
+        shared.install(ticket, Active { session, sink }, message);
         Ok(view)
     })
     .await?;
@@ -112,10 +104,7 @@ async fn node_detail(
     let detail = run_blocking(move || {
         sessions::check_trace_id(&trace_id)?;
         {
-            let guard = shared
-                .active
-                .lock()
-                .map_err(|_| SessionError::CachePoisoned)?;
+            let guard = shared.active();
             if let Some(active) = guard
                 .as_ref()
                 .filter(|a| a.session.is(&project, &session_id))
@@ -139,10 +128,7 @@ fn watch_sessions(
     shared: tauri::State<'_, Arc<Shared>>,
     on_change: Channel<SessionsChanged>,
 ) -> Result<(), String> {
-    let mut guard = shared
-        .list_sink
-        .lock()
-        .map_err(|_| SessionError::CachePoisoned.to_string())?;
+    let mut guard = shared.list_sink();
     *guard = Some(Box::new(on_change));
     tracing::info!("watching the session list");
     Ok(())
