@@ -2,10 +2,13 @@
 //! read-only and takes the projects folder as a parameter, so tests can point
 //! it at a fixture folder instead of the real home directory.
 
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Component, Path, PathBuf};
-use std::time::UNIX_EPOCH;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Mutex, MutexGuard, PoisonError};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 #[cfg(test)]
@@ -118,11 +121,81 @@ pub fn projects_root(home: &Path) -> PathBuf {
     home.join(".claude").join("projects")
 }
 
+/// Session titles from earlier listings, so a listing only rereads the
+/// transcripts that changed. A transcript is read again when its size or
+/// modified time differs from when its title was read.
+#[derive(Default)]
+pub struct TitleCache {
+    entries: Mutex<HashMap<PathBuf, CachedTitle>>,
+    /// How many transcripts were read for their title, for tests.
+    reads: AtomicUsize,
+}
+
+/// One cached title and the file state it was read from.
+struct CachedTitle {
+    size: u64,
+    modified: Option<SystemTime>,
+    title: Option<String>,
+}
+
+impl TitleCache {
+    /// The title of the transcript at `path`, read from the file only if
+    /// its size or modified time changed since the last read.
+    fn title(&self, path: &Path, meta: &std::fs::Metadata) -> Option<String> {
+        let size = meta.len();
+        let modified = meta.modified().ok();
+        if let Some(cached) = self.lock().get(path) {
+            if cached.size == size && cached.modified == modified {
+                return cached.title.clone();
+            }
+        }
+        // Read without holding the lock.
+        self.reads.fetch_add(1, Ordering::Relaxed);
+        let title = read_title(path);
+        self.lock().insert(
+            path.to_path_buf(),
+            CachedTitle {
+                size,
+                modified,
+                title: title.clone(),
+            },
+        );
+        title
+    }
+
+    /// Forgets transcripts that were not in the latest listing.
+    fn keep_only(&self, seen: &HashSet<PathBuf>) {
+        self.lock().retain(|path, _| seen.contains(path));
+    }
+
+    /// The map, recovered if a thread panicked while holding it: at worst
+    /// a title is read again.
+    fn lock(&self) -> MutexGuard<'_, HashMap<PathBuf, CachedTitle>> {
+        self.entries.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// How many transcripts were read for their title so far.
+    #[cfg(test)]
+    fn reads(&self) -> usize {
+        self.reads.load(Ordering::Relaxed)
+    }
+}
+
+/// Lists sessions like `list_sessions_cached`, reading every title afresh.
+#[cfg(test)]
+pub fn list_sessions(root: &Path) -> Result<Vec<SessionSummary>, SessionError> {
+    list_sessions_cached(root, &TitleCache::default())
+}
+
 /// Lists every session transcript directly inside each project folder,
 /// newest first. Subagent transcripts (in `<session id>/subagents/`) are not
 /// listed, since they belong to their parent session. A missing projects
-/// folder gives an empty list.
-pub fn list_sessions(root: &Path) -> Result<Vec<SessionSummary>, SessionError> {
+/// folder gives an empty list. Titles come from `cache` when the transcript
+/// has not changed since it was last read.
+pub fn list_sessions_cached(
+    root: &Path,
+    cache: &TitleCache,
+) -> Result<Vec<SessionSummary>, SessionError> {
     let projects = match std::fs::read_dir(root) {
         Ok(entries) => entries,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
@@ -138,6 +211,7 @@ pub fn list_sessions(root: &Path) -> Result<Vec<SessionSummary>, SessionError> {
     };
 
     let mut sessions = Vec::new();
+    let mut seen = HashSet::new();
     for project in projects.flatten() {
         let is_dir = project.file_type().map(|t| t.is_dir()).unwrap_or(false);
         let Some(project_name) = project.file_name().to_str().map(str::to_string) else {
@@ -154,11 +228,13 @@ pub fn list_sessions(root: &Path) -> Result<Vec<SessionSummary>, SessionError> {
             }
         };
         for entry in entries.flatten() {
-            if let Some(summary) = summarise(&project_name, &entry) {
+            if let Some(summary) = summarise(&project_name, &entry, cache) {
+                seen.insert(entry.path());
                 sessions.push(summary);
             }
         }
     }
+    cache.keep_only(&seen);
     sessions.sort_by(|a, b| {
         b.modified_ms
             .cmp(&a.modified_ms)
@@ -170,7 +246,11 @@ pub fn list_sessions(root: &Path) -> Result<Vec<SessionSummary>, SessionError> {
 
 /// Builds a summary for one directory entry, or `None` if it is not a
 /// session transcript.
-fn summarise(project: &str, entry: &std::fs::DirEntry) -> Option<SessionSummary> {
+fn summarise(
+    project: &str,
+    entry: &std::fs::DirEntry,
+    cache: &TitleCache,
+) -> Option<SessionSummary> {
     let path = entry.path();
     if path.extension().and_then(|e| e.to_str()) != Some(TRANSCRIPT_EXT) {
         return None;
@@ -185,7 +265,7 @@ fn summarise(project: &str, entry: &std::fs::DirEntry) -> Option<SessionSummary>
         project: project.to_string(),
         project_label: project_label(project),
         session_id,
-        title: read_title(&path),
+        title: cache.title(&path, &meta),
         modified_ms,
         size_bytes: meta.len(),
         live: crate::live::is_live(modified_ms, crate::live::now_ms()),
@@ -406,6 +486,62 @@ mod tests {
         std::fs::write(&file, "{\"type\":\"user\"}\n").expect("write");
         assert_eq!(read_title(&file), None);
         std::fs::remove_dir_all(&dir).expect("cleanup");
+    }
+
+    #[test]
+    fn listing_rereads_a_title_only_when_the_file_changes() {
+        let root = temp_dir("title-cache");
+        let project = root.join("C--work-demo");
+        std::fs::create_dir_all(&project).expect("mkdir");
+        let file = project.join("s.jsonl");
+        let line = |t: &str| format!("{{\"type\":\"ai-title\",\"aiTitle\":\"{t}\"}}\n");
+        std::fs::write(&file, line("Aa")).expect("write");
+        let cache = TitleCache::default();
+        let title = |cache: &TitleCache| {
+            list_sessions_cached(&root, cache).expect("list")[0]
+                .title
+                .clone()
+        };
+
+        assert_eq!(title(&cache).as_deref(), Some("Aa"));
+        assert_eq!(cache.reads(), 1);
+        assert_eq!(title(&cache).as_deref(), Some("Aa"));
+        assert_eq!(cache.reads(), 1, "an unchanged file is not read again");
+
+        // Same size and modified time: the cached title is kept.
+        let modified = std::fs::metadata(&file)
+            .expect("meta")
+            .modified()
+            .expect("mtime");
+        std::fs::write(&file, line("Bb")).expect("write");
+        std::fs::OpenOptions::new()
+            .write(true)
+            .open(&file)
+            .expect("open")
+            .set_modified(modified)
+            .expect("set mtime");
+        assert_eq!(title(&cache).as_deref(), Some("Aa"));
+        assert_eq!(cache.reads(), 1);
+
+        // The file grows: it is read again.
+        let mut f = std::fs::OpenOptions::new()
+            .append(true)
+            .open(&file)
+            .expect("open");
+        std::io::Write::write_all(&mut f, line("Cc").as_bytes()).expect("write");
+        drop(f);
+        assert_eq!(title(&cache).as_deref(), Some("Cc"));
+        assert_eq!(cache.reads(), 2);
+
+        // A deleted file is forgotten.
+        std::fs::remove_file(&file).expect("delete");
+        assert!(
+            list_sessions_cached(&root, &cache)
+                .expect("list")
+                .is_empty()
+        );
+        assert!(cache.lock().is_empty());
+        std::fs::remove_dir_all(&root).expect("cleanup");
     }
 
     #[test]

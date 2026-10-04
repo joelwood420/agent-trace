@@ -19,7 +19,7 @@ use tauri::ipc::Channel;
 use trace_view::NodeDetail;
 
 use live::{LiveMessage, LiveSession, LiveStatus};
-use sessions::{SessionError, SessionSummary, SessionView};
+use sessions::{SessionError, SessionSummary, SessionView, TitleCache};
 use watch::{Active, SessionsChanged, Shared, Sink};
 
 /// Where the Claude Code projects folder is, resolved once at startup.
@@ -36,9 +36,13 @@ impl AppPaths {
 
 /// Lists session transcripts under the projects folder, newest first.
 #[tauri::command(rename_all = "snake_case")]
-async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionSummary>, String> {
+async fn list_sessions(
+    paths: tauri::State<'_, AppPaths>,
+    titles: tauri::State<'_, Arc<TitleCache>>,
+) -> Result<Vec<SessionSummary>, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let sessions = run_blocking(move || sessions::list_sessions(&root)).await?;
+    let titles = Arc::clone(&titles);
+    let sessions = run_blocking(move || sessions::list_sessions_cached(&root, &titles)).await?;
     tracing::info!(count = sessions.len(), "listed sessions");
     Ok(sessions)
 }
@@ -179,6 +183,7 @@ fn main() -> anyhow::Result<()> {
             }
             app.manage(AppPaths { projects_root });
             app.manage(shared);
+            app.manage(Arc::new(TitleCache::default()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
