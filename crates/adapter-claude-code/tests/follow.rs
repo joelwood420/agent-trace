@@ -309,3 +309,103 @@ fn rewritten_and_missing_main_file_are_reported() {
         PollOutcome::Missing
     ));
 }
+
+#[test]
+fn subagent_read_error_keeps_main_events_and_retries_next_poll() {
+    let (index, _) = linking_result();
+    let (main_path, subagents) = temp_session("sub-error");
+    let text = String::from_utf8(fixture_main()).expect("utf8");
+    let lines: Vec<&str> = text.lines().collect();
+    assert!(
+        index + 1 < lines.len(),
+        "the link must come before the last line"
+    );
+    let first: String = lines[..=index].iter().map(|l| format!("{l}\n")).collect();
+    append(&main_path, first.as_bytes());
+    let agent_path = subagents.join(format!("agent-{AGENT}.jsonl"));
+    append(&agent_path, b"");
+
+    let mut follower = SessionFollower::new(&main_path).expect("follower");
+    let mut trace = Trace::new();
+    apply_all(
+        &mut trace,
+        changed(follower.poll(ReadMode::Live).expect("poll")),
+    );
+    let run_id = format!("run:agent-{AGENT}");
+    assert!(trace.get(&run_id).is_some(), "subagent source started");
+    assert_eq!(
+        trace.children(&run_id).count(),
+        0,
+        "its file is still empty"
+    );
+
+    // Make the subagent unreadable: a folder where its file was.
+    std::fs::remove_file(&agent_path).expect("delete");
+    std::fs::create_dir(&agent_path).expect("mkdir");
+    let rest: String = lines[index + 1..]
+        .iter()
+        .map(|l| format!("{l}\n"))
+        .collect();
+    append(&main_path, rest.as_bytes());
+    let events = changed(
+        follower
+            .poll(ReadMode::Live)
+            .expect("a subagent error does not fail the poll"),
+    );
+    assert!(
+        events
+            .iter()
+            .any(|e| e.raw.iter().any(|r| !r.source.starts_with("subagents/"))),
+        "the main transcript's new lines are returned"
+    );
+    apply_all(&mut trace, events);
+
+    // Fixed: the subagent is read on the next poll.
+    std::fs::remove_dir(&agent_path).expect("rmdir");
+    append(&agent_path, &fixture_agent());
+    apply_all(
+        &mut trace,
+        changed(follower.poll(ReadMode::Live).expect("poll")),
+    );
+    assert!(
+        trace.children(&run_id).count() > 0,
+        "subagent lines are read once it can be read again"
+    );
+}
+
+#[test]
+fn load_session_takes_a_valid_final_line_without_newline() {
+    fn last_main_line(events: &[TraceEvent]) -> u64 {
+        events
+            .iter()
+            .flat_map(|e| e.raw.iter())
+            .filter(|r| !r.source.starts_with("subagents/"))
+            .map(|r| r.line)
+            .max()
+            .expect("main events")
+    }
+    let full = load_session(&fixture_dir().join(format!("{SESSION}.jsonl"))).expect("load");
+    let last = last_main_line(&full.events);
+
+    // The file ends at that line, with no newline after it.
+    let (main_path, _) = temp_session("no-final-newline");
+    let text = String::from_utf8(fixture_main()).expect("utf8");
+    let lines: Vec<&str> = text.lines().take(last as usize).collect();
+    append(
+        &main_path,
+        lines
+            .join(
+                "
+",
+            )
+            .as_bytes(),
+    );
+
+    let session = load_session(&main_path).expect("load");
+    assert!(session.skipped.is_empty(), "{:#?}", session.skipped);
+    assert_eq!(
+        last_main_line(&session.events),
+        last,
+        "the last line is used even without a newline"
+    );
+}

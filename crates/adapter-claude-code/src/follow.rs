@@ -79,7 +79,9 @@ impl SessionFollower {
         self.main.tail.path()
     }
 
-    /// Reads everything new in the session's files.
+    /// Reads everything new in the session's files. An I/O error on the main
+    /// transcript is returned; one on a subagent transcript is logged and
+    /// that subagent is read again on the next poll.
     pub fn poll(&mut self, mode: ReadMode) -> Result<PollOutcome, AdapterError> {
         let mut session = Session::default();
         match read_source(&mut self.main, mode, &mut session)? {
@@ -87,14 +89,30 @@ impl SessionFollower {
             TailRead::Rewritten => return Ok(PollOutcome::Rewritten),
             TailRead::Lines(_) => {}
         }
+        // Subagents that could not be read in this poll. The main file's
+        // lines are already consumed, so a subagent error must not fail the
+        // poll. A failed read leaves the source's tail where it was, so the
+        // next poll simply tries again.
+        let mut failed: HashSet<usize> = HashSet::new();
         let mut checked = 0;
         loop {
             self.note_tool_calls(&session.events[checked..]);
             checked = session.events.len();
             let started = self.link_subagents(mode);
-            for source in &mut self.subagents {
-                if let TailRead::Rewritten = read_source(source, mode, &mut session)? {
-                    return Ok(PollOutcome::Rewritten);
+            for (index, source) in self.subagents.iter_mut().enumerate() {
+                if failed.contains(&index) {
+                    continue;
+                }
+                match read_source(source, mode, &mut session) {
+                    Ok(TailRead::Rewritten) => return Ok(PollOutcome::Rewritten),
+                    Ok(_) => {}
+                    Err(err) => {
+                        tracing::warn!(
+                            error = %err,
+                            "could not read a subagent transcript; trying again next poll"
+                        );
+                        failed.insert(index);
+                    }
                 }
             }
             if started == 0 && checked == session.events.len() {
