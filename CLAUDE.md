@@ -83,7 +83,7 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
 - UI checks: `cd ui; npm run lint; npm run typecheck; npm test; npm run build`
 - View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock`
-- Refresh the UI mock data after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of `ui/src/mock/fixture-data.json`
+- Refresh the UI mock data (`ui/src/mock/fixture-data.json` and `ui/src/mock/live-steps.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of both files
 
 If a command here turns out to be wrong after scaffolding, fix this file.
 

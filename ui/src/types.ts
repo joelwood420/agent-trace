@@ -10,6 +10,8 @@ export interface SessionSummary {
   title: string | null
   modified_ms: number
   size_bytes: number
+  /** True if the file was written in the last 10 minutes. */
+  live: boolean
 }
 
 /** A line the backend could not use. */
@@ -23,6 +25,10 @@ export interface SkippedLine {
 export interface SessionView {
   diagram: SessionDiagram
   skipped: SkippedLine[]
+  /** True if the main transcript was written in the last 10 minutes. */
+  live: boolean
+  /** Goes up with every update of the open session; keep the higher one. */
+  version: number
 }
 
 export interface SessionDiagram {

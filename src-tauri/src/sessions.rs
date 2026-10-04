@@ -5,12 +5,12 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Component, Path, PathBuf};
-use std::sync::{Arc, Mutex};
 use std::time::UNIX_EPOCH;
 
 use serde::Serialize;
+#[cfg(test)]
 use trace_core::Trace;
-use trace_view::{NodeDetail, SessionDiagram};
+use trace_view::SessionDiagram;
 
 /// File extension of a session transcript.
 const TRANSCRIPT_EXT: &str = "jsonl";
@@ -47,7 +47,7 @@ pub enum SessionError {
     /// A trace node id was empty or too long to be one.
     #[error("invalid trace id")]
     InvalidTraceId,
-    /// Another thread panicked while holding the session cache.
+    /// Another thread panicked while holding the open session.
     #[error("internal error: session cache is unavailable")]
     CachePoisoned,
 }
@@ -68,6 +68,9 @@ pub struct SessionSummary {
     pub modified_ms: i64,
     /// File size in bytes.
     pub size_bytes: u64,
+    /// True if the file was written in the last 10 minutes, so the session
+    /// may still be running.
+    pub live: bool,
 }
 
 /// A line the adapter could not use, in a form the UI can receive.
@@ -90,9 +93,17 @@ pub struct SessionView {
     pub diagram: SessionDiagram,
     /// Lines that could not be used, so the UI can say so.
     pub skipped: Vec<SkippedLine>,
+    /// True if the main transcript was written in the last 10 minutes, so
+    /// the session may still be running.
+    pub live: bool,
+    /// Goes up by one with every update of the open session. The UI ignores
+    /// a view with a lower version than the one it shows.
+    pub version: u64,
 }
 
-/// A session read from disk and turned into a trace.
+/// A session read from disk and turned into a trace. Only the tests use it
+/// now, to compare live reading with loading the whole file at once.
+#[cfg(test)]
 #[derive(Debug, Clone)]
 pub struct LoadedTrace {
     /// The trace built from the adapter's events.
@@ -172,12 +183,7 @@ fn summarise(project: &str, entry: &std::fs::DirEntry) -> Option<SessionSummary>
         return None;
     }
     let session_id = path.file_stem()?.to_str()?.to_string();
-    let modified_ms = meta
-        .modified()
-        .ok()
-        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
-        .and_then(|d| i64::try_from(d.as_millis()).ok())
-        .unwrap_or(0);
+    let modified_ms = modified_ms(&meta);
     Some(SessionSummary {
         project: project.to_string(),
         project_label: project_label(project),
@@ -185,7 +191,18 @@ fn summarise(project: &str, entry: &std::fs::DirEntry) -> Option<SessionSummary>
         title: read_title(&path),
         modified_ms,
         size_bytes: meta.len(),
+        live: crate::live::is_live(modified_ms, crate::live::now_ms()),
     })
+}
+
+/// When a file was last modified, in milliseconds since the Unix epoch, or 0
+/// if that cannot be read.
+pub fn modified_ms(meta: &std::fs::Metadata) -> i64 {
+    meta.modified()
+        .ok()
+        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+        .and_then(|d| i64::try_from(d.as_millis()).ok())
+        .unwrap_or(0)
 }
 
 /// A short label for an encoded project folder name: the text after the last
@@ -299,6 +316,7 @@ pub fn session_path(root: &Path, project: &str, session_id: &str) -> Result<Path
 /// Loads one session with the Claude Code adapter and builds its trace.
 /// Events the trace rejects (which would be an adapter bug) are reported as
 /// skipped lines instead of failing the whole session.
+#[cfg(test)]
 pub fn load_trace(
     root: &Path,
     project: &str,
@@ -306,39 +324,10 @@ pub fn load_trace(
 ) -> Result<LoadedTrace, SessionError> {
     let path = session_path(root, project, session_id)?;
     let session = adapter_claude_code::load_session(&path)?;
-    let mut skipped: Vec<SkippedLine> = session
-        .skipped
-        .into_iter()
-        .map(|s| SkippedLine {
-            source: s.source,
-            line: s.line,
-            reason: s.reason,
-        })
-        .collect();
     let mut trace = Trace::new();
-    for event in session.events {
-        let (source, line) = event
-            .raw
-            .first()
-            .map(|r| (r.source.clone(), r.line))
-            .unwrap_or_default();
-        if let Err(err) = trace.apply(event) {
-            tracing::warn!(error = %err, "trace rejected an event");
-            skipped.push(SkippedLine {
-                source,
-                line,
-                reason: format!("trace rejected the event: {err}"),
-            });
-        }
-    }
+    let mut skipped = Vec::new();
+    crate::live::apply(&mut trace, &mut skipped, session);
     Ok(LoadedTrace { trace, skipped })
-}
-
-fn view_of(loaded: &LoadedTrace) -> SessionView {
-    SessionView {
-        diagram: trace_view::build_session(&loaded.trace),
-        skipped: loaded.skipped.clone(),
-    }
 }
 
 /// Checks a trace id sent by the UI. It is only used as a lookup key, never
@@ -350,99 +339,11 @@ pub fn check_trace_id(trace_id: &str) -> Result<(), SessionError> {
     Ok(())
 }
 
-/// The most recently loaded session's trace, so that clicking boxes in the
-/// diagram does not re-read the transcript for every click.
-#[derive(Debug, Default)]
-pub struct SessionCache {
-    current: Mutex<Option<CachedTrace>>,
-}
-
-#[derive(Debug, Clone)]
-struct CachedTrace {
-    project: String,
-    session_id: String,
-    trace: Arc<Trace>,
-}
-
-impl SessionCache {
-    /// An empty cache.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Reads the session from disk (always, so the view is fresh), keeps its
-    /// trace for later `node_detail` calls, and returns its diagram model.
-    pub fn load_session(
-        &self,
-        root: &Path,
-        project: &str,
-        session_id: &str,
-    ) -> Result<SessionView, SessionError> {
-        let loaded = load_trace(root, project, session_id)?;
-        let view = view_of(&loaded);
-        self.store(project, session_id, Arc::new(loaded.trace))?;
-        Ok(view)
-    }
-
-    /// Full content of one trace node. Uses the cached trace if it belongs to
-    /// this session, otherwise loads the session first and caches it.
-    /// Returns `None` if the session has no node with that id.
-    pub fn node_detail(
-        &self,
-        root: &Path,
-        project: &str,
-        session_id: &str,
-        trace_id: &str,
-    ) -> Result<Option<NodeDetail>, SessionError> {
-        check_trace_id(trace_id)?;
-        // Validate the names even when the cache would answer, so the
-        // command behaves the same either way.
-        session_path(root, project, session_id)?;
-        let trace = match self.cached(project, session_id)? {
-            Some(trace) => trace,
-            None => {
-                let loaded = load_trace(root, project, session_id)?;
-                let trace = Arc::new(loaded.trace);
-                self.store(project, session_id, Arc::clone(&trace))?;
-                trace
-            }
-        };
-        Ok(trace_view::node_detail(&trace, trace_id))
-    }
-
-    fn cached(&self, project: &str, session_id: &str) -> Result<Option<Arc<Trace>>, SessionError> {
-        let guard = self
-            .current
-            .lock()
-            .map_err(|_| SessionError::CachePoisoned)?;
-        Ok(guard
-            .as_ref()
-            .filter(|c| c.project == project && c.session_id == session_id)
-            .map(|c| Arc::clone(&c.trace)))
-    }
-
-    fn store(
-        &self,
-        project: &str,
-        session_id: &str,
-        trace: Arc<Trace>,
-    ) -> Result<(), SessionError> {
-        let mut guard = self
-            .current
-            .lock()
-            .map_err(|_| SessionError::CachePoisoned)?;
-        *guard = Some(CachedTrace {
-            project: project.to_string(),
-            session_id: session_id.to_string(),
-            trace,
-        });
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::live::{LiveMessage, LiveSession, all_trace_ids};
+    use std::io::Write;
 
     /// The sanitised fixture folder, laid out like a projects folder with
     /// one project called `basic`.
@@ -592,33 +493,30 @@ mod tests {
 
     #[test]
     fn loads_fixture_session_as_diagram() {
-        let view = SessionCache::new()
-            .load_session(&fixture_root(), "basic", FIXTURE_SESSION)
-            .expect("load");
+        let view = LiveSession::open(&fixture_root(), "basic", FIXTURE_SESSION)
+            .expect("load")
+            .view();
         let diagram = &view.diagram;
         assert_eq!(diagram.harness.as_deref(), Some("claude-code"));
         assert_eq!(diagram.prompts.len(), 5);
         assert_eq!(diagram.prompts[0].root.kind, trace_view::NodeKind::Prompt);
         assert!(view.skipped.is_empty(), "{:?}", view.skipped);
+        assert_eq!(view.version, 1);
         // The response must serialise for the UI with the documented shape.
         let json = serde_json::to_value(&view).expect("serialise");
         assert!(json["diagram"]["prompts"].is_array());
         assert!(json["diagram"]["markers"].is_array());
         assert!(json["skipped"].is_array());
+        assert!(json["live"].is_boolean());
+        assert_eq!(json["version"], 1);
         assert!(json.get("events").is_none(), "raw events must not be sent");
     }
 
     #[test]
-    fn node_detail_without_prior_load_reads_the_session() {
-        let cache = SessionCache::new();
-        let view = SessionCache::new()
-            .load_session(&fixture_root(), "basic", FIXTURE_SESSION)
-            .expect("load");
-        let turn_id = view.diagram.prompts[0].turn_id.clone();
-        let detail = cache
-            .node_detail(&fixture_root(), "basic", FIXTURE_SESSION, &turn_id)
-            .expect("detail")
-            .expect("known id");
+    fn node_detail_comes_from_the_open_session() {
+        let live = LiveSession::open(&fixture_root(), "basic", FIXTURE_SESSION).expect("open");
+        let turn_id = live.view().diagram.prompts[0].turn_id.clone();
+        let detail = live.node_detail(&turn_id).expect("known id");
         assert_eq!(detail.trace_id, turn_id);
         assert_eq!(detail.kind, "turn");
         assert!(!detail.raw.is_empty(), "raw source lines are kept");
@@ -626,98 +524,68 @@ mod tests {
 
     #[test]
     fn node_detail_reports_unknown_id_as_none() {
-        let cache = SessionCache::new();
-        let detail = cache
-            .node_detail(&fixture_root(), "basic", FIXTURE_SESSION, "no-such-node")
-            .expect("detail");
-        assert_eq!(detail, None);
+        let live = LiveSession::open(&fixture_root(), "basic", FIXTURE_SESSION).expect("open");
+        assert_eq!(live.node_detail("no-such-node"), None);
     }
 
     #[test]
-    fn node_detail_validates_inputs() {
-        let cache = SessionCache::new();
-        let root = fixture_root();
-        let err = cache
-            .node_detail(&root, "..", FIXTURE_SESSION, "x")
-            .expect_err("bad project");
-        assert!(matches!(err, SessionError::InvalidName { .. }), "{err}");
-        let err = cache
-            .node_detail(&root, "basic", "..\\basic\\x", "x")
-            .expect_err("bad session id");
-        assert!(matches!(err, SessionError::InvalidName { .. }), "{err}");
-        let err = cache
-            .node_detail(&root, "basic", FIXTURE_SESSION, "")
-            .expect_err("empty id");
+    fn trace_ids_are_checked() {
+        assert!(check_trace_id("turn:1").is_ok());
+        let err = check_trace_id("").expect_err("empty id");
         assert!(matches!(err, SessionError::InvalidTraceId), "{err}");
         let long = "x".repeat(MAX_TRACE_ID_LEN + 1);
-        let err = cache
-            .node_detail(&root, "basic", FIXTURE_SESSION, &long)
-            .expect_err("long id");
+        let err = check_trace_id(&long).expect_err("long id");
         assert!(matches!(err, SessionError::InvalidTraceId), "{err}");
-        let err = cache
-            .node_detail(&root, "basic", "nope", "x")
-            .expect_err("missing");
-        assert!(matches!(err, SessionError::NotFound), "{err}");
     }
 
     #[test]
-    fn node_detail_uses_the_cached_trace() {
-        // Copy the fixture session into a temp projects folder, load it,
-        // then empty the file. Details must still come from the cache.
-        let root = temp_dir("cache");
-        let project = root.join("demo");
-        std::fs::create_dir_all(&project).expect("mkdir");
-        let file = project.join(format!("{FIXTURE_SESSION}.jsonl"));
-        let source = fixture_root()
-            .join("basic")
-            .join(format!("{FIXTURE_SESSION}.jsonl"));
-        std::fs::copy(&source, &file).expect("copy");
-
-        let cache = SessionCache::new();
-        let view = cache
-            .load_session(&root, "demo", FIXTURE_SESSION)
-            .expect("load");
-        let turn_id = view.diagram.prompts[1].turn_id.clone();
-        std::fs::write(&file, "").expect("truncate");
-
-        let detail = cache
-            .node_detail(&root, "demo", FIXTURE_SESSION, &turn_id)
-            .expect("detail");
-        assert!(detail.is_some(), "served from the cache");
-
-        // Loading again re-reads the now empty file and replaces the cache.
-        let view = cache
-            .load_session(&root, "demo", FIXTURE_SESSION)
-            .expect("reload");
-        assert!(view.diagram.prompts.is_empty());
-        let detail = cache
-            .node_detail(&root, "demo", FIXTURE_SESSION, &turn_id)
-            .expect("detail");
-        assert_eq!(detail, None);
-        std::fs::remove_dir_all(&root).expect("cleanup");
+    fn open_validates_inputs() {
+        let root = fixture_root();
+        let err = LiveSession::open(&root, "..", FIXTURE_SESSION)
+            .err()
+            .expect("bad project");
+        assert!(matches!(err, SessionError::InvalidName { .. }), "{err}");
+        let err = LiveSession::open(&root, "basic", "..\\basic\\x")
+            .err()
+            .expect("bad session id");
+        assert!(matches!(err, SessionError::InvalidName { .. }), "{err}");
     }
 
     #[test]
     fn errors_do_not_contain_paths() {
-        let err = SessionCache::new()
-            .load_session(&fixture_root(), "basic", "nope")
-            .expect_err("missing");
+        let err = LiveSession::open(&fixture_root(), "basic", "nope")
+            .err()
+            .expect("missing");
         assert_eq!(err.to_string(), "session not found");
     }
 
-    /// Every trace node id, depth first.
-    fn all_trace_ids(trace: &Trace) -> Vec<String> {
-        fn walk(trace: &Trace, id: &str, out: &mut Vec<String>) {
-            out.push(id.to_string());
-            for child in trace.children(id) {
-                walk(trace, &child.id, out);
-            }
+    /// Compares a checked-in UI mock file with what the backend produces, or
+    /// rewrites it when `SNITCHCRAFT_UPDATE_SNAPSHOTS` is set.
+    fn check_snapshot(path: &Path, expected: &serde_json::Value) {
+        let mut text = serde_json::to_string_pretty(expected).expect("serialise");
+        text.push('\n');
+        if std::env::var_os("SNITCHCRAFT_UPDATE_SNAPSHOTS").is_some() {
+            std::fs::write(path, &text).expect("write mock data");
+            return;
         }
-        let mut out = Vec::new();
-        for root in trace.roots() {
-            walk(trace, &root.id, &mut out);
-        }
-        out
+        let actual = std::fs::read_to_string(path).unwrap_or_default();
+        let actual: serde_json::Value = serde_json::from_str(&actual).unwrap_or_default();
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+        assert!(
+            &actual == expected,
+            "ui/src/mock/{name} is out of date. Run the tests with \
+             SNITCHCRAFT_UPDATE_SNAPSHOTS=1 set and review the diff."
+        );
+    }
+
+    /// A file in `ui/src/mock`.
+    fn mock_file(name: &str) -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("ui")
+            .join("src")
+            .join("mock")
+            .join(name)
     }
 
     /// The UI's dev-only mock mode (`?mock` in the browser) replays the
@@ -728,21 +596,19 @@ mod tests {
     fn ui_mock_data_matches_the_commands() {
         let root = fixture_root();
         let mut sessions = list_sessions(&root).expect("list");
-        // The file's modified time depends on the checkout, so pin it.
+        // The file's modified time depends on the checkout, so pin it and
+        // the live flag that comes from it.
         for s in &mut sessions {
             s.modified_ms = 1_767_225_600_000;
+            s.live = false;
         }
-        let cache = SessionCache::new();
-        let view = cache
-            .load_session(&root, "basic", FIXTURE_SESSION)
-            .expect("load");
+        let live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
+        let mut view = live.view();
+        view.live = false;
         let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
         let mut details = serde_json::Map::new();
         for id in all_trace_ids(&loaded.trace) {
-            let detail = cache
-                .node_detail(&root, "basic", FIXTURE_SESSION, &id)
-                .expect("detail")
-                .expect("known id");
+            let detail = live.node_detail(&id).expect("known id");
             details.insert(id, serde_json::to_value(detail).expect("serialise"));
         }
         let expected = serde_json::json!({
@@ -750,25 +616,80 @@ mod tests {
             "views": { format!("basic/{FIXTURE_SESSION}"): view },
             "details": details,
         });
+        check_snapshot(&mock_file("fixture-data.json"), &expected);
+    }
 
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("ui")
-            .join("src")
-            .join("mock")
-            .join("fixture-data.json");
-        let mut text = serde_json::to_string_pretty(&expected).expect("serialise");
-        text.push('\n');
-        if std::env::var_os("SNITCHCRAFT_UPDATE_SNAPSHOTS").is_some() {
-            std::fs::write(&path, &text).expect("write mock data");
-            return;
+    /// Copies a folder and everything in it.
+    fn copy_dir(from: &Path, to: &Path) {
+        std::fs::create_dir_all(to).expect("mkdir");
+        for entry in std::fs::read_dir(from).expect("read dir") {
+            let entry = entry.expect("entry");
+            let target = to.join(entry.file_name());
+            if entry.file_type().expect("type").is_dir() {
+                copy_dir(&entry.path(), &target);
+            } else {
+                std::fs::copy(entry.path(), &target).expect("copy");
+            }
         }
-        let actual = std::fs::read_to_string(&path).unwrap_or_default();
-        let actual: serde_json::Value = serde_json::from_str(&actual).unwrap_or_default();
-        assert!(
-            actual == expected,
-            "ui/src/mock/fixture-data.json is out of date. Run the tests with \
-             SNITCHCRAFT_UPDATE_SNAPSHOTS=1 set and review the diff."
+    }
+
+    /// `ui/src/mock/live-steps.json` replays the fixture session growing in six
+    /// steps, as the backend reports it. The dev mock mode uses it to show live
+    /// updates in a browser.
+    #[test]
+    fn ui_live_steps_match_the_backend() {
+        let root = temp_dir("live-steps");
+        let project = root.join("basic");
+        std::fs::create_dir_all(&project).expect("mkdir");
+        let fixture = fixture_root().join("basic");
+        // Subagent files are present from the start; they are linked once the
+        // main transcript reaches the linking line.
+        copy_dir(
+            &fixture.join(FIXTURE_SESSION),
+            &project.join(FIXTURE_SESSION),
+        );
+        let text = std::fs::read_to_string(fixture.join(format!("{FIXTURE_SESSION}.jsonl")))
+            .expect("read");
+        let lines: Vec<&str> = text.lines().collect();
+        let size = lines.len().div_ceil(6);
+        let main = project.join(format!("{FIXTURE_SESSION}.jsonl"));
+        let mut steps = Vec::new();
+        let mut live: Option<LiveSession> = None;
+        for chunk in lines.chunks(size) {
+            let mut f = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&main)
+                .expect("open");
+            for line in chunk {
+                writeln!(f, "{line}").expect("write");
+            }
+            drop(f);
+            let message = match live.as_mut() {
+                None => {
+                    let opened = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
+                    let view = opened.view();
+                    live = Some(opened);
+                    LiveMessage::Updated {
+                        project: "basic".into(),
+                        session_id: FIXTURE_SESSION.into(),
+                        view,
+                        changed_trace_ids: Vec::new(),
+                    }
+                }
+                Some(session) => session.refresh().expect("refresh").expect("an update"),
+            };
+            let mut value = serde_json::to_value(&message).expect("json");
+            // Always live in the replay, whatever the temp file's time.
+            value["view"]["live"] = serde_json::Value::Bool(true);
+            steps.push(value);
+        }
+        drop(live);
+        assert_eq!(steps.len(), 6);
+        std::fs::remove_dir_all(&root).expect("cleanup");
+        check_snapshot(
+            &mock_file("live-steps.json"),
+            &serde_json::Value::Array(steps),
         );
     }
 

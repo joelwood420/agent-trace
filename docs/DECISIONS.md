@@ -210,3 +210,15 @@ A foreground Agent call only reports its subagent's id in the tool result when t
 ### 2026-10-05: Live reading holds back a last line with no newline
 
 `TranscriptTail` only returns lines that end in a newline. Claude Code ends every line with one, so a line without it is still being written. Loading a finished file in one go (`load_session`) still accepts a valid JSON last line without a newline, as before.
+
+### 2026-10-05: The backend sends a full diagram on every update (chosen by the project owner)
+
+While a session runs, the backend keeps its parsers open and reads only new lines, but after each change it rebuilds the whole diagram model and sends it to the UI. This keeps all diagram logic in Rust and the UI a plain renderer. Diagrams are a few kilobytes, so resending is cheap. Revisit this and send only the changes if diagrams grow large enough for updates to feel slow, or when the M5 harness streams events directly.
+
+### 2026-10-05: A session is live if written in the last 10 minutes (chosen by the project owner)
+
+Claude Code writes no "session ended" line and any session can be resumed, so the transcript's last write time is the only signal. 10 minutes covers normal pauses while the user reads or types. The flag only drives the live markers; the open session is watched for as long as it is selected.
+
+### 2026-10-05: Views carry a version number
+
+Each `SessionView` has a `version` that goes up with every update of the open session. A live update can reach the UI before the reply to `load_session`, so the UI keeps whichever view has the higher version.

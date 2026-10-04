@@ -12,6 +12,7 @@ function session(project: string, id: string, modified: number, title: string | 
     title,
     modified_ms: modified,
     size_bytes: 1,
+    live: false,
   }
 }
 

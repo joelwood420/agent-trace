@@ -1,0 +1,3279 @@
+[
+  {
+    "changed_trace_ids": [],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 50233,
+        "ended_at_ms": 1767258050233,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": null,
+            "ended_at_ms": null,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [],
+              "collapsed_by_default": false,
+              "context_tokens": null,
+              "detail_label": "0 model calls, 0 tool calls",
+              "duration_ms": null,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": null,
+              "started_at_ms": 1767258050202,
+              "status": "none",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": null,
+              "model_calls": 0,
+              "output_tokens": null,
+              "tool_calls": 0
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": null
+      },
+      "live": true,
+      "skipped": [],
+      "version": 1
+    }
+  },
+  {
+    "changed_trace_ids": [
+      "run:00000000-0000-4000-8000-000000000002",
+      "model:msg_example000000000027",
+      "tool:toolu_example000000000032",
+      "model:msg_example000000000037",
+      "tool:toolu_example000000000042",
+      "model:msg_example000000000046",
+      "marker:00000000-0000-4000-8000-000000000050",
+      "turn:00000000-0000-4000-8000-000000000009"
+    ],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 74461,
+        "ended_at_ms": 1767258074461,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": 24259,
+            "ended_at_ms": 1767258074461,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 1900,
+                      "id": "tool_call:tool:toolu_example000000000032",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-696)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258055122,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000032"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 70719,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4920,
+                  "id": "model_call:model:msg_example000000000027",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 462,
+                  "started_at_ms": 1767258050202,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000027"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 8995,
+                      "id": "tool_call:tool:toolu_example000000000042",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-1180)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258061887,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000042"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71302,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4865,
+                  "id": "model_call:model:msg_example000000000037",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 468,
+                  "started_at_ms": 1767258057022,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000037"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71808,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 3295,
+                  "id": "model_call:model:msg_example000000000046",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 219,
+                  "started_at_ms": 1767258070882,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000046"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000050",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258074456,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000050"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 71808,
+              "detail_label": "3 model calls, 2 tool calls",
+              "duration_ms": 24259,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": 1149,
+              "started_at_ms": 1767258050202,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 71808,
+              "model_calls": 3,
+              "output_tokens": 1149,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": "Example text 1166."
+      },
+      "live": true,
+      "skipped": [],
+      "version": 2
+    }
+  },
+  {
+    "changed_trace_ids": [
+      "turn:00000000-0000-4000-8000-000000000053",
+      "model:msg_example000000000056",
+      "tool:toolu_example000000000060",
+      "model:msg_example000000000064",
+      "tool:toolu_example000000000068",
+      "tool:toolu_example000000000071",
+      "run:00000000-0000-4000-8000-000000000002",
+      "model:msg_example000000000075",
+      "tool:toolu_example000000000079",
+      "model:msg_example000000000083",
+      "marker:00000000-0000-4000-8000-000000000088"
+    ],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 154078,
+        "ended_at_ms": 1767258154078,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": 24259,
+            "ended_at_ms": 1767258074461,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 1900,
+                      "id": "tool_call:tool:toolu_example000000000032",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-696)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258055122,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000032"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 70719,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4920,
+                  "id": "model_call:model:msg_example000000000027",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 462,
+                  "started_at_ms": 1767258050202,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000027"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 8995,
+                      "id": "tool_call:tool:toolu_example000000000042",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-1180)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258061887,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000042"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71302,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4865,
+                  "id": "model_call:model:msg_example000000000037",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 468,
+                  "started_at_ms": 1767258057022,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000037"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71808,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 3295,
+                  "id": "model_call:model:msg_example000000000046",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 219,
+                  "started_at_ms": 1767258070882,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000046"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000050",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258074456,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000050"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 71808,
+              "detail_label": "3 model calls, 2 tool calls",
+              "duration_ms": 24259,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": 1149,
+              "started_at_ms": 1767258050202,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 71808,
+              "model_calls": 3,
+              "output_tokens": 1149,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          },
+          {
+            "duration_ms": 18677,
+            "ended_at_ms": 1767258154078,
+            "index": 1,
+            "prompt_preview": "Find every TODO comment in the source files.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 98,
+                      "id": "tool_call:tool:toolu_example000000000060",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1234.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258139344,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000060"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 72081,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3943,
+                  "id": "model_call:model:msg_example000000000056",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 337,
+                  "started_at_ms": 1767258135401,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000056"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 84,
+                          "id": "tool_call:tool:toolu_example000000000068",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1253.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258142548,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000068"
+                          ]
+                        },
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 72,
+                          "id": "tool_call:tool:toolu_example000000000071",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1263.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258143590,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000071"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "Grep x2",
+                      "duration_ms": 1114,
+                      "id": "parallel_group:model:msg_example000000000064",
+                      "kind": "parallel_group",
+                      "label": "2 tool calls in parallel",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258142548,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000068",
+                        "tool:toolu_example000000000071"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73075,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4148,
+                  "id": "model_call:model:msg_example000000000064",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 386,
+                  "started_at_ms": 1767258139442,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000064"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 29,
+                      "id": "tool_call:tool:toolu_example000000000079",
+                      "kind": "tool_call",
+                      "label": "Read(C:\\work\\example\\file-1285.txt)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258145857,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000079"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73781,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2195,
+                  "id": "model_call:model:msg_example000000000075",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 181,
+                  "started_at_ms": 1767258143662,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000075"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 74507,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 7928,
+                  "id": "model_call:model:msg_example000000000083",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 721,
+                  "started_at_ms": 1767258145886,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000083"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000088",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258154073,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000088"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 74507,
+              "detail_label": "4 model calls, 4 tool calls",
+              "duration_ms": 18677,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000053",
+              "kind": "prompt",
+              "label": "Find every TODO comment in the source files.",
+              "output_tokens": 1625,
+              "started_at_ms": 1767258135401,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000053"
+              ]
+            },
+            "started_at_ms": 1767258135401,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 74507,
+              "model_calls": 4,
+              "output_tokens": 1625,
+              "tool_calls": 4
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": "Example text 1274."
+      },
+      "live": true,
+      "skipped": [],
+      "version": 3
+    }
+  },
+  {
+    "changed_trace_ids": [
+      "turn:00000000-0000-4000-8000-000000000091",
+      "model:msg_example000000000094",
+      "tool:toolu_example000000000095",
+      "model:msg_example000000000101",
+      "marker:00000000-0000-4000-8000-000000000106",
+      "run:00000000-0000-4000-8000-000000000002",
+      "turn:00000000-0000-4000-8000-000000000109",
+      "model:msg_example000000000112",
+      "tool:toolu_example000000000116",
+      "marker:00000000-0000-4000-8000-000000000118",
+      "model:msg_example000000000122",
+      "tool:toolu_example000000000126",
+      "marker:00000000-0000-4000-8000-000000000128"
+    ],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 454900,
+        "ended_at_ms": 1767258454900,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": 24259,
+            "ended_at_ms": 1767258074461,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 1900,
+                      "id": "tool_call:tool:toolu_example000000000032",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-696)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258055122,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000032"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 70719,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4920,
+                  "id": "model_call:model:msg_example000000000027",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 462,
+                  "started_at_ms": 1767258050202,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000027"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 8995,
+                      "id": "tool_call:tool:toolu_example000000000042",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-1180)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258061887,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000042"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71302,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4865,
+                  "id": "model_call:model:msg_example000000000037",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 468,
+                  "started_at_ms": 1767258057022,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000037"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71808,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 3295,
+                  "id": "model_call:model:msg_example000000000046",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 219,
+                  "started_at_ms": 1767258070882,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000046"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000050",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258074456,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000050"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 71808,
+              "detail_label": "3 model calls, 2 tool calls",
+              "duration_ms": 24259,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": 1149,
+              "started_at_ms": 1767258050202,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 71808,
+              "model_calls": 3,
+              "output_tokens": 1149,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          },
+          {
+            "duration_ms": 18677,
+            "ended_at_ms": 1767258154078,
+            "index": 1,
+            "prompt_preview": "Find every TODO comment in the source files.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 98,
+                      "id": "tool_call:tool:toolu_example000000000060",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1234.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258139344,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000060"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 72081,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3943,
+                  "id": "model_call:model:msg_example000000000056",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 337,
+                  "started_at_ms": 1767258135401,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000056"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 84,
+                          "id": "tool_call:tool:toolu_example000000000068",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1253.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258142548,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000068"
+                          ]
+                        },
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 72,
+                          "id": "tool_call:tool:toolu_example000000000071",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1263.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258143590,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000071"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "Grep x2",
+                      "duration_ms": 1114,
+                      "id": "parallel_group:model:msg_example000000000064",
+                      "kind": "parallel_group",
+                      "label": "2 tool calls in parallel",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258142548,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000068",
+                        "tool:toolu_example000000000071"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73075,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4148,
+                  "id": "model_call:model:msg_example000000000064",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 386,
+                  "started_at_ms": 1767258139442,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000064"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 29,
+                      "id": "tool_call:tool:toolu_example000000000079",
+                      "kind": "tool_call",
+                      "label": "Read(C:\\work\\example\\file-1285.txt)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258145857,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000079"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73781,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2195,
+                  "id": "model_call:model:msg_example000000000075",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 181,
+                  "started_at_ms": 1767258143662,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000075"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 74507,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 7928,
+                  "id": "model_call:model:msg_example000000000083",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 721,
+                  "started_at_ms": 1767258145886,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000083"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000088",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258154073,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000088"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 74507,
+              "detail_label": "4 model calls, 4 tool calls",
+              "duration_ms": 18677,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000053",
+              "kind": "prompt",
+              "label": "Find every TODO comment in the source files.",
+              "output_tokens": 1625,
+              "started_at_ms": 1767258135401,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000053"
+              ]
+            },
+            "started_at_ms": 1767258135401,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 74507,
+              "model_calls": 4,
+              "output_tokens": 1625,
+              "tool_calls": 4
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053"
+          },
+          {
+            "duration_ms": 9878,
+            "ended_at_ms": 1767258400529,
+            "index": 2,
+            "prompt_preview": "Which file defines the greeting function?",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 136,
+                      "id": "tool_call:tool:toolu_example000000000095",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1320.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258393466,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000095"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 75274,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2815,
+                  "id": "model_call:model:msg_example000000000094",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 196,
+                  "started_at_ms": 1767258390651,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000094"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 76651,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 6658,
+                  "id": "model_call:model:msg_example000000000101",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 669,
+                  "started_at_ms": 1767258393602,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000101"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000106",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258400524,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000106"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 76651,
+              "detail_label": "2 model calls, 1 tool call",
+              "duration_ms": 9878,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000091",
+              "kind": "prompt",
+              "label": "Which file defines the greeting function?",
+              "output_tokens": 865,
+              "started_at_ms": 1767258390651,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000091"
+              ]
+            },
+            "started_at_ms": 1767258390651,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 76651,
+              "model_calls": 2,
+              "output_tokens": 865,
+              "tool_calls": 1
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091"
+          },
+          {
+            "duration_ms": null,
+            "ended_at_ms": null,
+            "index": 3,
+            "prompt_preview": "Run the tests and review the result.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 14607,
+                      "id": "tool_call:tool:toolu_example000000000116",
+                      "kind": "tool_call",
+                      "label": "Bash(echo example-1365)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258436915,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000116"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 77362,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 7152,
+                  "id": "model_call:model:msg_example000000000112",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 691,
+                  "started_at_ms": 1767258429763,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000112"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000118",
+                  "kind": "marker",
+                  "label": "PreToolUse hook: non blocking error",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258437152,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000118"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": null,
+                      "id": "tool_call:tool:toolu_example000000000126",
+                      "kind": "tool_call",
+                      "label": "Bash(echo example-1477)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258454693,
+                      "status": "running",
+                      "trace_ids": [
+                        "tool:toolu_example000000000126"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 78806,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3171,
+                  "id": "model_call:model:msg_example000000000122",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 274,
+                  "started_at_ms": 1767258451522,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000122"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000128",
+                  "kind": "marker",
+                  "label": "PreToolUse hook: non blocking error",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258454900,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000128"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 78806,
+              "detail_label": "2 model calls, 2 tool calls",
+              "duration_ms": null,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000109",
+              "kind": "prompt",
+              "label": "Run the tests and review the result.",
+              "output_tokens": 965,
+              "started_at_ms": 1767258429763,
+              "status": "running",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000109"
+              ]
+            },
+            "started_at_ms": 1767258429763,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 78806,
+              "model_calls": 2,
+              "output_tokens": 965,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": "Example text 1351."
+      },
+      "live": true,
+      "skipped": [],
+      "version": 4
+    }
+  },
+  {
+    "changed_trace_ids": [
+      "tool:toolu_example000000000126",
+      "run:00000000-0000-4000-8000-000000000002",
+      "model:msg_example000000000132",
+      "tool:toolu_example000000000137",
+      "marker:00000000-0000-4000-8000-000000000139",
+      "model:msg_example000000000143",
+      "tool:toolu_example000000000144",
+      "marker:00000000-0000-4000-8000-000000000148",
+      "model:msg_example000000000152",
+      "tool:toolu_example000000000156",
+      "model:msg_example000000000161",
+      "run:agent-a0000000000000159",
+      "turn:00000000-0000-4000-8000-000000000191",
+      "model:msg_example000000000203",
+      "tool:toolu_example000000000204",
+      "marker:00000000-0000-4000-8000-000000000208",
+      "model:msg_example000000000217"
+    ],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 537309,
+        "ended_at_ms": 1767258537309,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": 24259,
+            "ended_at_ms": 1767258074461,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 1900,
+                      "id": "tool_call:tool:toolu_example000000000032",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-696)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258055122,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000032"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 70719,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4920,
+                  "id": "model_call:model:msg_example000000000027",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 462,
+                  "started_at_ms": 1767258050202,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000027"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 8995,
+                      "id": "tool_call:tool:toolu_example000000000042",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-1180)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258061887,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000042"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71302,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4865,
+                  "id": "model_call:model:msg_example000000000037",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 468,
+                  "started_at_ms": 1767258057022,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000037"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71808,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 3295,
+                  "id": "model_call:model:msg_example000000000046",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 219,
+                  "started_at_ms": 1767258070882,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000046"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000050",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258074456,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000050"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 71808,
+              "detail_label": "3 model calls, 2 tool calls",
+              "duration_ms": 24259,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": 1149,
+              "started_at_ms": 1767258050202,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 71808,
+              "model_calls": 3,
+              "output_tokens": 1149,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          },
+          {
+            "duration_ms": 18677,
+            "ended_at_ms": 1767258154078,
+            "index": 1,
+            "prompt_preview": "Find every TODO comment in the source files.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 98,
+                      "id": "tool_call:tool:toolu_example000000000060",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1234.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258139344,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000060"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 72081,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3943,
+                  "id": "model_call:model:msg_example000000000056",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 337,
+                  "started_at_ms": 1767258135401,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000056"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 84,
+                          "id": "tool_call:tool:toolu_example000000000068",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1253.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258142548,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000068"
+                          ]
+                        },
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 72,
+                          "id": "tool_call:tool:toolu_example000000000071",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1263.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258143590,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000071"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "Grep x2",
+                      "duration_ms": 1114,
+                      "id": "parallel_group:model:msg_example000000000064",
+                      "kind": "parallel_group",
+                      "label": "2 tool calls in parallel",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258142548,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000068",
+                        "tool:toolu_example000000000071"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73075,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4148,
+                  "id": "model_call:model:msg_example000000000064",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 386,
+                  "started_at_ms": 1767258139442,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000064"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 29,
+                      "id": "tool_call:tool:toolu_example000000000079",
+                      "kind": "tool_call",
+                      "label": "Read(C:\\work\\example\\file-1285.txt)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258145857,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000079"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73781,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2195,
+                  "id": "model_call:model:msg_example000000000075",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 181,
+                  "started_at_ms": 1767258143662,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000075"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 74507,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 7928,
+                  "id": "model_call:model:msg_example000000000083",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 721,
+                  "started_at_ms": 1767258145886,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000083"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000088",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258154073,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000088"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 74507,
+              "detail_label": "4 model calls, 4 tool calls",
+              "duration_ms": 18677,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000053",
+              "kind": "prompt",
+              "label": "Find every TODO comment in the source files.",
+              "output_tokens": 1625,
+              "started_at_ms": 1767258135401,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000053"
+              ]
+            },
+            "started_at_ms": 1767258135401,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 74507,
+              "model_calls": 4,
+              "output_tokens": 1625,
+              "tool_calls": 4
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053"
+          },
+          {
+            "duration_ms": 9878,
+            "ended_at_ms": 1767258400529,
+            "index": 2,
+            "prompt_preview": "Which file defines the greeting function?",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 136,
+                      "id": "tool_call:tool:toolu_example000000000095",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1320.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258393466,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000095"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 75274,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2815,
+                  "id": "model_call:model:msg_example000000000094",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 196,
+                  "started_at_ms": 1767258390651,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000094"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 76651,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 6658,
+                  "id": "model_call:model:msg_example000000000101",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 669,
+                  "started_at_ms": 1767258393602,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000101"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000106",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258400524,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000106"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 76651,
+              "detail_label": "2 model calls, 1 tool call",
+              "duration_ms": 9878,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000091",
+              "kind": "prompt",
+              "label": "Which file defines the greeting function?",
+              "output_tokens": 865,
+              "started_at_ms": 1767258390651,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000091"
+              ]
+            },
+            "started_at_ms": 1767258390651,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 76651,
+              "model_calls": 2,
+              "output_tokens": 865,
+              "tool_calls": 1
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091"
+          },
+          {
+            "duration_ms": null,
+            "ended_at_ms": null,
+            "index": 3,
+            "prompt_preview": "Run the tests and review the result.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 14607,
+                          "id": "tool_call:tool:toolu_example000000000116",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1365)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258436915,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000116"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 77362,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 7152,
+                      "id": "model_call:model:msg_example000000000112",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 691,
+                      "started_at_ms": 1767258429763,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000112"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000118",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258437152,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000118"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 5459,
+                          "id": "tool_call:tool:toolu_example000000000126",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1477)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258454693,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000126"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 78806,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 3171,
+                      "id": "model_call:model:msg_example000000000122",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 274,
+                      "started_at_ms": 1767258451522,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000122"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000128",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258454900,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000128"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 48525,
+                          "id": "tool_call:tool:toolu_example000000000137",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1535)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258463298,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000137"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 81423,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 3146,
+                      "id": "model_call:model:msg_example000000000132",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 269,
+                      "started_at_ms": 1767258460152,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000132"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000139",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258463519,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000139"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 13653,
+                          "id": "tool_call:tool:toolu_example000000000144",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1597)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258517363,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000144"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 81843,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 5540,
+                      "id": "model_call:model:msg_example000000000143",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 629,
+                      "started_at_ms": 1767258511823,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000143"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": true,
+                  "context_tokens": 81843,
+                  "detail_label": "4 model calls, 3 markers",
+                  "duration_ms": 101253,
+                  "id": "summary:model_call:model:msg_example000000000112",
+                  "kind": "summary",
+                  "label": "4 x Bash",
+                  "output_tokens": 1863,
+                  "started_at_ms": 1767258429763,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000112",
+                    "marker:00000000-0000-4000-8000-000000000118",
+                    "model:msg_example000000000122",
+                    "marker:00000000-0000-4000-8000-000000000128",
+                    "model:msg_example000000000132",
+                    "marker:00000000-0000-4000-8000-000000000139",
+                    "model:msg_example000000000143"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000148",
+                  "kind": "marker",
+                  "label": "PreToolUse hook: non blocking error",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258517598,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000148"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [],
+                                  "collapsed_by_default": false,
+                                  "context_tokens": null,
+                                  "detail_label": null,
+                                  "duration_ms": 2791,
+                                  "id": "tool_call:tool:toolu_example000000000204",
+                                  "kind": "tool_call",
+                                  "label": "Bash(echo example-2328)",
+                                  "output_tokens": null,
+                                  "started_at_ms": 1767258535190,
+                                  "status": "ok",
+                                  "trace_ids": [
+                                    "tool:toolu_example000000000204"
+                                  ]
+                                }
+                              ],
+                              "collapsed_by_default": false,
+                              "context_tokens": 54865,
+                              "detail_label": "claude-opus-5-5",
+                              "duration_ms": 2528,
+                              "id": "model_call:model:msg_example000000000203",
+                              "kind": "model_call",
+                              "label": "Model call",
+                              "output_tokens": 16,
+                              "started_at_ms": 1767258532662,
+                              "status": "ok",
+                              "trace_ids": [
+                                "model:msg_example000000000203"
+                              ]
+                            },
+                            {
+                              "children": [],
+                              "collapsed_by_default": false,
+                              "context_tokens": null,
+                              "detail_label": "hook",
+                              "duration_ms": null,
+                              "id": "marker:marker:00000000-0000-4000-8000-000000000208",
+                              "kind": "marker",
+                              "label": "PreToolUse hook: non blocking error",
+                              "output_tokens": null,
+                              "started_at_ms": 1767258535390,
+                              "status": "none",
+                              "trace_ids": [
+                                "marker:00000000-0000-4000-8000-000000000208"
+                              ]
+                            },
+                            {
+                              "children": [],
+                              "collapsed_by_default": false,
+                              "context_tokens": 65954,
+                              "detail_label": "claude-opus-5-5, stop: end_turn",
+                              "duration_ms": 2957,
+                              "id": "model_call:model:msg_example000000000217",
+                              "kind": "model_call",
+                              "label": "Model call",
+                              "output_tokens": 224,
+                              "started_at_ms": 1767258537981,
+                              "status": "ok",
+                              "trace_ids": [
+                                "model:msg_example000000000217"
+                              ]
+                            }
+                          ],
+                          "collapsed_by_default": true,
+                          "context_tokens": 65954,
+                          "detail_label": "2 model calls, 1 tool call",
+                          "duration_ms": 8276,
+                          "id": "subagent:run:agent-a0000000000000159",
+                          "kind": "subagent",
+                          "label": "Example text 2766.",
+                          "output_tokens": 240,
+                          "started_at_ms": 1767258532662,
+                          "status": "ok",
+                          "trace_ids": [
+                            "run:agent-a0000000000000159",
+                            "turn:00000000-0000-4000-8000-000000000191"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 49,
+                      "id": "tool_call:tool:toolu_example000000000156",
+                      "kind": "tool_call",
+                      "label": "Skill(Example text 1667.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258532647,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000156"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 83078,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 1631,
+                  "id": "model_call:model:msg_example000000000152",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 96,
+                  "started_at_ms": 1767258531016,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000152"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 83235,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 4613,
+                  "id": "model_call:model:msg_example000000000161",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 293,
+                  "started_at_ms": 1767258532696,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000161"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 83235,
+              "detail_label": "8 model calls, 6 tool calls",
+              "duration_ms": null,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000109",
+              "kind": "prompt",
+              "label": "Run the tests and review the result.",
+              "output_tokens": 2492,
+              "started_at_ms": 1767258429763,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000109"
+              ]
+            },
+            "started_at_ms": 1767258429763,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 83235,
+              "model_calls": 8,
+              "output_tokens": 2492,
+              "tool_calls": 6
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": "Example text 1517."
+      },
+      "live": true,
+      "skipped": [],
+      "version": 5
+    }
+  },
+  {
+    "changed_trace_ids": [
+      "model:msg_example000000000161",
+      "run:00000000-0000-4000-8000-000000000002",
+      "marker:00000000-0000-4000-8000-000000000166",
+      "turn:00000000-0000-4000-8000-000000000109",
+      "turn:00000000-0000-4000-8000-000000000170",
+      "model:msg_example000000000171",
+      "tool:toolu_example000000000176",
+      "marker:00000000-0000-4000-8000-000000000178",
+      "model:msg_example000000000182",
+      "marker:00000000-0000-4000-8000-000000000187"
+    ],
+    "project": "basic",
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "type": "updated",
+    "view": {
+      "diagram": {
+        "duration_ms": 567224,
+        "ended_at_ms": 1767258567224,
+        "harness": "claude-code",
+        "markers": [
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000004",
+            "kind": "marker",
+            "label": "SessionStart hook: success",
+            "output_tokens": null,
+            "started_at_ms": 1767258000000,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000004"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "hook",
+            "duration_ms": null,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000001",
+            "kind": "marker",
+            "label": "SessionStart hook: additional context",
+            "output_tokens": null,
+            "started_at_ms": 1767258000003,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000001"
+            ]
+          },
+          {
+            "children": [],
+            "collapsed_by_default": false,
+            "context_tokens": null,
+            "detail_label": "local_command",
+            "duration_ms": 0,
+            "id": "marker:marker:00000000-0000-4000-8000-000000000005",
+            "kind": "marker",
+            "label": "Local command: Example text 25.",
+            "output_tokens": null,
+            "started_at_ms": 1767258023359,
+            "status": "none",
+            "trace_ids": [
+              "marker:00000000-0000-4000-8000-000000000005"
+            ]
+          }
+        ],
+        "prompts": [
+          {
+            "duration_ms": 24259,
+            "ended_at_ms": 1767258074461,
+            "index": 0,
+            "prompt_preview": "List the PowerShell scripts in this folder.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 1900,
+                      "id": "tool_call:tool:toolu_example000000000032",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-696)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258055122,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000032"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 70719,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4920,
+                  "id": "model_call:model:msg_example000000000027",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 462,
+                  "started_at_ms": 1767258050202,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000027"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 8995,
+                      "id": "tool_call:tool:toolu_example000000000042",
+                      "kind": "tool_call",
+                      "label": "PowerShell(echo example-1180)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258061887,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000042"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71302,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4865,
+                  "id": "model_call:model:msg_example000000000037",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 468,
+                  "started_at_ms": 1767258057022,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000037"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 71808,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 3295,
+                  "id": "model_call:model:msg_example000000000046",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 219,
+                  "started_at_ms": 1767258070882,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000046"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000050",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258074456,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000050"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 71808,
+              "detail_label": "3 model calls, 2 tool calls",
+              "duration_ms": 24259,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000009",
+              "kind": "prompt",
+              "label": "List the PowerShell scripts in this folder.",
+              "output_tokens": 1149,
+              "started_at_ms": 1767258050202,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000009"
+              ]
+            },
+            "started_at_ms": 1767258050202,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 71808,
+              "model_calls": 3,
+              "output_tokens": 1149,
+              "tool_calls": 2
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009"
+          },
+          {
+            "duration_ms": 18677,
+            "ended_at_ms": 1767258154078,
+            "index": 1,
+            "prompt_preview": "Find every TODO comment in the source files.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 98,
+                      "id": "tool_call:tool:toolu_example000000000060",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1234.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258139344,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000060"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 72081,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3943,
+                  "id": "model_call:model:msg_example000000000056",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 337,
+                  "started_at_ms": 1767258135401,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000056"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 84,
+                          "id": "tool_call:tool:toolu_example000000000068",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1253.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258142548,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000068"
+                          ]
+                        },
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 72,
+                          "id": "tool_call:tool:toolu_example000000000071",
+                          "kind": "tool_call",
+                          "label": "Grep(Example text 1263.)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258143590,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000071"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "Grep x2",
+                      "duration_ms": 1114,
+                      "id": "parallel_group:model:msg_example000000000064",
+                      "kind": "parallel_group",
+                      "label": "2 tool calls in parallel",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258142548,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000068",
+                        "tool:toolu_example000000000071"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73075,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 4148,
+                  "id": "model_call:model:msg_example000000000064",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 386,
+                  "started_at_ms": 1767258139442,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000064"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 29,
+                      "id": "tool_call:tool:toolu_example000000000079",
+                      "kind": "tool_call",
+                      "label": "Read(C:\\work\\example\\file-1285.txt)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258145857,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000079"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 73781,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2195,
+                  "id": "model_call:model:msg_example000000000075",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 181,
+                  "started_at_ms": 1767258143662,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000075"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 74507,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 7928,
+                  "id": "model_call:model:msg_example000000000083",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 721,
+                  "started_at_ms": 1767258145886,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000083"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000088",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258154073,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000088"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 74507,
+              "detail_label": "4 model calls, 4 tool calls",
+              "duration_ms": 18677,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000053",
+              "kind": "prompt",
+              "label": "Find every TODO comment in the source files.",
+              "output_tokens": 1625,
+              "started_at_ms": 1767258135401,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000053"
+              ]
+            },
+            "started_at_ms": 1767258135401,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 74507,
+              "model_calls": 4,
+              "output_tokens": 1625,
+              "tool_calls": 4
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053"
+          },
+          {
+            "duration_ms": 9878,
+            "ended_at_ms": 1767258400529,
+            "index": 2,
+            "prompt_preview": "Which file defines the greeting function?",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 136,
+                      "id": "tool_call:tool:toolu_example000000000095",
+                      "kind": "tool_call",
+                      "label": "Grep(Example text 1320.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258393466,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000095"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 75274,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 2815,
+                  "id": "model_call:model:msg_example000000000094",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 196,
+                  "started_at_ms": 1767258390651,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000094"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 76651,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 6658,
+                  "id": "model_call:model:msg_example000000000101",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 669,
+                  "started_at_ms": 1767258393602,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000101"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000106",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258400524,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000106"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 76651,
+              "detail_label": "2 model calls, 1 tool call",
+              "duration_ms": 9878,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000091",
+              "kind": "prompt",
+              "label": "Which file defines the greeting function?",
+              "output_tokens": 865,
+              "started_at_ms": 1767258390651,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000091"
+              ]
+            },
+            "started_at_ms": 1767258390651,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 76651,
+              "model_calls": 2,
+              "output_tokens": 865,
+              "tool_calls": 1
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091"
+          },
+          {
+            "duration_ms": 107821,
+            "ended_at_ms": 1767258537584,
+            "index": 3,
+            "prompt_preview": "Run the tests and review the result.",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 14607,
+                          "id": "tool_call:tool:toolu_example000000000116",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1365)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258436915,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000116"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 77362,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 7152,
+                      "id": "model_call:model:msg_example000000000112",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 691,
+                      "started_at_ms": 1767258429763,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000112"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000118",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258437152,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000118"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 5459,
+                          "id": "tool_call:tool:toolu_example000000000126",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1477)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258454693,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000126"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 78806,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 3171,
+                      "id": "model_call:model:msg_example000000000122",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 274,
+                      "started_at_ms": 1767258451522,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000122"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000128",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258454900,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000128"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 48525,
+                          "id": "tool_call:tool:toolu_example000000000137",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1535)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258463298,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000137"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 81423,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 3146,
+                      "id": "model_call:model:msg_example000000000132",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 269,
+                      "started_at_ms": 1767258460152,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000132"
+                      ]
+                    },
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": "hook",
+                      "duration_ms": null,
+                      "id": "marker:marker:00000000-0000-4000-8000-000000000139",
+                      "kind": "marker",
+                      "label": "PreToolUse hook: non blocking error",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258463519,
+                      "status": "none",
+                      "trace_ids": [
+                        "marker:00000000-0000-4000-8000-000000000139"
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "collapsed_by_default": false,
+                          "context_tokens": null,
+                          "detail_label": null,
+                          "duration_ms": 13653,
+                          "id": "tool_call:tool:toolu_example000000000144",
+                          "kind": "tool_call",
+                          "label": "Bash(echo example-1597)",
+                          "output_tokens": null,
+                          "started_at_ms": 1767258517363,
+                          "status": "ok",
+                          "trace_ids": [
+                            "tool:toolu_example000000000144"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": 81843,
+                      "detail_label": "claude-opus-5-5, stop: tool_use",
+                      "duration_ms": 5540,
+                      "id": "model_call:model:msg_example000000000143",
+                      "kind": "model_call",
+                      "label": "Model call",
+                      "output_tokens": 629,
+                      "started_at_ms": 1767258511823,
+                      "status": "ok",
+                      "trace_ids": [
+                        "model:msg_example000000000143"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": true,
+                  "context_tokens": 81843,
+                  "detail_label": "4 model calls, 3 markers",
+                  "duration_ms": 101253,
+                  "id": "summary:model_call:model:msg_example000000000112",
+                  "kind": "summary",
+                  "label": "4 x Bash",
+                  "output_tokens": 1863,
+                  "started_at_ms": 1767258429763,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000112",
+                    "marker:00000000-0000-4000-8000-000000000118",
+                    "model:msg_example000000000122",
+                    "marker:00000000-0000-4000-8000-000000000128",
+                    "model:msg_example000000000132",
+                    "marker:00000000-0000-4000-8000-000000000139",
+                    "model:msg_example000000000143"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000148",
+                  "kind": "marker",
+                  "label": "PreToolUse hook: non blocking error",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258517598,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000148"
+                  ]
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [],
+                                  "collapsed_by_default": false,
+                                  "context_tokens": null,
+                                  "detail_label": null,
+                                  "duration_ms": 2791,
+                                  "id": "tool_call:tool:toolu_example000000000204",
+                                  "kind": "tool_call",
+                                  "label": "Bash(echo example-2328)",
+                                  "output_tokens": null,
+                                  "started_at_ms": 1767258535190,
+                                  "status": "ok",
+                                  "trace_ids": [
+                                    "tool:toolu_example000000000204"
+                                  ]
+                                }
+                              ],
+                              "collapsed_by_default": false,
+                              "context_tokens": 54865,
+                              "detail_label": "claude-opus-5-5",
+                              "duration_ms": 2528,
+                              "id": "model_call:model:msg_example000000000203",
+                              "kind": "model_call",
+                              "label": "Model call",
+                              "output_tokens": 16,
+                              "started_at_ms": 1767258532662,
+                              "status": "ok",
+                              "trace_ids": [
+                                "model:msg_example000000000203"
+                              ]
+                            },
+                            {
+                              "children": [],
+                              "collapsed_by_default": false,
+                              "context_tokens": null,
+                              "detail_label": "hook",
+                              "duration_ms": null,
+                              "id": "marker:marker:00000000-0000-4000-8000-000000000208",
+                              "kind": "marker",
+                              "label": "PreToolUse hook: non blocking error",
+                              "output_tokens": null,
+                              "started_at_ms": 1767258535390,
+                              "status": "none",
+                              "trace_ids": [
+                                "marker:00000000-0000-4000-8000-000000000208"
+                              ]
+                            },
+                            {
+                              "children": [],
+                              "collapsed_by_default": false,
+                              "context_tokens": 65954,
+                              "detail_label": "claude-opus-5-5, stop: end_turn",
+                              "duration_ms": 2957,
+                              "id": "model_call:model:msg_example000000000217",
+                              "kind": "model_call",
+                              "label": "Model call",
+                              "output_tokens": 224,
+                              "started_at_ms": 1767258537981,
+                              "status": "ok",
+                              "trace_ids": [
+                                "model:msg_example000000000217"
+                              ]
+                            }
+                          ],
+                          "collapsed_by_default": true,
+                          "context_tokens": 65954,
+                          "detail_label": "2 model calls, 1 tool call",
+                          "duration_ms": 8276,
+                          "id": "subagent:run:agent-a0000000000000159",
+                          "kind": "subagent",
+                          "label": "Example text 2766.",
+                          "output_tokens": 240,
+                          "started_at_ms": 1767258532662,
+                          "status": "ok",
+                          "trace_ids": [
+                            "run:agent-a0000000000000159",
+                            "turn:00000000-0000-4000-8000-000000000191"
+                          ]
+                        }
+                      ],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 49,
+                      "id": "tool_call:tool:toolu_example000000000156",
+                      "kind": "tool_call",
+                      "label": "Skill(Example text 1667.)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258532647,
+                      "status": "ok",
+                      "trace_ids": [
+                        "tool:toolu_example000000000156"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 83078,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 1631,
+                  "id": "model_call:model:msg_example000000000152",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 96,
+                  "started_at_ms": 1767258531016,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000152"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 83235,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 4618,
+                  "id": "model_call:model:msg_example000000000161",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 293,
+                  "started_at_ms": 1767258532696,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000161"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000166",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258537578,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000166"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 83235,
+              "detail_label": "8 model calls, 6 tool calls",
+              "duration_ms": 107821,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000109",
+              "kind": "prompt",
+              "label": "Run the tests and review the result.",
+              "output_tokens": 2492,
+              "started_at_ms": 1767258429763,
+              "status": "ok",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000109"
+              ]
+            },
+            "started_at_ms": 1767258429763,
+            "totals": {
+              "errors": 0,
+              "max_context_tokens": 83235,
+              "model_calls": 8,
+              "output_tokens": 2492,
+              "tool_calls": 6
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109"
+          },
+          {
+            "duration_ms": 23981,
+            "ended_at_ms": 1767258567224,
+            "index": 4,
+            "prompt_preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa...",
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "collapsed_by_default": false,
+                      "context_tokens": null,
+                      "detail_label": null,
+                      "duration_ms": 16990,
+                      "id": "tool_call:tool:toolu_example000000000176",
+                      "kind": "tool_call",
+                      "label": "Bash(echo example-1711)",
+                      "output_tokens": null,
+                      "started_at_ms": 1767258547098,
+                      "status": "error",
+                      "trace_ids": [
+                        "tool:toolu_example000000000176"
+                      ]
+                    }
+                  ],
+                  "collapsed_by_default": false,
+                  "context_tokens": 84157,
+                  "detail_label": "claude-opus-5-5, stop: tool_use",
+                  "duration_ms": 3855,
+                  "id": "model_call:model:msg_example000000000171",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 306,
+                  "started_at_ms": 1767258543243,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000171"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000178",
+                  "kind": "marker",
+                  "label": "PreToolUse hook: non blocking error",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258547310,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000178"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": 85078,
+                  "detail_label": "claude-opus-5-5, stop: end_turn",
+                  "duration_ms": 2873,
+                  "id": "model_call:model:msg_example000000000182",
+                  "kind": "model_call",
+                  "label": "Model call",
+                  "output_tokens": 239,
+                  "started_at_ms": 1767258564088,
+                  "status": "ok",
+                  "trace_ids": [
+                    "model:msg_example000000000182"
+                  ]
+                },
+                {
+                  "children": [],
+                  "collapsed_by_default": false,
+                  "context_tokens": null,
+                  "detail_label": "hook",
+                  "duration_ms": null,
+                  "id": "marker:marker:00000000-0000-4000-8000-000000000187",
+                  "kind": "marker",
+                  "label": "Stop hooks ran (1)",
+                  "output_tokens": null,
+                  "started_at_ms": 1767258567221,
+                  "status": "none",
+                  "trace_ids": [
+                    "marker:00000000-0000-4000-8000-000000000187"
+                  ]
+                }
+              ],
+              "collapsed_by_default": false,
+              "context_tokens": 85078,
+              "detail_label": "2 model calls, 1 tool call, 1 error",
+              "duration_ms": 23981,
+              "id": "prompt:turn:00000000-0000-4000-8000-000000000170",
+              "kind": "prompt",
+              "label": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa...",
+              "output_tokens": 545,
+              "started_at_ms": 1767258543243,
+              "status": "error",
+              "trace_ids": [
+                "turn:00000000-0000-4000-8000-000000000170"
+              ]
+            },
+            "started_at_ms": 1767258543243,
+            "totals": {
+              "errors": 1,
+              "max_context_tokens": 85078,
+              "model_calls": 2,
+              "output_tokens": 545,
+              "tool_calls": 1
+            },
+            "turn_id": "turn:00000000-0000-4000-8000-000000000170"
+          }
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000002",
+        "started_at_ms": 1767258000000,
+        "title": "Example text 1690."
+      },
+      "live": true,
+      "skipped": [],
+      "version": 6
+    }
+  }
+]

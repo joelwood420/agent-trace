@@ -1965,6 +1965,7 @@
   },
   "sessions": [
     {
+      "live": false,
       "modified_ms": 1767225600000,
       "project": "basic",
       "project_label": "basic",
@@ -2972,7 +2973,9 @@
         "started_at_ms": 1767258000000,
         "title": "Example text 1690."
       },
-      "skipped": []
+      "live": false,
+      "skipped": [],
+      "version": 1
     }
   }
 }

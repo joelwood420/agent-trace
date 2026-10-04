@@ -5,15 +5,20 @@
 // Hide the extra console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+// The live watcher that calls `LiveSession::refresh` and sends `LiveMessage`
+// to the UI is not wired up yet, so parts of this module are unused for now.
+#[allow(dead_code)]
+mod live;
 mod sessions;
 
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use tauri::Manager;
 use trace_view::NodeDetail;
 
-use sessions::{SessionCache, SessionError, SessionSummary, SessionView};
+use live::LiveSession;
+use sessions::{SessionError, SessionSummary, SessionView};
 
 /// Where the Claude Code projects folder is, resolved once at startup.
 struct AppPaths {
@@ -27,8 +32,10 @@ impl AppPaths {
     }
 }
 
-/// The most recently loaded session's trace, shared by the commands.
-struct AppCache(Arc<SessionCache>);
+/// The open session, shared by the commands. Clicking boxes in the diagram
+/// asks this session for details instead of re-reading the transcript.
+#[derive(Default)]
+struct Open(Arc<Mutex<Option<LiveSession>>>);
 
 /// Lists session transcripts under the projects folder, newest first.
 #[tauri::command(rename_all = "snake_case")]
@@ -39,18 +46,26 @@ async fn list_sessions(paths: tauri::State<'_, AppPaths>) -> Result<Vec<SessionS
     Ok(sessions)
 }
 
-/// Loads one session and returns its diagram model and skipped lines.
-/// `project` and `session_id` must be values returned by `list_sessions`.
+/// Loads one session, keeps it as the open session, and returns its
+/// diagram model and skipped lines. `project` and `session_id` must be values
+/// returned by `list_sessions`.
 #[tauri::command(rename_all = "snake_case")]
 async fn load_session(
     paths: tauri::State<'_, AppPaths>,
-    cache: tauri::State<'_, AppCache>,
+    open: tauri::State<'_, Open>,
     project: String,
     session_id: String,
 ) -> Result<SessionView, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let cache = Arc::clone(&cache.0);
-    let view = run_blocking(move || cache.load_session(&root, &project, &session_id)).await?;
+    let open = Arc::clone(&open.0);
+    let view = run_blocking(move || {
+        let live = LiveSession::open(&root, &project, &session_id)?;
+        let view = live.view();
+        let mut guard = open.lock().map_err(|_| SessionError::CachePoisoned)?;
+        *guard = Some(live);
+        Ok(view)
+    })
+    .await?;
     tracing::info!(
         prompts = view.diagram.prompts.len(),
         skipped = view.skipped.len(),
@@ -60,20 +75,31 @@ async fn load_session(
 }
 
 /// Full content of one trace node of a session, or `null` if the session has
-/// no node with that id. Uses the trace kept by `load_session` when it is the
-/// same session, so clicking boxes does not re-read the file.
+/// no node with that id. Uses the open session when it is the same one, so
+/// clicking boxes does not re-read the file; otherwise reads the session
+/// without keeping it.
 #[tauri::command(rename_all = "snake_case")]
 async fn node_detail(
     paths: tauri::State<'_, AppPaths>,
-    cache: tauri::State<'_, AppCache>,
+    open: tauri::State<'_, Open>,
     project: String,
     session_id: String,
     trace_id: String,
 ) -> Result<Option<NodeDetail>, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
-    let cache = Arc::clone(&cache.0);
-    let detail =
-        run_blocking(move || cache.node_detail(&root, &project, &session_id, &trace_id)).await?;
+    let open = Arc::clone(&open.0);
+    let detail = run_blocking(move || {
+        sessions::check_trace_id(&trace_id)?;
+        {
+            let guard = open.lock().map_err(|_| SessionError::CachePoisoned)?;
+            if let Some(live) = guard.as_ref().filter(|l| l.is(&project, &session_id)) {
+                return Ok(live.node_detail(&trace_id));
+            }
+        }
+        let live = LiveSession::open(&root, &project, &session_id)?;
+        Ok(live.node_detail(&trace_id))
+    })
+    .await?;
     tracing::info!(found = detail.is_some(), "loaded node detail");
     Ok(detail)
 }
@@ -113,7 +139,7 @@ fn main() -> anyhow::Result<()> {
                 }
             };
             app.manage(AppPaths { projects_root });
-            app.manage(AppCache(Arc::new(SessionCache::new())));
+            app.manage(Open::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
