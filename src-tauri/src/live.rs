@@ -83,6 +83,9 @@ pub struct LiveSession {
     version: u64,
     /// True once a missing main transcript has been reported.
     deleted: bool,
+    /// The `live` flag of the last view handed out, so a change in it alone
+    /// (the session going quiet) can be sent as an update.
+    sent_live: bool,
 }
 
 impl LiveSession {
@@ -99,6 +102,7 @@ impl LiveSession {
             skipped,
             version: 1,
             deleted: false,
+            sent_live: false,
         })
     }
 
@@ -117,12 +121,17 @@ impl LiveSession {
         self.project == project && self.session_id == session_id
     }
 
+    /// True if the session was reported deleted and has not come back.
+    pub fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
     /// The current view. `live` comes from the main transcript's modified
-    /// time and is false if that cannot be read.
-    pub fn view(&self) -> SessionView {
-        let live = std::fs::metadata(self.follower.main_path())
-            .map(|meta| is_live(crate::sessions::modified_ms(&meta), now_ms()))
-            .unwrap_or(false);
+    /// time and is false if that cannot be read. Remembers the `live` flag
+    /// it hands out, so `refresh` can tell when it changes.
+    pub fn view(&mut self) -> SessionView {
+        let live = self.current_live();
+        self.sent_live = live;
         SessionView {
             diagram: trace_view::build_session(&self.trace),
             skipped: self.skipped.clone(),
@@ -132,37 +141,57 @@ impl LiveSession {
     }
 
     /// Reads whatever was written since the last call. Returns `None` if
-    /// nothing changed, `Updated` with the whole new view after new lines or
-    /// a rewritten file, and `Status { Deleted }` once when the main
-    /// transcript disappears. On an error the last trace is kept.
+    /// nothing changed, `Updated` with the whole new view after new lines, a
+    /// rewritten or recreated file, or a change in the `live` flag alone
+    /// (then with no changed ids), and `Status { Deleted }` once when the
+    /// main transcript disappears. On an error the last trace is kept.
     pub fn refresh(&mut self) -> Result<Option<LiveMessage>, SessionError> {
+        if self.deleted {
+            // A file that comes back is a new file: reading on from the old
+            // offset would be wrong, so start over.
+            return self.restart("transcript is back, reading it again");
+        }
         match self.follower.poll(ReadMode::Live)? {
             PollOutcome::Changed(session) => {
-                // The file is there again (or never went away).
-                self.deleted = false;
                 if session.events.is_empty() && session.skipped.is_empty() {
+                    if self.current_live() != self.sent_live {
+                        return Ok(Some(self.updated(Vec::new())));
+                    }
                     return Ok(None);
                 }
                 let changed = apply(&mut self.trace, &mut self.skipped, session);
                 Ok(Some(self.updated(changed)))
             }
-            PollOutcome::Rewritten => {
-                let path = self.follower.main_path().to_path_buf();
-                let (follower, trace, skipped) = match start(&path) {
-                    Ok(started) => started,
-                    Err(SessionError::NotFound) => return Ok(self.missing()),
-                    Err(err) => return Err(err),
-                };
-                tracing::info!("transcript was rewritten, reading it again");
-                self.follower = follower;
-                self.trace = trace;
-                self.skipped = skipped;
-                self.deleted = false;
-                let changed = all_trace_ids(&self.trace);
-                Ok(Some(self.updated(changed)))
-            }
+            PollOutcome::Rewritten => self.restart("transcript was rewritten, reading it again"),
             PollOutcome::Missing => Ok(self.missing()),
         }
+    }
+
+    /// Reads the main transcript again from the start with a new follower,
+    /// and returns an update listing every node. Reports the file as
+    /// missing if it is not there.
+    fn restart(&mut self, why: &str) -> Result<Option<LiveMessage>, SessionError> {
+        let path = self.follower.main_path().to_path_buf();
+        let (follower, trace, skipped) = match start(&path) {
+            Ok(started) => started,
+            Err(SessionError::NotFound) => return Ok(self.missing()),
+            Err(err) => return Err(err),
+        };
+        tracing::info!("{why}");
+        self.follower = follower;
+        self.trace = trace;
+        self.skipped = skipped;
+        self.deleted = false;
+        let changed = all_trace_ids(&self.trace);
+        Ok(Some(self.updated(changed)))
+    }
+
+    /// Whether the main transcript was written within the live window.
+    /// False if its modified time cannot be read.
+    fn current_live(&self) -> bool {
+        std::fs::metadata(self.follower.main_path())
+            .map(|meta| is_live(crate::sessions::modified_ms(&meta), now_ms()))
+            .unwrap_or(false)
     }
 
     /// Full content of one trace node, or `None` if there is no such node.
@@ -397,6 +426,98 @@ mod tests {
             live.node_detail(&format!("run:{SESSION}")).is_some(),
             "last trace is kept"
         );
+    }
+
+    #[test]
+    fn recreated_file_is_read_from_the_start() {
+        let (root, main) = temp_root("recreated");
+        let pieces = parts(2);
+        append(&main, &pieces[0]);
+        append(&main, &pieces[1]);
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        std::fs::remove_file(&main).expect("delete");
+        assert!(matches!(
+            live.refresh().expect("refresh"),
+            Some(LiveMessage::Status {
+                status: LiveStatus::Deleted,
+                ..
+            })
+        ));
+        assert!(live.is_deleted());
+        assert_eq!(live.refresh().expect("refresh"), None, "still gone");
+
+        // Recreated with different (shorter) content.
+        append(&main, &pieces[0]);
+        let Some(LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        }) = live.refresh().expect("refresh")
+        else {
+            panic!("expected an update for the recreated file");
+        };
+        assert!(!live.is_deleted());
+        assert!(changed_trace_ids.iter().any(|id| id.starts_with("run:")));
+        let expected = {
+            let (other_root, other_main) = temp_root("recreated-expected");
+            append(&other_main, &pieces[0]);
+            LiveSession::open(&other_root, "basic", SESSION)
+                .expect("open")
+                .view()
+        };
+        assert_eq!(view.diagram, expected.diagram);
+        assert_eq!(view.skipped, expected.skipped);
+        assert_eq!(live.refresh().expect("refresh"), None);
+    }
+
+    /// Sets the file's modified time to `age` ago.
+    fn age_file(path: &Path, age: std::time::Duration) {
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .open(path)
+            .expect("open");
+        f.set_modified(std::time::SystemTime::now() - age)
+            .expect("set mtime");
+    }
+
+    #[test]
+    fn live_flag_changes_are_sent_without_new_lines() {
+        let (root, main) = temp_root("live-flag");
+        append(&main, &fixture_main());
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        assert!(live.view().live, "fresh file");
+        assert_eq!(live.refresh().expect("refresh"), None);
+
+        age_file(&main, std::time::Duration::from_secs(11 * 60));
+        let Some(LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        }) = live.refresh().expect("refresh")
+        else {
+            panic!("expected an update when the session goes quiet");
+        };
+        assert!(!view.live);
+        assert!(changed_trace_ids.is_empty());
+        assert_eq!(view.version, 2);
+        assert_eq!(live.refresh().expect("refresh"), None, "sent once");
+
+        age_file(&main, std::time::Duration::ZERO);
+        let Some(LiveMessage::Updated { view, .. }) = live.refresh().expect("refresh") else {
+            panic!("expected an update when the file is touched again");
+        };
+        assert!(view.live);
+        assert_eq!(view.version, 3);
+    }
+
+    #[test]
+    fn an_old_session_stays_quiet() {
+        let (root, main) = temp_root("old");
+        append(&main, &fixture_main());
+        age_file(&main, std::time::Duration::from_secs(60 * 60));
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        assert!(!live.view().live);
+        assert_eq!(live.refresh().expect("refresh"), None);
     }
 
     #[test]

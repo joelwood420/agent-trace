@@ -62,7 +62,7 @@ async fn load_session(
     // if it finishes first.
     let ticket = shared.begin_load();
     let view = run_blocking(move || {
-        let session = LiveSession::open(&root, &project, &session_id)?;
+        let mut session = LiveSession::open(&root, &project, &session_id)?;
         let view = session.view();
         let status = if shared.watcher_ok.load(Ordering::SeqCst) {
             LiveStatus::Watching
@@ -121,7 +121,8 @@ async fn node_detail(
 }
 
 /// Sends a signal through `on_change` whenever the session list may have
-/// changed, at most every two seconds. The signal carries no data; the UI
+/// changed, at most every two seconds and at least once a minute (so live
+/// markers expire). The signal carries no data; the UI
 /// calls `list_sessions` again. A later call replaces the channel.
 #[tauri::command(rename_all = "snake_case")]
 fn watch_sessions(

@@ -16,7 +16,7 @@ use std::time::{Duration, Instant};
 use notify::{EventKind, RecursiveMode, Watcher};
 use serde::Serialize;
 
-use crate::live::{LiveMessage, LiveSession};
+use crate::live::{LiveMessage, LiveSession, LiveStatus};
 
 /// Somewhere to send messages for the UI. Returns `false` when the message
 /// could not be delivered, for example because the receiver is gone.
@@ -126,6 +126,9 @@ pub const BATCH: Duration = Duration::from_millis(250);
 pub const POLL: Duration = Duration::from_secs(1);
 /// The shortest time between two session list change signals.
 pub const LIST_GAP: Duration = Duration::from_secs(2);
+/// The longest time between two session list change signals, even with no
+/// file events, so the list's live dots go out when sessions go quiet.
+pub const LIST_REFRESH: Duration = Duration::from_secs(60);
 
 /// Decides when to refresh the open session and when to signal a session
 /// list change. Pure logic with the clock passed in, so it can be tested.
@@ -174,8 +177,9 @@ impl Scheduler {
             self.session_dirty = false;
             self.last_poll = now;
         }
+        let since_list = now.saturating_duration_since(self.last_list);
         let list_changed =
-            self.list_dirty && now.saturating_duration_since(self.last_list) >= LIST_GAP;
+            (self.list_dirty && since_list >= LIST_GAP) || since_list >= LIST_REFRESH;
         if list_changed {
             self.list_dirty = false;
             self.last_list = now;
@@ -312,10 +316,27 @@ fn refresh_active(shared: &Shared) {
     let Some(active) = guard.as_mut() else {
         return;
     };
+    let was_deleted = active.session.is_deleted();
     match active.session.refresh() {
         Ok(Some(message)) => {
             if !active.sink.send(message) {
                 tracing::debug!("could not send a live update; the UI may have reloaded");
+            }
+            if was_deleted && !active.session.is_deleted() {
+                // The file came back: replace the "deleted" status.
+                let status = if shared.watcher_ok.load(Ordering::SeqCst) {
+                    LiveStatus::Watching
+                } else {
+                    LiveStatus::NoWatcher
+                };
+                let message = LiveMessage::Status {
+                    project: active.session.project().to_string(),
+                    session_id: active.session.session_id().to_string(),
+                    status,
+                };
+                if !active.sink.send(message) {
+                    tracing::debug!("could not send the live status");
+                }
             }
         }
         Ok(None) => {}
@@ -425,6 +446,23 @@ mod tests {
         assert!(s.due(start + LIST_GAP).list_changed);
     }
 
+    #[test]
+    fn the_list_is_signalled_at_least_once_a_minute() {
+        let start = Instant::now();
+        let mut s = Scheduler::new(start);
+        let mut at = start;
+        while at + POLL < start + LIST_REFRESH {
+            at += POLL;
+            assert!(!s.due(at).list_changed, "nothing changed yet");
+        }
+        assert!(s.due(start + LIST_REFRESH).list_changed);
+        assert!(
+            !s.due(start + LIST_REFRESH + POLL).list_changed,
+            "the next one waits another minute"
+        );
+        assert!(s.due(start + LIST_REFRESH * 2).list_changed);
+    }
+
     /// A temp projects root holding the sanitised `basic` fixture.
     fn fixture_root(name: &str) -> PathBuf {
         let root =
@@ -447,7 +485,7 @@ mod tests {
         LiveMessage::Status {
             project: name.into(),
             session_id: SESSION.into(),
-            status: crate::live::LiveStatus::Watching,
+            status: LiveStatus::Watching,
         }
     }
 
@@ -498,6 +536,48 @@ mod tests {
     #[test]
     fn newest_load_wins_when_loads_finish_in_order() {
         assert_eq!(race(false), "b");
+    }
+
+    #[test]
+    fn a_file_that_comes_back_clears_the_deleted_status() {
+        let root = fixture_root("comes-back");
+        let main = root.join("basic").join(format!("{SESSION}.jsonl"));
+        let content = std::fs::read(&main).expect("read");
+        let shared = Shared::default();
+        let (tx, rx) = mpsc::channel::<LiveMessage>();
+        *shared.active() = Some(Active {
+            session: LiveSession::open(&root, "basic", SESSION).expect("open"),
+            sink: Box::new(tx),
+        });
+
+        std::fs::remove_file(&main).expect("delete");
+        refresh_active(&shared);
+        assert!(matches!(
+            rx.try_recv().expect("deleted status"),
+            LiveMessage::Status {
+                status: LiveStatus::Deleted,
+                ..
+            }
+        ));
+
+        std::fs::write(&main, &content).expect("recreate");
+        refresh_active(&shared);
+        assert!(matches!(
+            rx.try_recv().expect("update"),
+            LiveMessage::Updated { .. }
+        ));
+        assert!(
+            matches!(
+                rx.try_recv().expect("status"),
+                LiveMessage::Status {
+                    status: LiveStatus::NoWatcher,
+                    ..
+                }
+            ),
+            "the status is reset (no watcher runs in this test)"
+        );
+        refresh_active(&shared);
+        assert!(rx.try_recv().is_err(), "nothing more to send");
     }
 
     #[test]

@@ -511,7 +511,7 @@ mod tests {
 
     #[test]
     fn node_detail_comes_from_the_open_session() {
-        let live = LiveSession::open(&fixture_root(), "basic", FIXTURE_SESSION).expect("open");
+        let mut live = LiveSession::open(&fixture_root(), "basic", FIXTURE_SESSION).expect("open");
         let turn_id = live.view().diagram.prompts[0].turn_id.clone();
         let detail = live.node_detail(&turn_id).expect("known id");
         assert_eq!(detail.trace_id, turn_id);
@@ -599,7 +599,7 @@ mod tests {
             s.modified_ms = 1_767_225_600_000;
             s.live = false;
         }
-        let live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
+        let mut live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
         let mut view = live.view();
         view.live = false;
         let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
@@ -664,7 +664,8 @@ mod tests {
             drop(f);
             let message = match live.as_mut() {
                 None => {
-                    let opened = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
+                    let mut opened =
+                        LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
                     let view = opened.view();
                     live = Some(opened);
                     LiveMessage::Updated {
