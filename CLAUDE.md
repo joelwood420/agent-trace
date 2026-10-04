@@ -82,7 +82,7 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - Format: `cargo fmt --all`
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
 - UI checks: `cd ui; npm run lint; npm run typecheck; npm test; npm run build`
-- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock`
+- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing)
 - Refresh the UI mock data (`ui/src/mock/fixture-data.json` and `ui/src/mock/live-steps.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of both files
 
 If a command here turns out to be wrong after scaffolding, fix this file.
@@ -110,17 +110,18 @@ You are doing the implementation and I will mostly not read the code. That means
 
 ## Current milestone
 
-M2: Tauri app shell that loads a saved session and renders one diagram per prompt.
+M3: live file watching with diagrams updating as a session runs.
 
-Status: complete. M3 (live file watching) is next; plan its steps with me before starting.
+Status: complete. M4 (proxy capture of raw API requests) is next; plan its steps with me before starting.
 
-1. Tauri scaffold and minimal permissions.
-2. Backend commands to list and load sessions.
-3. Diagram model in Rust (`crates/trace-view`).
-4. UI: session list, prompt list, diagram, details panel.
-5. README screenshot and docs.
+1. `TranscriptTail`: read only the new complete lines of a growing transcript.
+2. `SessionFollower`: follow a session and its subagents, linking subagents from their meta file or tool result.
+3. `LiveSession` in the app: keep the open session's trace and diagram current, `live` and `version` fields.
+4. Watcher thread with one-second polling, updates pushed to the UI over Tauri channels.
+5. UI: live dot, Live badge, new prompt highlight, state kept across updates.
+6. Checked against real running sessions, docs updated.
 
-Out of scope for now: live watching, API proxy capture, token cost breakdowns, and the toy harness.
+Out of scope for now: follow mode, API proxy capture, token cost breakdowns, and the toy harness.
 
 ## Later milestones (for context only)
 

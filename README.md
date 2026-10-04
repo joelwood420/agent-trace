@@ -16,7 +16,7 @@ It is a learning and debugging tool for understanding how an agent harness behav
 |---|---|---|
 | M1 | Replay a finished session from a file (schema, adapter, CLI tree printer) | Done |
 | M2 | Tauri app shell that renders one diagram per prompt | Done |
-| M3 | Live file watching | Planned |
+| M3 | Live file watching: diagrams update as a session runs | Done |
 | M4 | Proxy capture of raw API requests | Planned |
 | M5 | Toy Rust harness that emits the trace format natively | Planned |
 
@@ -69,7 +69,7 @@ cargo run -p trace-view --example print_diagram -- fixtures\claude-code\basic\00
 - `crates/trace-core`: the trace schema (Run > Turn > ModelCall > ToolCall). No I/O, nothing harness-specific.
 - `crates/adapter-claude-code`: converts Claude Code JSONL transcripts into `trace-core` events.
 - `crates/trace-view`: turns a trace into the diagram model the UI draws. Harness-agnostic, no I/O. See `docs/VIEW-MODEL.md`.
-- `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only, and builds the diagram model.
+- `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only, watches them for changes, and builds the diagram model.
 - `ui/`: the web UI shown inside the app window (React, TypeScript, Vite, React Flow).
 - `fixtures/`: sanitised example transcripts used by tests.
 - `docs/`: schema description, diagram view model, design decisions, and notes on harness behaviour.
@@ -106,6 +106,12 @@ cargo tauri build
 
 Boxes marked "Repeated" (runs of similar calls) and "Subagent" start collapsed; use their Show button, or "Expand all". A dashed box around tool calls means they were requested together. Status is shown by colour and by a word (ok, error, running).
 
+### Live updates
+
+Sessions written in the last 10 minutes have a green dot in the list. The open session updates by itself while Claude Code writes it: new prompts, model calls, tool results and subagents appear without reloading, and new prompts are highlighted briefly. Expanded boxes and the selected box stay as they are. The session list also refreshes by itself when sessions are added or change.
+
+The app watches the `.claude\projects` folder for changes and also checks the open session once a second, read-only. If the folder cannot be watched, the open session still updates, and the session list needs the Refresh button.
+
 ### Viewing the UI in a browser (development only)
 
 To check the UI without the desktop app, run the UI dev server and open it with `?mock`. It replays the sanitised sample session from `fixtures/`, never your own sessions.
@@ -115,7 +121,7 @@ cd ui; npm run dev
 # then open http://localhost:5173/?mock
 ```
 
-Add `&delay=2000` to slow responses down, or `&fail=list`, `&fail=load` or `&fail=detail` to see how errors are shown. Mock mode is not included in production builds.
+Add `&delay=2000` to slow responses down, or `&fail=list`, `&fail=load` or `&fail=detail` to see how errors are shown. Add `&live` to replay the sample session growing step by step (`&step=<ms>` sets the pace, `&fail=live` ends with the file deleted). Mock mode is not included in production builds.
 
 ## Test and lint
 

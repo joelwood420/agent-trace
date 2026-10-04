@@ -48,6 +48,14 @@ Observations about how Claude Code behaves (loop structure, compaction, subagent
 - A background Agent call returns at once with `toolUseResult.status = "async_launched"` and the `agentId`. A foreground call only reports its `agentId` in the tool result once the subagent has finished.
 - So while a session is running, the meta file is the only way to know which tool call a running subagent belongs to. Snitchcraft links a subagent from either source, whichever comes first. The meta files of forked skills seen so far have no `toolUseId`.
 
+## Writing while running (seen during M3)
+
+- The transcript file is created when the session starts, before the first model response. In a short `claude -p` run with Haiku, about 9 seconds passed between the file appearing and the first `assistant` line.
+- Lines then arrive one response block at a time, so a live view grows in small steps (one model call or one tool result every one to two seconds in that run).
+- A foreground subagent's transcript gets its first line about 30 ms after the parent's `tool_use` line for the Agent tool. Its `.meta.json` (with `toolUseId`, and `requestShape: "foreground"`) is written about 200 ms after that, and is not changed afterwards.
+- In `claude -p` (print mode) the main transcript has no `system` lines at all, so there is no `turn_duration` and the prompt has no end time.
+- With the watcher plus one-second polling, updates reached the open diagram within about two seconds of being written. Whether each update came from a file notice or from polling was not measured, so it is still open whether Windows notices for a file Claude Code keeps open arrive late.
+
 ## Hooks
 
 - Hook activity shows up three ways: `attachment` lines with types like `hook_success`, `hook_additional_context` and `hook_non_blocking_error` (with `hookEvent`, for example `SessionStart` or `PreToolUse`, and for tool hooks a `toolUseID`), and a `system` line with subtype `stop_hook_summary` at the end of each turn.
