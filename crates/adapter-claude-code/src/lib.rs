@@ -3,6 +3,7 @@
 //! and logged, never a panic.
 
 mod parser;
+mod tail;
 mod time;
 
 use std::path::{Path, PathBuf};
@@ -10,6 +11,7 @@ use std::path::{Path, PathBuf};
 use trace_core::TraceEvent;
 
 pub use parser::{HARNESS, Parser, Skipped, SubagentLink};
+pub use tail::{TailRead, TranscriptTail};
 
 /// Errors from reading transcript files.
 #[derive(Debug, thiserror::Error)]
