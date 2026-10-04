@@ -42,6 +42,12 @@ Observations about how Claude Code behaves (loop structure, compaction, subagent
 - The subagent's first line is a `user` line marked `isMeta: true`: its task. Every line in the file has `isSidechain: true`.
 - When the subagent finishes, the result reaches the main session as a new user line starting with `<task-notification>`, with `origin.kind = "task-notification"` and `promptSource = "system"`. This starts a new turn that the user did not type.
 
+## Linking subagents early
+
+- `agent-<id>.meta.json` for a subagent started with the Agent tool has `toolUseId`: the id of the `tool_use` block that started it. It also has `agentType`, `description` and `spawnDepth`, and for background agents `requestShape: "background"`.
+- A background Agent call returns at once with `toolUseResult.status = "async_launched"` and the `agentId`. A foreground call only reports its `agentId` in the tool result once the subagent has finished.
+- So while a session is running, the meta file is the only way to know which tool call a running subagent belongs to. Snitchcraft links a subagent from either source, whichever comes first. The meta files of forked skills seen so far have no `toolUseId`.
+
 ## Hooks
 
 - Hook activity shows up three ways: `attachment` lines with types like `hook_success`, `hook_additional_context` and `hook_non_blocking_error` (with `hookEvent`, for example `SessionStart` or `PreToolUse`, and for tool hooks a `toolUseID`), and a `system` line with subtype `stop_hook_summary` at the end of each turn.

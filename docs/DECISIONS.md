@@ -202,3 +202,11 @@ Each box is a focusable element with the button role: Tab moves between boxes an
 ### 2026-10-04: Decision models belong in the harness, not the viewer
 
 Fast decision models such as Jev (TypeSafe AI, released 2026-09-15) answer typed questions about a piece of text with choices, scores, or probabilities. They were considered as a way to explain traces in Snitchcraft and rejected for that: they give their own judgement of the text, not the agent's real reasons, most labels they could add are already exact in the trace, and using one would send private transcripts to a third party. Instead, the M5 toy harness will try one inside its loop for routing and stop checks, and Snitchcraft will trace each decision call as its own node. That shows how often a router chose wrong, which is the debugging use this project exists for.
+
+### 2026-10-05: Subagents are linked from their meta file as well as the tool result
+
+A foreground Agent call only reports its subagent's id in the tool result when the subagent has finished, so a live view would not show a running subagent. The subagent's `.meta.json` names the starting tool call in `toolUseId`, so the adapter also links from there, as soon as that tool call is in the trace. Result-based linking is kept for subagents without that field (forked skills). This also applies to loading a finished session, so a subagent whose tool result is missing (for example an interrupted session) now shows up.
+
+### 2026-10-05: Live reading holds back a last line with no newline
+
+`TranscriptTail` only returns lines that end in a newline. Claude Code ends every line with one, so a line without it is still being written. Loading a finished file in one go (`load_session`) still accepts a valid JSON last line without a newline, as before.
