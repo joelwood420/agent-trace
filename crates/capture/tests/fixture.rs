@@ -127,3 +127,21 @@ fn the_fixture_has_two_system_prompts_and_two_tool_sets() {
         "base set, and base set plus WebFetch"
     );
 }
+
+#[test]
+fn the_fixture_contains_nothing_personal() {
+    let text = fs::read_to_string(repo_path("fixtures/captures/basic/calls.jsonl"))
+        .expect("read the capture fixture");
+    // A Windows path appears JSON-escaped in the file, so check both spellings.
+    for word in [
+        "Users",
+        "AppData",
+        "Bearer",
+        r"C:\Users",
+        r"C:\\Users",
+        "@",
+        "sk-ant",
+    ] {
+        assert!(!text.contains(word), "the fixture contains {word:?}");
+    }
+}

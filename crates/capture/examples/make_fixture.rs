@@ -509,6 +509,12 @@ fn base_tools() -> Value {
             &["command"],
         ),
         tool(
+            "Bash",
+            "Run an invented shell command.",
+            json!({ "command": { "type": "string", "description": "The command to run." } }),
+            &["command"],
+        ),
+        tool(
             "Skill",
             "Start an invented skill by name.",
             json!({ "skill": { "type": "string", "description": "The skill name." } }),
