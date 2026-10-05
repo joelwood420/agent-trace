@@ -13,6 +13,8 @@ trace-core = { path = "crates/trace-core" }
 adapter-claude-code = { path = "crates/adapter-claude-code" }
 trace-view = { path = "crates/trace-view" }
 capture-core = { path = "crates/capture-core" }
+capture = { path = "crates/capture" }
+flate2 = "1"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["preserve_order"] }
 sha2 = "0.10"

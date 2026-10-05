@@ -241,6 +241,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "capture"
+version = "0.1.0"
+dependencies = [
+ "capture-core",
+ "flate2",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "tracing",
+]
+
+[[package]]
 name = "capture-core"
 version = "0.1.0"
 dependencies = [

@@ -16,6 +16,7 @@ Significant decisions and the reasons for them. Every added dependency is record
 | `anyhow` | snitchcraft | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
 | `notify` 8 | snitchcraft | Watches the projects folder for transcript changes (M3). Named in CLAUDE.md. Version 8 is the latest stable; 9 is a release candidate. No debouncer crate: the worker batches events itself. |
 | `sha2` 0.10 | capture-core | Content hashes for deduplicating system prompts and tool sets; already in the build through Tauri. |
+| `flate2` 1 | capture | Gzip for stored captures; already in the build through Tauri. |
 
 UI packages (`ui/package.json`):
 
@@ -280,3 +281,7 @@ Request and response headers are filtered before they are stored. Credential hea
 ### 2026-10-06: The diff ignores cache markers
 
 Claude Code moves the `cache_control` marker to the newest message on every call, so comparing messages literally would report the last message of every call as changed. The request diff removes every `cache_control` key at any depth before comparing messages. The full request view still shows the markers.
+
+### 2026-10-06: Capture store layout
+
+`captures/<session key>/calls.jsonl.gz` is a gzip file with one gzip member per record, so an append is a single write and needs no rewrite of the file. A crash can damage only the last member, which loading skips. `captures/<session key>/blobs/<sha256>.json.gz` holds each distinct system prompt and tool set. In a stored record those two body fields are replaced in place by `{"snitchcraft_blob": "<sha256>"}` and the line lists which fields were replaced, so they are restored at the same position. Reason: appends stay cheap and crash-safe, and a system prompt or tool set that repeats on every call is stored once. Session keys are limited to 128 characters of letters, digits, `_` and `-`, so a key can never point outside the store.
