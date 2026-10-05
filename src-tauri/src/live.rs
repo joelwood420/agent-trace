@@ -159,18 +159,22 @@ impl LiveSession {
         self.capture_records = records;
     }
 
-    /// Replaces the session's captured records (as `set_captures`), bumps the
-    /// version and returns an `Updated` message. Its changed ids are the
-    /// model calls that gained or lost a capture, in trace order.
-    pub fn refresh_captures(&mut self, records: Arc<Vec<CaptureRecord>>) -> LiveMessage {
+    /// Replaces the session's captured records (as `set_captures`). If any
+    /// model call gained or lost a capture, bumps the version and returns an
+    /// `Updated` message listing those calls in trace order; otherwise
+    /// returns `None` (the diagram looks the same).
+    pub fn refresh_captures(&mut self, records: Arc<Vec<CaptureRecord>>) -> Option<LiveMessage> {
         let before: HashSet<String> = self.captures.captured_trace_ids().into_iter().collect();
         self.set_captures(records);
         let after: HashSet<String> = self.captures.captured_trace_ids().into_iter().collect();
-        let changed = all_trace_ids(&self.trace)
+        let changed: Vec<String> = all_trace_ids(&self.trace)
             .into_iter()
             .filter(|id| before.contains(id) != after.contains(id))
             .collect();
-        self.updated(changed)
+        if changed.is_empty() {
+            return None;
+        }
+        Some(self.updated(changed))
     }
 
     /// The capture store key of this session, if its id is a usable one.
@@ -653,11 +657,11 @@ mod tests {
         let (root, main) = temp_root("captures-refresh");
         append(&main, &fixture_main());
         let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
-        let LiveMessage::Updated {
+        let Some(LiveMessage::Updated {
             view,
             changed_trace_ids,
             ..
-        } = live.refresh_captures(Arc::new(crate::captures::fixture_records()))
+        }) = live.refresh_captures(Arc::new(crate::captures::fixture_records()))
         else {
             panic!("expected an update");
         };
@@ -668,12 +672,17 @@ mod tests {
         changed.sort();
         assert!(!marked.is_empty());
         assert_eq!(changed, marked, "every newly captured call");
+        assert_eq!(
+            live.refresh_captures(Arc::new(crate::captures::fixture_records())),
+            None,
+            "nothing changed, nothing sent"
+        );
 
-        let LiveMessage::Updated {
+        let Some(LiveMessage::Updated {
             view,
             changed_trace_ids,
             ..
-        } = live.refresh_captures(Arc::new(Vec::new()))
+        }) = live.refresh_captures(Arc::new(Vec::new()))
         else {
             panic!("expected an update");
         };

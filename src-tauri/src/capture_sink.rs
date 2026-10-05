@@ -34,14 +34,18 @@ fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
         .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
-/// The decoded records of the last session read from the store, kept until
-/// a new record for that session arrives or it is deleted.
+/// The decoded records of the last session read from the store. A new
+/// record for that session is added to them; deleting the session's captures
+/// clears them.
 #[derive(Default)]
 pub struct RecordCache {
     /// The session key and its records.
     last: Mutex<Option<(String, Arc<Vec<CaptureRecord>>)>>,
     /// Held while a change to the store is applied to the open session.
     updates: Mutex<()>,
+    /// How many times the store was read, so tests can see cache hits.
+    #[cfg(test)]
+    loads: std::sync::atomic::AtomicUsize,
 }
 
 impl RecordCache {
@@ -59,6 +63,8 @@ impl RecordCache {
                 return Ok(Arc::clone(records));
             }
         }
+        #[cfg(test)]
+        self.loads.fetch_add(1, Ordering::SeqCst);
         let loaded = store.load(key)?;
         for reason in &loaded.skipped {
             tracing::debug!(reason, "skipped stored capture data");
@@ -66,6 +72,24 @@ impl RecordCache {
         let records = Arc::new(loaded.records);
         *last = Some((key.to_string(), Arc::clone(&records)));
         Ok(records)
+    }
+
+    /// Adds a record that was just saved for session `key` to the cached
+    /// records, if they are this session's, so the next read needs no
+    /// decoding. A record already there (read from the store after it was
+    /// saved) is not added twice.
+    pub fn add_record(&self, key: &str, record: &CaptureRecord) {
+        let mut last = lock(&self.last);
+        let Some((cached_key, records)) = last.as_mut() else {
+            return;
+        };
+        if cached_key != key || records.iter().any(|r| r.id == record.id) {
+            return;
+        }
+        let mut grown = Vec::with_capacity(records.len() + 1);
+        grown.extend(records.iter().cloned());
+        grown.push(record.clone());
+        *records = Arc::new(grown);
     }
 
     /// Forgets the cached records if they belong to session `key`.
@@ -165,7 +189,8 @@ impl CaptureSink for AppSink {
             *lock(&self.state.last_save_error) = Some(err.to_string());
             return;
         }
-        self.cache.invalidate(&key);
+        *lock(&self.state.last_save_error) = None;
+        self.cache.add_record(&key, &record);
         let is_open =
             self.shared.active().as_ref().is_some_and(|active| {
                 active.session.capture_key().as_deref() == Some(key.as_str())
@@ -176,8 +201,9 @@ impl CaptureSink for AppSink {
     }
 }
 
-/// Reloads the records of session `key` (outside the lock) and, if it is
-/// still the open session, applies them and sends an update. The caller
+/// Gets the records of session `key` through the cache (outside the lock)
+/// and, if it is still the open session, applies them and sends an update
+/// when a model call gained or lost a capture. The caller
 /// holds `RecordCache::lock_updates`.
 fn update_open_session(store: &CaptureStore, cache: &RecordCache, shared: &Shared, key: &str) {
     let records = match cache.get_or_load(store, key) {
@@ -194,9 +220,10 @@ fn update_open_session(store: &CaptureStore, cache: &RecordCache, shared: &Share
     else {
         return;
     };
-    let message = active.session.refresh_captures(records);
-    if !active.sink.send(message) {
-        tracing::debug!("could not send a capture update; the UI may have reloaded");
+    if let Some(message) = active.session.refresh_captures(records) {
+        if !active.sink.send(message) {
+            tracing::debug!("could not send a capture update; the UI may have reloaded");
+        }
     }
 }
 
@@ -308,9 +335,10 @@ pub fn delete_session_captures(
     cache.invalidate(&key);
     let mut guard = shared.active();
     if let Some(active) = guard.as_mut().filter(|a| a.session.is(project, session_id)) {
-        let message = active.session.refresh_captures(Arc::new(Vec::new()));
-        if !active.sink.send(message) {
-            tracing::debug!("could not send a capture update; the UI may have reloaded");
+        if let Some(message) = active.session.refresh_captures(Arc::new(Vec::new())) {
+            if !active.sink.send(message) {
+                tracing::debug!("could not send a capture update; the UI may have reloaded");
+            }
         }
     }
     Ok(())
@@ -458,6 +486,93 @@ mod tests {
         sink.record(with_session(record, Some(SESSION)));
         assert!(capture_status(&state).last_save_error.is_some());
         assert!(rx.try_recv().is_err(), "no message sent");
+    }
+
+    #[test]
+    fn a_successful_save_clears_the_last_save_error() {
+        let (root, good_store) = setup("save-error-cleared");
+        let blocker = root.join("blocker");
+        std::fs::write(&blocker, b"x").expect("write");
+        let bad_store = Arc::new(CaptureStore::new(blocker));
+        let (shared, _rx) = open_session(&root);
+        let state = Arc::new(ProxyState::default());
+        let cache = Arc::new(RecordCache::default());
+        let failing = AppSink::new(
+            bad_store,
+            Arc::clone(&shared),
+            Arc::clone(&cache),
+            Arc::clone(&state),
+        );
+        let working = AppSink::new(good_store, shared, cache, Arc::clone(&state));
+        let (record, _) = mapped_capture();
+        failing.record(with_session(record.clone(), Some(SESSION)));
+        assert!(capture_status(&state).last_save_error.is_some());
+        working.record(with_session(record, Some(SESSION)));
+        assert_eq!(capture_status(&state).last_save_error, None);
+    }
+
+    #[test]
+    fn new_records_are_added_to_the_cache_without_a_reload() {
+        let (root, store) = setup("cache-grows");
+        let (shared, rx) = open_session(&root);
+        let cache = Arc::new(RecordCache::default());
+        let state = Arc::new(ProxyState::default());
+        let sink = AppSink::new(
+            Arc::clone(&store),
+            Arc::clone(&shared),
+            Arc::clone(&cache),
+            state,
+        );
+        let records: Vec<CaptureRecord> = fixture_records()
+            .into_iter()
+            .filter(|r| {
+                r.message_id
+                    .as_deref()
+                    .is_some_and(|m| m != "msg_title_test")
+            })
+            .take(2)
+            .collect();
+        assert_eq!(records.len(), 2);
+        for record in &records {
+            sink.record(with_session(record.clone(), Some(SESSION)));
+        }
+        assert_eq!(
+            cache.loads.load(Ordering::SeqCst),
+            1,
+            "only the first record read the store"
+        );
+        let cached = cache.get_or_load(&store, SESSION).expect("cached");
+        assert_eq!(
+            cache.loads.load(Ordering::SeqCst),
+            1,
+            "served from the cache"
+        );
+        assert_eq!(*cached, store.load(SESSION).expect("load").records);
+        assert_eq!(cached.len(), 2);
+        assert_eq!(rx.try_iter().count(), 2, "one update per newly marked call");
+
+        // A record already read from the store is not added twice.
+        cache.add_record(SESSION, &cached[1]);
+        assert_eq!(cache.get_or_load(&store, SESSION).expect("cached").len(), 2);
+    }
+
+    #[test]
+    fn a_capture_that_marks_no_new_call_sends_nothing() {
+        let (root, store) = setup("no-change");
+        let (shared, rx) = open_session(&root);
+        let (sink, _) = sink(&store, &shared);
+        let title = fixture_records()
+            .into_iter()
+            .find(|r| r.message_id.as_deref() == Some("msg_title_test"))
+            .expect("title call");
+        sink.record(with_session(title, Some(SESSION)));
+        let (record, _) = mapped_capture();
+        sink.record(with_session(record.clone(), Some(SESSION)));
+        let mut repeat = record;
+        repeat.id = "repeat-001".into();
+        sink.record(with_session(repeat, Some(SESSION)));
+        assert_eq!(store.load(SESSION).expect("load").records.len(), 3);
+        assert_eq!(rx.try_iter().count(), 1, "only the first mapped capture");
     }
 
     #[test]
