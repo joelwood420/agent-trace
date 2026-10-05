@@ -17,15 +17,17 @@ const KEEP_EXACT: [&str; 6] = [
 
 /// True for a header that can carry a credential: `authorization`,
 /// `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, or any name
-/// containing `token`, `secret` or `auth`. Case-insensitive.
+/// containing `token`, `secret`, `auth`, `key`, `password` or `credential`.
+/// Case-insensitive. This is checked before the allowlist, so
+/// `anthropic-api-key` is a credential.
 pub fn is_credential(name: &str) -> bool {
     let name = name.to_ascii_lowercase();
     matches!(
         name.as_str(),
         "authorization" | "proxy-authorization" | "x-api-key" | "cookie" | "set-cookie"
-    ) || name.contains("token")
-        || name.contains("secret")
-        || name.contains("auth")
+    ) || ["token", "secret", "auth", "key", "password", "credential"]
+        .iter()
+        .any(|word| name.contains(word))
 }
 
 /// Filter headers for storage. Names are lowercased and input order is kept.
@@ -78,6 +80,28 @@ mod tests {
                 value: "2023-06-01".into()
             }]
         );
+    }
+
+    #[test]
+    fn odd_casings_and_names_are_credentials() {
+        let kept = filter_headers([
+            ("X-API-KEY", "secret-a"),
+            ("PROXY-AUTHORIZATION", "secret-b"),
+            ("anthropic-api-key", "secret-c"),
+            ("x-goog-api-key", "secret-d"),
+            ("x-password", "secret-e"),
+            ("x-credentials", "secret-f"),
+            ("content-type", "application/json"),
+        ]);
+        assert_eq!(
+            kept,
+            [Header {
+                name: "content-type".into(),
+                value: "application/json".into()
+            }]
+        );
+        assert!(is_credential("X-Api-Key"));
+        assert!(!is_credential("anthropic-version"));
     }
 
     #[test]

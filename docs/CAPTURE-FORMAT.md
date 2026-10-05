@@ -51,7 +51,8 @@ Stored as `{ "kind": ..., "value": ... }`.
 
 ## Header rules
 
-- Credential headers are dropped entirely: `authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret` or `auth`.
+- Credential headers are dropped entirely: `authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret`, `auth`, `key`, `password` or `credential`.
+- This check runs before the allowlist, so `anthropic-api-key` is dropped.
 - Values are kept for names starting `anthropic-` or `x-stainless-`, and for `user-agent`, `content-type`, `x-app`, `x-claude-code-session-id`, `request-id` and `retry-after`.
 - Every other header is kept with the value `<omitted>`.
 
@@ -70,9 +71,21 @@ For `text/event-stream` bodies, events are separated by blank lines (LF or CRLF)
 | `message_delta` | Every key of `data.delta` is copied onto the message, and every key of `data.usage` is merged into `usage`. |
 | `message_stop`, `ping` | Nothing. |
 | `error` | `error` is `data.error.message`, or the raw data. |
-| anything else | The event name is listed in `unknown_events`. |
+| anything else | The event name is listed in `unknown_events`. An event with no `event:` line is listed as `<unnamed>`. |
 
-`message_id` is `message.id`. For a plain JSON body, `message` is the JSON, `message_id` is its `id` if that starts with `msg_`, and a body with `"type": "error"` sets `error` to `error.message`. Any other body gives nothing.
+Nothing unexpected is dropped silently. These markers go in `unknown_events`:
+
+| Marker | Meaning |
+|---|---|
+| `<event>:bad_data` | The event data is not a JSON object, or lacks a needed field. A bad `message_start` keeps any earlier message. |
+| `<event>:before_message_start` | A block or `message_delta` event arrived before any `message_start`. |
+| `content_block_start:bad_index` | The index is beyond the next free slot. Only the next block or an existing one is accepted, which bounds memory. |
+| `content_block_delta:orphan`, `content_block_stop:orphan` | The block was never started. |
+| `truncated_input_json` | The stream ended with tool input that never got its stop event. The partial text is kept as the block's `input` string. |
+
+The `text/event-stream` content type is matched ignoring case.
+
+`message_id` is `message.id`. For a plain  JSON body, `message` is the JSON, `message_id` is its `id` if that starts with `msg_`, and a body with `"type": "error"` sets `error` to `error.message`. Any other body gives nothing.
 
 ## Example
 
