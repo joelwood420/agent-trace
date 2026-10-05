@@ -17,6 +17,13 @@ Significant decisions and the reasons for them. Every added dependency is record
 | `notify` 8 | snitchcraft | Watches the projects folder for transcript changes (M3). Named in CLAUDE.md. Version 8 is the latest stable; 9 is a release candidate. No debouncer crate: the worker batches events itself. |
 | `sha2` 0.10 | capture-core | Content hashes for deduplicating system prompts and tool sets; already in the build through Tauri. |
 | `flate2` 1 | capture | Gzip for stored captures; already in the build through Tauri. |
+| `tokio` 1 | capture | Async runtime for the proxy (listener, tasks, timers). Named in CLAUDE.md; already in the build through Tauri. |
+| `hyper` 1 | capture | The proxy's local HTTP/1.1 server. Already in the build through Tauri. |
+| `hyper-util` 0.1 | capture | `TokioIo`, the adapter between tokio sockets and hyper. Already in the build through Tauri. |
+| `http-body-util` 0.1 | capture | Reading whole request bodies, and the `channel` body that streams response chunks to the client as they arrive. Already in the build through Tauri. |
+| `bytes` 1 | capture | The chunk type hyper and reqwest pass around. Already in the build through Tauri. |
+| `reqwest` 0.13 | capture | The HTTPS client that forwards requests upstream, with `http2` and `rustls-no-provider` and no default features. reqwest itself is already in the build through Tauri; this feature set adds its rustls TLS stack (`hyper-rustls`, `rustls-platform-verifier` for the Windows certificate store, `h2`). |
+| `rustls` 0.23 | capture | Only to install rustls's `ring` crypto provider at proxy start, which reqwest then uses. New to the build, with `ring`. `ring` was chosen because the default `aws-lc` provider can need CMake and NASM to build on Windows. |
 
 UI packages (`ui/package.json`):
 
@@ -285,3 +292,11 @@ Claude Code moves the `cache_control` marker to the newest message on every call
 ### 2026-10-06: Capture store layout
 
 `captures/<session key>/calls.jsonl.gz` is a gzip file with one gzip member per record, so an append is a single write and needs no rewrite of the file. A crash can damage only one member. Loading skips a damaged member and resumes at the next gzip header, so records appended after a crash are still read, and reports one reason per damaged stretch. Loading holds the store's write lock while reading so an append in flight is not mistaken for damage. `captures/<session key>/blobs/<sha256>.json.gz` holds each distinct system prompt and tool set. In a stored record those two body fields are replaced in place by `{"snitchcraft_blob": "<sha256>"}` and the line lists which fields were replaced, so they are restored at the same position. Reason: appends stay cheap and crash-safe, and a system prompt or tool set that repeats on every call is stored once. Session keys are limited to 128 characters of letters, digits, `_` and `-`, so a key can never point outside the store.
+
+### 2026-10-06: The proxy
+
+The capture proxy listens on a fixed address, `127.0.0.1:47821`, and forwards to a fixed upstream, `https://api.anthropic.com`. Neither can be changed in the app, so it can never be used as an open relay. Claude Code talks to it in plain HTTP on localhost (`ANTHROPIC_BASE_URL='http://127.0.0.1:47821'`), so no certificate tricks or trusted local certificates are needed; the proxy makes its own HTTPS connection upstream. Forwarding comes first and recording second: each response chunk is sent to Claude Code the moment it arrives, a copy is kept, and the record is built and handed to the store on a blocking thread after the response ends, so a slow or failing disk never delays or breaks a call. If Claude Code goes away mid-response, the proxy keeps reading so the record is still complete. The upstream is asked for an uncompressed response (`accept-encoding: identity`) so the stream can be recorded as text. Request headers are forwarded unchanged, credentials included, except hop-by-hop headers; the stored copy goes through the header filter. The proxy ignores system proxy settings and does not follow redirects, so every call goes straight to the one upstream and a redirect is passed back to Claude Code as it was sent.
+
+### 2026-10-06: First network access (M4)
+
+M4 is the first milestone that uses the network, and only in the Rust backend: outbound HTTPS to `api.anthropic.com` only, and a listening socket on `127.0.0.1` only (never on other interfaces). The web page gets no network access; it only calls the app's own commands.

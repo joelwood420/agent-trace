@@ -20,6 +20,13 @@ serde_json = { version = "1.0.151", features = ["preserve_order"] }
 sha2 = "0.10"
 thiserror = "2.0.21"
 tracing = "0.1"
+tokio = { version = "1", features = ["rt", "net", "sync", "macros", "time"] }
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+http-body-util = { version = "0.1", features = ["channel"] }
+bytes = "1"
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "http2"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
