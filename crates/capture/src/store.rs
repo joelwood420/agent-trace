@@ -173,23 +173,54 @@ impl CaptureStore {
             records: Vec::new(),
             skipped: Vec::new(),
         };
-        let bytes = match fs::read(dir.join(CALLS_FILE)) {
-            Ok(bytes) => bytes,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(loaded),
-            Err(e) => return Err(io("read the capture file")(e)),
+        let bytes = {
+            // Hold the write lock while reading so an append in flight is not
+            // mistaken for a damaged member.
+            let _guard = self
+                .write_lock
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            match fs::read(dir.join(CALLS_FILE)) {
+                Ok(bytes) => bytes,
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(loaded),
+                Err(e) => return Err(io("read the capture file")(e)),
+            }
         };
 
         // Each record is its own gzip member, so decode member by member. A
-        // damaged member (for example a cut-off last one) is dropped whole.
-        let mut rest: &[u8] = &bytes;
-        while !rest.is_empty() {
+        // damaged member is skipped: decoding resumes at the next gzip header
+        // found after the start of the damaged one. One reason is recorded per
+        // damaged stretch.
+        let mut offset = 0;
+        let mut damage: Option<usize> = None;
+        while offset < bytes.len() {
+            let mut rest: &[u8] = &bytes[offset..];
             let mut text = String::new();
             let mut decoder = GzDecoder::new(&mut rest);
-            if let Err(e) = decoder.read_to_string(&mut text) {
-                loaded
-                    .skipped
-                    .push(format!("stopped at a damaged capture: {e}"));
-                break;
+            match decoder.read_to_string(&mut text) {
+                Ok(_) => {
+                    if let Some(i) = damage.take() {
+                        loaded.skipped[i] = "skipped a damaged capture".to_string();
+                    }
+                    offset = bytes.len() - rest.len();
+                }
+                Err(e) => {
+                    if damage.is_none() {
+                        damage = Some(loaded.skipped.len());
+                        loaded.skipped.push(format!("capture damaged: {e}"));
+                    }
+                    match find_member(&bytes, offset + 1) {
+                        Some(next) => offset = next,
+                        None => {
+                            if let Some(i) = damage.take() {
+                                loaded.skipped[i] =
+                                    "last capture incomplete (may still be writing)".to_string();
+                            }
+                            break;
+                        }
+                    }
+                    continue;
+                }
             }
             for line in text.lines().filter(|l| !l.trim().is_empty()) {
                 match serde_json::from_str::<StoredIn>(line) {
@@ -227,6 +258,14 @@ impl CaptureStore {
     }
 }
 
+/// Offset of the next gzip member header (1f 8b 08) at or after `from`.
+fn find_member(bytes: &[u8], from: usize) -> Option<usize> {
+    let tail = bytes.get(from..)?;
+    tail.windows(3)
+        .position(|w| w == [0x1f, 0x8b, 0x08])
+        .map(|i| from + i)
+}
+
 fn gzip(data: &[u8]) -> std::io::Result<Vec<u8>> {
     let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data)?;
@@ -246,7 +285,10 @@ fn write_blob(blobs_dir: &Path, hash: &str, value: &Value) -> Result<(), StoreEr
     let data = gzip(&json).map_err(io("compress a blob"))?;
     let n = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
     let temp = blobs_dir.join(format!("{hash}.{}.{n}.tmp", std::process::id()));
-    fs::write(&temp, &data).map_err(io("write a blob"))?;
+    let mut file = File::create(&temp).map_err(io("write a blob"))?;
+    file.write_all(&data).map_err(io("write a blob"))?;
+    file.sync_all().map_err(io("write a blob"))?;
+    drop(file);
     if let Err(e) = fs::rename(&temp, &path) {
         let _ = fs::remove_file(&temp);
         // Another writer may have created the blob in the meantime.
@@ -458,6 +500,57 @@ mod tests {
         assert_eq!(loaded.skipped.len(), 2);
         let body = loaded.records[0].request.body.json().unwrap();
         assert!(body["system"].get(BLOB_MARKER).is_some());
+        let _ = fs::remove_dir_all(store.root());
+    }
+
+    #[test]
+    fn a_damaged_middle_record_does_not_hide_later_ones() {
+        let store = CaptureStore::new(temp_root("damaged-middle"));
+        store.append("s1", &record("a", "a")).unwrap();
+        let path = store.root().join("s1").join(CALLS_FILE);
+        let first = fs::metadata(&path).unwrap().len();
+        store.append("s1", &record("b", "b")).unwrap();
+        let second_end = fs::metadata(&path).unwrap().len();
+        let mut bytes = fs::read(&path).unwrap();
+        bytes.drain((second_end - 10) as usize..);
+        assert!(bytes.len() as u64 > first);
+        fs::write(&path, &bytes).unwrap();
+        store.append("s1", &record("c", "c")).unwrap();
+        let loaded = store.load("s1").unwrap();
+        let ids: Vec<&str> = loaded.records.iter().map(|r| r.id.as_str()).collect();
+        assert_eq!(ids, ["a", "c"]);
+        assert_eq!(loaded.skipped.len(), 1, "{:?}", loaded.skipped);
+        let _ = fs::remove_dir_all(store.root());
+    }
+
+    #[test]
+    fn bodies_without_blob_fields_round_trip() {
+        let store = CaptureStore::new(temp_root("other-bodies"));
+        let bodies = [
+            Body::Json(json!({"model": "invented-model", "messages": []})),
+            Body::Json(json!([1, 2, {"system": "not a blob"}])),
+            Body::Text("not json at all".to_string()),
+            Body::Empty,
+        ];
+        let mut originals = Vec::new();
+        for (i, body) in bodies.into_iter().enumerate() {
+            let mut r = record(&format!("r{i}"), "x");
+            r.request.body = body;
+            store.append("s1", &r).unwrap();
+            originals.push(r);
+        }
+        let loaded = store.load("s1").unwrap();
+        assert!(loaded.skipped.is_empty(), "{:?}", loaded.skipped);
+        assert_eq!(loaded.records, originals);
+        assert!(
+            !store
+                .root()
+                .join("s1")
+                .join(BLOBS_DIR)
+                .read_dir()
+                .unwrap()
+                .any(|_| true)
+        );
         let _ = fs::remove_dir_all(store.root());
     }
 }
