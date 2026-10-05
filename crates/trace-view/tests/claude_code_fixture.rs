@@ -247,3 +247,20 @@ fn whole_session_serialises_to_json() {
     assert_eq!(json["prompts"][4]["root"]["status"], "error");
     assert_eq!(json["markers"][0]["status"], "none");
 }
+
+#[test]
+fn every_model_call_but_the_first_of_each_run_has_a_previous_call() {
+    let trace = claude_trace();
+    let groups = trace_view::model_calls_by_run(&trace);
+    assert!(groups.iter().any(|(_, calls)| calls.len() > 1));
+    for (run, calls) in groups {
+        for (i, call) in calls.iter().enumerate() {
+            let previous = trace_view::previous_model_call(&trace, call);
+            if i == 0 {
+                assert_eq!(previous, None, "first call of {run}");
+            } else {
+                assert_eq!(previous.as_deref(), Some(calls[i - 1].as_str()));
+            }
+        }
+    }
+}

@@ -70,3 +70,14 @@ Observations about how Claude Code behaves (loop structure, compaction, subagent
 
 - `system` subtypes: `informational` (a warning shown to the user, with `level`) and `away_summary` (a recap shown when the user returns).
 - Session-level lines: `ai-title` (generated title), `agent-name`, `agent-setting`, `continued-in` (with `continuedInSessionId`, when a session continues in a new file).
+
+## Raw API requests (seen during M4)
+
+Seen by putting a pass-through proxy between Claude Code and the API (checked on 2026-10-05, subscription login). Structure and sizes only.
+
+- Claude Code honours `ANTHROPIC_BASE_URL` with a subscription login and works normally through a local plain-HTTP proxy. The login token passes through untouched, and streaming (server-sent events) responses pass through fine.
+- Before the first request it sends `HEAD /api/hello` to the same address.
+- Model calls are `POST /v1/messages?beta=true`.
+- One request for a one-word reply was about 300 KB: a 3-block system prompt (about 28,000 characters, two blocks marked for caching), 132 tool definitions, one user message of 11 text blocks, `max_tokens` 32000, thinking enabled with its text hidden (`display: "omitted"`), and a `context_management` option.
+- Every request carries an `x-claude-code-session-id` header equal to the transcript file name. The response's message id (`msg_...`) appears in the transcript, so a capture joins to its model call exactly (`model:<message id>`).
+- Because thinking is requested with its text omitted, hidden thinking is never sent back and cannot be captured from outside.

@@ -2,6 +2,7 @@
 //! events. Parsing is defensive: unknown fields and event types are skipped
 //! and logged, never a panic.
 
+mod capture;
 mod follow;
 mod parser;
 mod tail;
@@ -11,6 +12,7 @@ use std::path::{Path, PathBuf};
 
 use trace_core::TraceEvent;
 
+pub use capture::{SESSION_HEADER, model_call_id, session_key};
 pub use follow::{PollOutcome, ReadMode, SessionFollower};
 pub use parser::{HARNESS, Parser, Skipped, SubagentLink};
 pub use tail::{TailRead, TranscriptTail};

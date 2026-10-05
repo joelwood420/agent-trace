@@ -11,8 +11,10 @@
 mod build;
 mod detail;
 mod model;
+mod order;
 mod text;
 
 pub use build::{SUMMARY_MIN_CALLS, build_session};
 pub use detail::{NodeDetail, node_detail};
 pub use model::{DiagramNode, NodeKind, PromptDiagram, PromptTotals, SessionDiagram, Status};
+pub use order::{model_calls_by_run, previous_model_call};
