@@ -25,6 +25,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::net::TcpListener;
+use tokio::sync::oneshot;
 
 /// The local port the proxy listens on.
 pub const PROXY_PORT: u16 = 47821;
@@ -94,6 +95,8 @@ pub struct Proxy {
 /// What every request handler needs.
 struct Shared {
     client: reqwest::Client,
+    /// The port the proxy is bound to, for the `Host` check.
+    port: u16,
     upstream: String,
     sink: Arc<dyn CaptureSink>,
 }
@@ -132,6 +135,7 @@ impl Proxy {
             local_addr,
             shared: Arc::new(Shared {
                 client,
+                port: local_addr.port(),
                 upstream: upstream.trim_end_matches('/').to_string(),
                 sink,
             }),
@@ -230,11 +234,68 @@ fn fail(shared: &Shared, mut record: CaptureRecord, error: String) {
     deliver(shared, record);
 }
 
-/// Forward one request and stream its response back.
+/// Answer one request from Claude Code.
+///
+/// Requests that are not from a local program, or whose target is not a
+/// plain path, are refused without being forwarded or recorded. Everything
+/// else runs in its own task, so a client that leaves early cancels nothing:
+/// the upstream call finishes and the record is always written. The response
+/// head comes back to this handler through a oneshot channel.
 async fn handle(
     req: Request<Incoming>,
     shared: Arc<Shared>,
 ) -> Result<Response<ProxyBody>, Infallible> {
+    if let Some(refusal) = refuse(&req, shared.port) {
+        return Ok(refusal);
+    }
+    let (reply_tx, reply_rx) = oneshot::channel();
+    tokio::spawn(async move {
+        // If the client has gone, the response is dropped here and the body
+        // task keeps reading the upstream to the end.
+        let _ = reply_tx.send(exchange(req, shared).await);
+    });
+    Ok(reply_rx
+        .await
+        .unwrap_or_else(|_| plain_response(StatusCode::BAD_GATEWAY, UNREACHABLE)))
+}
+
+/// The answer for a request the proxy will not forward, if this is one.
+///
+/// - The target must be a path (origin form). `OPTIONS *`, `CONNECT host:port`
+///   and absolute URLs are refused, so a request can only ever go to the
+///   fixed upstream.
+/// - The `Host` header must be `127.0.0.1:<port>` or `localhost:<port>` and
+///   there must be no `Origin` header. Browsers always send both, so this
+///   stops a web page (including one using DNS rebinding) from sending
+///   requests through the proxy with the user's machine as the source.
+fn refuse(req: &Request<Incoming>, port: u16) -> Option<Response<ProxyBody>> {
+    let uri = req.uri();
+    if uri.authority().is_some() || !uri.path().starts_with('/') {
+        return Some(plain_response(
+            StatusCode::BAD_REQUEST,
+            "snitchcraft proxy: the request target must be a path",
+        ));
+    }
+    let host_ok = req
+        .headers()
+        .get(header::HOST)
+        .and_then(|v| v.to_str().ok())
+        .is_some_and(|host| {
+            host.eq_ignore_ascii_case(&format!("127.0.0.1:{port}"))
+                || host.eq_ignore_ascii_case(&format!("localhost:{port}"))
+        });
+    if !host_ok || req.headers().contains_key(header::ORIGIN) {
+        return Some(plain_response(
+            StatusCode::FORBIDDEN,
+            "snitchcraft proxy: only local programs may use this proxy",
+        ));
+    }
+    None
+}
+
+/// Forward one request and return the response to send back. The response
+/// body is streamed by a separate task that also finishes the record.
+async fn exchange(req: Request<Incoming>, shared: Arc<Shared>) -> Response<ProxyBody> {
     let started_at_ms = now_ms();
     let id = format!(
         "{started_at_ms}-{}",
@@ -270,10 +331,10 @@ async fn handle(
                 record,
                 format!("could not read the request body: {error}"),
             );
-            return Ok(plain_response(
+            return plain_response(
                 StatusCode::BAD_REQUEST,
                 "snitchcraft proxy: could not read the request body",
-            ));
+            );
         }
     };
     record.request.body = Body::from_bytes(&body_bytes);
@@ -307,7 +368,7 @@ async fn handle(
             let text = error_chain(&error);
             tracing::warn!(error = %text, "capture proxy could not reach the upstream");
             fail(&shared, record, format!("upstream unreachable: {text}"));
-            return Ok(plain_response(StatusCode::BAD_GATEWAY, UNREACHABLE));
+            return plain_response(StatusCode::BAD_GATEWAY, UNREACHABLE);
         }
     };
 
@@ -330,7 +391,7 @@ async fn handle(
                 record,
                 format!("could not build the response: {error}"),
             );
-            return Ok(plain_response(StatusCode::BAD_GATEWAY, UNREACHABLE));
+            return plain_response(StatusCode::BAD_GATEWAY, UNREACHABLE);
         }
     };
 
@@ -351,7 +412,7 @@ async fn handle(
         is_head,
         shared,
     }));
-    Ok(response)
+    response
 }
 
 /// Everything the task that copies a response body needs.
@@ -460,6 +521,11 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
     /// Gap between the pieces of the fake stream.
     const GAP: Duration = Duration::from_millis(150);
 
+    /// How long the `/slow` route waits before sending its response headers.
+    const SLOW_HEADERS: Duration = Duration::from_millis(300);
+
+    const SLOW_BODY: &str = "slow body";
+
     const ERROR_BODY: &str =
         r#"{"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}"#;
 
@@ -533,6 +599,33 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
                 .status(529)
                 .header("content-type", "application/json")
                 .body(full(ERROR_BODY)),
+            (_, "/slow") => {
+                // Response headers arrive only after a delay.
+                tokio::time::sleep(SLOW_HEADERS).await;
+                Response::builder()
+                    .status(200)
+                    .header("content-type", "text/plain")
+                    .body(full(SLOW_BODY))
+            }
+            (_, "/broken") => {
+                // One piece of the stream, then the connection breaks.
+                let (mut tx, body) = Channel::<Bytes, std::io::Error>::new(4);
+                tokio::spawn(async move {
+                    if tx
+                        .send_data(Bytes::from_static(SSE_PARTS[0].as_bytes()))
+                        .await
+                        .is_err()
+                    {
+                        return;
+                    }
+                    tokio::time::sleep(GAP).await;
+                    tx.abort(std::io::Error::other("fake upstream broke"));
+                });
+                Response::builder()
+                    .status(200)
+                    .header("content-type", "text/event-stream")
+                    .body(body.boxed())
+            }
             _ => Response::builder().status(404).body(full("not found")),
         };
         response.map_err(|e| e.to_string())
@@ -824,5 +917,196 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
         assert!(r.ended_at_ms.is_some());
         let text = serde_json::to_string(r).expect("serialise");
         assert!(!text.contains("test-secret"));
+    }
+
+    #[tokio::test]
+    async fn client_leaving_before_headers_still_gets_recorded() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+
+        // Give up long before the upstream sends its headers.
+        let attempt = tokio::time::timeout(
+            Duration::from_millis(50),
+            client().post(format!("{proxy}/slow")).body("{}").send(),
+        )
+        .await;
+        assert!(attempt.is_err(), "the request should still be waiting");
+
+        let records = sink.wait_for(1).await;
+        let r = &records[0];
+        assert_eq!(r.error, None);
+        let response = r.response.as_ref().expect("response recorded");
+        assert_eq!(response.status, 200);
+        assert_eq!(response.stream.as_deref(), Some(SLOW_BODY));
+        assert_eq!(seen.lock().expect("lock").len(), 1);
+    }
+
+    #[tokio::test]
+    async fn client_leaving_mid_stream_still_gets_the_whole_stream_recorded() {
+        let (upstream, _seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+
+        let mut response = post_stream(&proxy).await;
+        let first = response
+            .chunk()
+            .await
+            .expect("chunk")
+            .expect("a first chunk");
+        assert!(!first.is_empty());
+        drop(response);
+
+        let records = sink.wait_for(1).await;
+        let r = &records[0];
+        let response = r.response.as_ref().expect("response");
+        assert_eq!(response.stream.as_deref(), Some(sse_text().as_str()));
+        assert_eq!(r.message_id.as_deref(), Some("msg_test1"));
+    }
+
+    #[tokio::test]
+    async fn upstream_breaking_mid_stream_aborts_the_client_and_is_recorded() {
+        let (upstream, _seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+
+        let mut response = client()
+            .post(format!("{proxy}/broken"))
+            .body("{}")
+            .send()
+            .await
+            .expect("send");
+        assert_eq!(response.status(), 200);
+        let mut body = Vec::new();
+        let outcome = loop {
+            match response.chunk().await {
+                Ok(Some(chunk)) => body.extend_from_slice(&chunk),
+                Ok(None) => break Ok(()),
+                Err(error) => break Err(error),
+            }
+        };
+        assert!(outcome.is_err(), "the client body should be aborted");
+        assert_eq!(body, SSE_PARTS[0].as_bytes());
+
+        let records = sink.wait_for(1).await;
+        let r = &records[0];
+        let error = r.error.as_deref().expect("error recorded");
+        assert!(error.starts_with("upstream response failed"), "{error}");
+        let response = r.response.as_ref().expect("response");
+        assert_eq!(response.stream.as_deref(), Some(SSE_PARTS[0]));
+    }
+
+    /// Send raw request text to the proxy and return the status code of the
+    /// answer. Used for requests reqwest cannot or will not send.
+    async fn raw_status(proxy: &str, request: &str) -> u16 {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let addr = proxy.trim_start_matches("http://");
+        let mut stream = tokio::net::TcpStream::connect(addr).await.expect("connect");
+        stream
+            .write_all(request.as_bytes())
+            .await
+            .expect("write request");
+        let mut answer = Vec::new();
+        let mut buf = [0u8; 1024];
+        let read_line = async {
+            while !answer.windows(2).any(|w| w == b"\r\n") {
+                let n = stream.read(&mut buf).await.expect("read");
+                assert!(n > 0, "connection closed without an answer");
+                answer.extend_from_slice(&buf[..n]);
+            }
+        };
+        tokio::time::timeout(Duration::from_secs(5), read_line)
+            .await
+            .expect("answer in time");
+        let line = String::from_utf8_lossy(&answer).into_owned();
+        line.split(' ')
+            .nth(1)
+            .and_then(|code| code.parse().ok())
+            .unwrap_or_else(|| panic!("no status in {line:?}"))
+    }
+
+    fn port_of(proxy: &str) -> &str {
+        proxy.rsplit(':').next().expect("port")
+    }
+
+    /// Give a wrongly forwarded request time to show up, then check none did.
+    async fn assert_nothing_forwarded_or_recorded(seen: &Shared, sink: &CollectingSink) {
+        tokio::time::sleep(Duration::from_millis(300)).await;
+        assert!(
+            seen.lock().expect("lock").is_empty(),
+            "request was forwarded"
+        );
+        assert!(
+            sink.records.lock().expect("lock").is_empty(),
+            "request was recorded"
+        );
+    }
+
+    #[tokio::test]
+    async fn foreign_host_is_rejected() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+        let port = port_of(&proxy);
+
+        for host in [format!("evil.example:{port}"), "127.0.0.1:1".to_string()] {
+            let request = format!(
+                "POST /stream HTTP/1.1\r\nHost: {host}\r\nContent-Length: 2\r\nConnection: close\r\n\r\n{{}}"
+            );
+            assert_eq!(raw_status(&proxy, &request).await, 403, "host {host}");
+        }
+        let no_host = "GET /api/hello HTTP/1.1\r\nConnection: close\r\n\r\n";
+        assert_eq!(raw_status(&proxy, no_host).await, 403, "no host");
+        assert_nothing_forwarded_or_recorded(&seen, &sink).await;
+    }
+
+    #[tokio::test]
+    async fn browser_origin_is_rejected() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+        let port = port_of(&proxy);
+
+        let request = format!(
+            "POST /stream HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nOrigin: https://evil.example\r\nContent-Length: 2\r\nConnection: close\r\n\r\n{{}}"
+        );
+        assert_eq!(raw_status(&proxy, &request).await, 403);
+
+        let response = client()
+            .post(format!("{proxy}/error"))
+            .header("origin", "http://localhost:5173")
+            .body("{}")
+            .send()
+            .await
+            .expect("send");
+        assert_eq!(response.status(), 403);
+        assert_nothing_forwarded_or_recorded(&seen, &sink).await;
+    }
+
+    #[tokio::test]
+    async fn localhost_host_is_accepted() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+        let port = port_of(&proxy);
+
+        let request = format!(
+            "HEAD /api/hello HTTP/1.1\r\nHost: localhost:{port}\r\nConnection: close\r\n\r\n"
+        );
+        assert_eq!(raw_status(&proxy, &request).await, 200);
+        sink.wait_for(1).await;
+        assert_eq!(seen.lock().expect("lock").len(), 1);
+    }
+
+    #[tokio::test]
+    async fn request_target_that_is_not_a_path_is_rejected() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+        let port = port_of(&proxy);
+
+        for target in [
+            "OPTIONS *",
+            "CONNECT example.com:443",
+            "GET http://example.com/v1/messages",
+        ] {
+            let request =
+                format!("{target} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n");
+            assert_eq!(raw_status(&proxy, &request).await, 400, "{target}");
+        }
+        assert_nothing_forwarded_or_recorded(&seen, &sink).await;
     }
 }
