@@ -52,7 +52,8 @@ Stored as `{ "kind": ..., "value": ... }`.
 ## Header rules
 
 - Credential headers are dropped entirely: `authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret`, `auth`, `key`, `password` or `credential`.
-- This check runs before the allowlist, so `anthropic-api-key` is dropped.
+- Names starting `anthropic-ratelimit-` are exempt from the name rules (they carry only numbers and timestamps, for example `anthropic-ratelimit-tokens-remaining`), so they keep their values.
+- Otherwise this check runs before the allowlist, so `anthropic-api-key` is dropped.
 - Values are kept for names starting `anthropic-` or `x-stainless-`, and for `user-agent`, `content-type`, `x-app`, `x-claude-code-session-id`, `request-id` and `retry-after`.
 - Every other header is kept with the value `<omitted>`.
 
@@ -85,7 +86,18 @@ Nothing unexpected is dropped silently. These markers go in `unknown_events`:
 
 The `text/event-stream` content type is matched ignoring case.
 
-`message_id` is `message.id`. For a plain  JSON body, `message` is the JSON, `message_id` is its `id` if that starts with `msg_`, and a body with `"type": "error"` sets `error` to `error.message`. Any other body gives nothing.
+`message_id` is `message.id`. For a plain JSON body, `message` is the JSON, `message_id` is its `id` if that starts with `msg_`, and a body with `"type": "error"` sets `error` to `error.message`. Any other body gives nothing.
+
+## Comparing requests
+
+`summarise` and `diff` work on request bodies that are JSON objects and return nothing otherwise.
+
+- `content_hash` is the sha256 (lowercase hex) of the compact JSON text of a value, with keys in stored order. It identifies a system prompt or a tool set.
+- `summarise` gives the model, the system and tools hashes, tool names in order, `system_chars` (total length of system `text` fields, or the string length), the message count, every other top-level body key as a setting in body order, and the `anthropic-beta` header split on commas and trimmed.
+- `diff(previous, next)` compares messages after removing every `cache_control` key at any depth, because Claude Code moves the cache marker to the newest message on each call. `shared_prefix` is the number of leading equal messages. `removed` is the previous messages from there on, and `added` is the next messages from there on, each with its index in its own request.
+- A message summary has `role`, the content block types (a string content is `text`), `chars` (length of the content as JSON text) and a `preview` (first text found, including inside a `tool_result`, newlines turned to spaces, cut to 160 characters).
+- `system_changed` and `tools_changed` compare content hashes (an absent field is its own value). `tools_added` and `tools_removed` compare tool names.
+- `settings_changed` lists keys whose value differs, previous order first and then new keys, with `null` for absent. `betas_added` and `betas_removed` compare the beta header values.
 
 ## Example
 

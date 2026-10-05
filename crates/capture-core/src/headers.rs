@@ -18,10 +18,15 @@ const KEEP_EXACT: [&str; 6] = [
 /// True for a header that can carry a credential: `authorization`,
 /// `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, or any name
 /// containing `token`, `secret`, `auth`, `key`, `password` or `credential`.
-/// Case-insensitive. This is checked before the allowlist, so
+/// Case-insensitive. Names starting `anthropic-ratelimit-` are exempt from the
+/// substring rules, since they carry only numbers and timestamps (for example
+/// `anthropic-ratelimit-tokens-remaining`). This is checked before the allowlist, so
 /// `anthropic-api-key` is a credential.
 pub fn is_credential(name: &str) -> bool {
     let name = name.to_ascii_lowercase();
+    if name.starts_with("anthropic-ratelimit-") {
+        return false;
+    }
     matches!(
         name.as_str(),
         "authorization" | "proxy-authorization" | "x-api-key" | "cookie" | "set-cookie"
@@ -102,6 +107,28 @@ mod tests {
         );
         assert!(is_credential("X-Api-Key"));
         assert!(!is_credential("anthropic-version"));
+    }
+
+    #[test]
+    fn rate_limit_headers_keep_their_values() {
+        let kept = filter_headers([
+            ("anthropic-ratelimit-tokens-remaining", "1000"),
+            ("anthropic-ratelimit-input-tokens-limit", "5000"),
+            ("anthropic-api-key", "secret-z"),
+        ]);
+        assert_eq!(
+            kept,
+            [
+                Header {
+                    name: "anthropic-ratelimit-tokens-remaining".into(),
+                    value: "1000".into()
+                },
+                Header {
+                    name: "anthropic-ratelimit-input-tokens-limit".into(),
+                    value: "5000".into()
+                }
+            ]
+        );
     }
 
     #[test]

@@ -15,6 +15,7 @@ Significant decisions and the reasons for them. Every added dependency is record
 | `tracing-subscriber` | snitchcraft | Prints `tracing` logs to the terminal. Only the default `fmt` output, no extra features. |
 | `anyhow` | snitchcraft | Error type for `main` in the app binary. CLAUDE.md allows it only there. |
 | `notify` 8 | snitchcraft | Watches the projects folder for transcript changes (M3). Named in CLAUDE.md. Version 8 is the latest stable; 9 is a release candidate. No debouncer crate: the worker batches events itself. |
+| `sha2` 0.10 | capture-core | Content hashes for deduplicating system prompts and tool sets; already in the build through Tauri. |
 
 UI packages (`ui/package.json`):
 
@@ -274,4 +275,8 @@ The workspace enables serde_json's `preserve_order` feature. A captured request 
 
 ### 2026-10-05: Header allowlist for captures
 
-Request and response headers are filtered before they are stored. Credential headers (`authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret`, `auth`, `key`, `password` or `credential`) are dropped entirely, not masked, so there is no stored form of a secret to leak or to guess from. Values are kept only for `anthropic-*` and `x-stainless-*` headers and for `user-agent`, `content-type`, `x-app`, `x-claude-code-session-id`, `request-id` and `retry-after`. Every other header keeps its name with the value `<omitted>`, so the capture shows what was sent without storing values that could identify the user or machine.
+Request and response headers are filtered before they are stored. Credential headers (`authorization`, `proxy-authorization`, `x-api-key`, `cookie`, `set-cookie`, and any name containing `token`, `secret`, `auth`, `key`, `password` or `credential`) are dropped entirely, not masked, so there is no stored form of a secret to leak or to guess from. Values are kept only for `anthropic-*` and `x-stainless-*` headers and for `user-agent`, `content-type`, `x-app`, `x-claude-code-session-id`, `request-id` and `retry-after`. Every other header keeps its name with the value `<omitted>`, so the capture shows what was sent without storing values that could identify the user or machine. Names starting `anthropic-ratelimit-` are exempt from the credential name rules, because they carry only numbers and timestamps and some contain `token` (for example `anthropic-ratelimit-tokens-remaining`).
+
+### 2026-10-06: The diff ignores cache markers
+
+Claude Code moves the `cache_control` marker to the newest message on every call, so comparing messages literally would report the last message of every call as changed. The request diff removes every `cache_control` key at any depth before comparing messages. The full request view still shows the markers.
