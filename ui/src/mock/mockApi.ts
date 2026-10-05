@@ -5,13 +5,24 @@
 //
 // URL flags (combine with `?mock`):
 //   delay=<ms>   wait this long before each response (default 250)
-//   fail=list|load|detail   make that command fail, to see error handling
+//   fail=list|load|detail|captures   make that command fail, to see error handling
 //   live         replay the session growing (ui/src/mock/live-steps.json),
 //                one step every `step` ms (default 1500)
 //   fail=live    with `live`, end the replay with a "deleted" status
+// Captures come from capture-data.json (fixture session only); deleting them
+// empties the overview until the page is reloaded.
 
 import type { Api } from '../api.ts'
-import type { LiveMessage, LiveStatus, NodeDetail, SessionSummary, SessionView } from '../types.ts'
+import type {
+  CaptureDetail,
+  CaptureOverview,
+  LiveMessage,
+  LiveStatus,
+  NodeDetail,
+  SessionSummary,
+  SessionView,
+} from '../types.ts'
+import captureData from './capture-data.json'
 import data from './fixture-data.json'
 import liveSteps from './live-steps.json'
 
@@ -22,6 +33,20 @@ interface MockData {
 }
 
 const mock = data as unknown as MockData
+const captures = captureData as unknown as {
+  overview: CaptureOverview
+  details: Record<string, CaptureDetail>
+}
+const CAPTURE_KEY = 'basic/00000000-0000-4000-8000-000000000002'
+const emptyOverview: CaptureOverview = {
+  session_key: null,
+  total_bytes: 0,
+  calls: [],
+  system_versions: [],
+  tool_versions: [],
+  other_call_ids: [],
+  skipped: [],
+}
 const steps = liveSteps as unknown as LiveMessage[]
 
 export function createMockApi(params: URLSearchParams): Api {
@@ -32,6 +57,7 @@ export function createMockApi(params: URLSearchParams): Api {
   const stepMs = Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : 1500
   const wait = () => new Promise((resolve) => setTimeout(resolve, Number.isFinite(delay) ? delay : 0))
 
+  let capturesDeleted = false
   let timer: ReturnType<typeof setInterval> | null = null
   let onListChange: (() => void) | null = null
   const stopReplay = () => {
@@ -95,6 +121,31 @@ export function createMockApi(params: URLSearchParams): Api {
     async watchSessions(onChange) {
       await wait()
       onListChange = onChange
+    },
+    async captureStatus() {
+      await wait()
+      return {
+        listening: true,
+        port: 47821,
+        command: "$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude",
+        error: null,
+        last_save_error: null,
+      }
+    },
+    async sessionCaptures(project, sessionId) {
+      await wait()
+      if (fail === 'captures') throw 'could not read captures: mock failure'
+      if (capturesDeleted || `${project}/${sessionId}` !== CAPTURE_KEY) return emptyOverview
+      return captures.overview
+    },
+    async captureDetail(project, sessionId, captureId) {
+      await wait()
+      if (capturesDeleted || `${project}/${sessionId}` !== CAPTURE_KEY) return null
+      return captures.details[captureId] ?? null
+    },
+    async deleteCaptures() {
+      await wait()
+      capturesDeleted = true
     },
   }
 }

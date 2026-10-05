@@ -5,7 +5,15 @@
 
 import { Channel, invoke } from '@tauri-apps/api/core'
 
-import type { LiveMessage, NodeDetail, SessionSummary, SessionView } from './types.ts'
+import type {
+  CaptureDetail,
+  CaptureOverview,
+  CaptureStatus,
+  LiveMessage,
+  NodeDetail,
+  SessionSummary,
+  SessionView,
+} from './types.ts'
 
 export interface Api {
   listSessions(): Promise<SessionSummary[]>
@@ -14,6 +22,10 @@ export interface Api {
   nodeDetail(project: string, sessionId: string, traceId: string): Promise<NodeDetail | null>
   /** Calls `onChange` whenever the session list may have changed. */
   watchSessions(onChange: () => void): Promise<void>
+  captureStatus(): Promise<CaptureStatus>
+  sessionCaptures(project: string, sessionId: string): Promise<CaptureOverview>
+  captureDetail(project: string, sessionId: string, captureId: string): Promise<CaptureDetail | null>
+  deleteCaptures(project: string, sessionId: string): Promise<void>
 }
 
 const tauriApi: Api = {
@@ -34,6 +46,17 @@ const tauriApi: Api = {
       session_id: sessionId,
       trace_id: traceId,
     }),
+  captureStatus: () => invoke<CaptureStatus>('capture_status'),
+  sessionCaptures: (project, sessionId) =>
+    invoke<CaptureOverview>('session_captures', { project, session_id: sessionId }),
+  captureDetail: (project, sessionId, captureId) =>
+    invoke<CaptureDetail | null>('capture_detail', {
+      project,
+      session_id: sessionId,
+      capture_id: captureId,
+    }),
+  deleteCaptures: (project, sessionId) =>
+    invoke<void>('delete_captures', { project, session_id: sessionId }),
 }
 
 /** True when running inside the Tauri app window. */

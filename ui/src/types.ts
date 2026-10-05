@@ -151,3 +151,122 @@ export interface NodeDetail {
   metadata: Record<string, unknown>
   raw: RawSource[]
 }
+
+// ---- Captures (M4). Mirrors the capture-core and src-tauri structs. ----
+
+export interface Header {
+  name: string
+  value: string
+}
+
+export type Body = { kind: 'empty' } | { kind: 'json'; value: unknown } | { kind: 'text'; value: string }
+
+export interface CapturedRequest {
+  method: string
+  path: string
+  headers: Header[]
+  body: Body
+}
+
+export interface CapturedResponse {
+  status: number
+  headers: Header[]
+  stream: string | null
+  message: unknown
+}
+
+export interface CaptureRecord {
+  id: string
+  started_at_ms: number
+  first_byte_at_ms: number | null
+  ended_at_ms: number | null
+  request: CapturedRequest
+  response: CapturedResponse | null
+  message_id: string | null
+  error: string | null
+}
+
+export interface RequestSummary {
+  model: string | null
+  system_hash: string | null
+  tools_hash: string | null
+  tool_names: string[]
+  system_chars: number
+  message_count: number
+  settings: [string, unknown][]
+  betas: string[]
+}
+
+export interface MessageSummary {
+  index: number
+  role: string
+  block_types: string[]
+  chars: number
+  preview: string
+}
+
+export interface SettingChange {
+  key: string
+  before: unknown
+  after: unknown
+}
+
+export interface RequestDiff {
+  shared_prefix: number
+  removed: MessageSummary[]
+  added: MessageSummary[]
+  system_changed: boolean
+  tools_changed: boolean
+  tools_added: string[]
+  tools_removed: string[]
+  settings_changed: SettingChange[]
+  betas_added: string[]
+  betas_removed: string[]
+}
+
+export interface CallSummary {
+  capture_id: string
+  trace_id: string | null
+  started_at_ms: number
+  duration_ms: number | null
+  model: string | null
+  status: number | null
+  error: string | null
+  system_version: number | null
+  tools_version: number | null
+  message_count: number
+}
+
+export interface VersionSummary {
+  version: number
+  hash: string
+  first_capture_id: string
+  call_count: number
+  system_chars: number | null
+  tool_names: string[] | null
+}
+
+export interface CaptureOverview {
+  session_key: string | null
+  total_bytes: number
+  calls: CallSummary[]
+  system_versions: VersionSummary[]
+  tool_versions: VersionSummary[]
+  other_call_ids: string[]
+  skipped: string[]
+}
+
+export interface CaptureDetail {
+  record: CaptureRecord
+  summary: RequestSummary | null
+  previous_capture_id: string | null
+  diff: RequestDiff | null
+}
+
+export interface CaptureStatus {
+  listening: boolean
+  port: number
+  command: string
+  error: string | null
+  last_save_error: string | null
+}
