@@ -12,6 +12,8 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 adapter-claude-code.workspace = true
+capture-core.workspace = true
+capture.workspace = true
 trace-core.workspace = true
 trace-view.workspace = true
 tauri = { version = "2", features = [] }

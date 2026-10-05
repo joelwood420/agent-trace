@@ -37,6 +37,8 @@ export interface SessionView {
   live: boolean
   /** Goes up with every update of the open session; keep the higher one. */
   version: number
+  /** Model call trace ids that have a captured API call. */
+  captured_trace_ids: string[]
 }
 
 export interface SessionDiagram {

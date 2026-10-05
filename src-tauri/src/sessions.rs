@@ -99,6 +99,8 @@ pub struct SessionView {
     /// Goes up by one with every update of the open session. The UI ignores
     /// a view with a lower version than the one it shows.
     pub version: u64,
+    /// Model call trace ids that have a captured API call.
+    pub captured_trace_ids: Vec<String>,
 }
 
 /// A session read from disk and turned into a trace. Only the tests use it
@@ -750,6 +752,47 @@ mod tests {
             "details": details,
         });
         check_snapshot(&mock_file("fixture-data.json"), &expected);
+    }
+
+    /// `ui/src/mock/capture-data.json` holds the capture overview and every
+    /// capture detail for the invented capture fixture, so the dev mock mode
+    /// can show the capture views. The stored size is pinned, since the
+    /// fixture is not read through the store here.
+    #[test]
+    fn ui_capture_data_matches_the_backend() {
+        let root = fixture_root();
+        let live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
+        let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
+        let text = std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("fixtures")
+                .join("captures")
+                .join("basic")
+                .join("calls.jsonl"),
+        )
+        .expect("capture fixture");
+        let records: Vec<capture_core::CaptureRecord> = text
+            .lines()
+            .map(|l| serde_json::from_str(l).expect("record"))
+            .collect();
+        let captures = capture::Loaded {
+            records: records.clone(),
+            skipped: Vec::new(),
+        };
+        let key = live.capture_key();
+        let overview = crate::captures::overview(&loaded.trace, &captures, key.as_deref(), 123_456);
+        let mut details = serde_json::Map::new();
+        for record in &records {
+            let detail =
+                crate::captures::detail(&loaded.trace, &records, &record.id).expect("known id");
+            details.insert(
+                record.id.clone(),
+                serde_json::to_value(detail).expect("serialise"),
+            );
+        }
+        let expected = serde_json::json!({ "overview": overview, "details": details });
+        check_snapshot(&mock_file("capture-data.json"), &expected);
     }
 
     /// Copies a folder and everything in it.

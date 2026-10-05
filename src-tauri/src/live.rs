@@ -4,11 +4,13 @@
 use std::collections::HashSet;
 use std::path::Path;
 
-use adapter_claude_code::{PollOutcome, ReadMode, Session, SessionFollower};
+use adapter_claude_code::{PollOutcome, ReadMode, Session, SessionFollower, session_key};
+use capture_core::CaptureRecord;
 use serde::Serialize;
 use trace_core::Trace;
 use trace_view::NodeDetail;
 
+use crate::captures::CaptureIndex;
 use crate::sessions::{SessionError, SessionView, SkippedLine, session_path};
 
 /// A session counts as live if its transcript was written this recently.
@@ -86,6 +88,8 @@ pub struct LiveSession {
     /// The `live` flag of the last view handed out, so a change in it alone
     /// (the session going quiet) can be sent as an update.
     sent_live: bool,
+    /// Which model calls have a captured API call.
+    captures: CaptureIndex,
 }
 
 impl LiveSession {
@@ -103,6 +107,7 @@ impl LiveSession {
             version: 1,
             deleted: false,
             sent_live: false,
+            captures: CaptureIndex::default(),
         })
     }
 
@@ -137,7 +142,21 @@ impl LiveSession {
             skipped: self.skipped.clone(),
             live,
             version: self.version,
+            captured_trace_ids: self.captures.captured_trace_ids(),
         }
+    }
+
+    /// Rebuilds the capture index from the session's captured records.
+    // The capture commands that call this arrive with the next step of M4.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub fn set_captures(&mut self, records: &[CaptureRecord]) {
+        self.captures = CaptureIndex::build(&self.trace, records);
+    }
+
+    /// The capture store key of this session, if its id is a usable one.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub fn capture_key(&self) -> Option<String> {
+        session_key(Some(&self.session_id))
     }
 
     /// Reads whatever was written since the last call. Returns `None` if
@@ -531,6 +550,39 @@ mod tests {
             LiveSession::open(&root, "basic", "nope"),
             Err(SessionError::NotFound)
         ));
+    }
+
+    #[test]
+    fn captures_mark_model_calls_in_the_view() {
+        let (root, main) = temp_root("captures");
+        append(&main, &fixture_main());
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        assert!(live.view().captured_trace_ids.is_empty(), "none set yet");
+        assert_eq!(live.capture_key().as_deref(), Some(SESSION));
+
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("fixtures")
+            .join("captures")
+            .join("basic")
+            .join("calls.jsonl");
+        let text = std::fs::read_to_string(path).expect("capture fixture");
+        let records: Vec<CaptureRecord> = text
+            .lines()
+            .map(|l| serde_json::from_str(l).expect("record"))
+            .collect();
+        live.set_captures(&records);
+        let mut ids = live.view().captured_trace_ids;
+        ids.sort();
+        // Only the main transcript is in this temp folder, so the subagent
+        // captures and the title call match no model call.
+        let mut calls: Vec<String> = trace_view::model_calls_by_run(&live.trace)
+            .into_iter()
+            .flat_map(|(_, c)| c)
+            .collect();
+        calls.sort();
+        assert!(!calls.is_empty());
+        assert_eq!(ids, calls);
     }
 
     #[test]

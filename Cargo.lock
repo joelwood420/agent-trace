@@ -3088,6 +3088,8 @@ version = "0.1.0"
 dependencies = [
  "adapter-claude-code",
  "anyhow",
+ "capture",
+ "capture-core",
  "notify",
  "serde",
  "serde_json",
