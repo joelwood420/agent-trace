@@ -41,6 +41,8 @@ The app crate (`snitchcraft`) depends on the workspace's own `trace-view` crate 
 
 `trace-view` uses `adapter-claude-code` as a dev-dependency only, so its tests and example can load the Claude Code fixture. The library itself depends only on `trace-core`, `serde` and `serde_json`.
 
+`capture` uses the workspace crates `adapter-claude-code`, `trace-core` and `trace-view` as dev-dependencies only, so the capture fixture generator (`examples/make_fixture.rs`) and its test can read the sample session. The library does not depend on them.
+
 ## Decisions
 
 ### 2026-10-04: Scaffold only the Rust crates for M1

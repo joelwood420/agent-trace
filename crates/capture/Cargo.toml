@@ -21,5 +21,10 @@ bytes.workspace = true
 reqwest.workspace = true
 rustls.workspace = true
 
+[dev-dependencies]
+adapter-claude-code.workspace = true
+trace-core.workspace = true
+trace-view.workspace = true
+
 [lints]
 workspace = true

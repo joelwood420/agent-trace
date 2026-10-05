@@ -244,6 +244,7 @@ dependencies = [
 name = "capture"
 version = "0.1.0"
 dependencies = [
+ "adapter-claude-code",
  "bytes",
  "capture-core",
  "flate2",
@@ -256,6 +257,8 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.21",
  "tokio",
+ "trace-core",
+ "trace-view",
  "tracing",
 ]
 

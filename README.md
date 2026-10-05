@@ -71,7 +71,7 @@ cargo run -p trace-view --example print_diagram -- fixtures\claude-code\basic\00
 - `crates/trace-view`: turns a trace into the diagram model the UI draws. Harness-agnostic, no I/O. See `docs/VIEW-MODEL.md`.
 - `src-tauri/`: the desktop app backend (Tauri 2). Finds and loads sessions, read-only, watches them for changes, and builds the diagram model.
 - `ui/`: the web UI shown inside the app window (React, TypeScript, Vite, React Flow).
-- `fixtures/`: sanitised example transcripts used by tests.
+- `fixtures/`: sanitised example transcripts and an invented capture of the sample session (`fixtures/captures/basic/calls.jsonl`, regenerate with `cargo run -p capture --example make_fixture`), used by tests.
 - `docs/`: schema description, diagram view model, design decisions, and notes on harness behaviour.
 
 ## Build and run on Windows
