@@ -9,6 +9,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "load_session",
         "node_detail",
         "watch_sessions",
+        "capture_status",
+        "session_captures",
+        "capture_detail",
+        "delete_captures",
     ]);
     let attributes = tauri_build::Attributes::new().app_manifest(manifest);
     tauri_build::try_build(attributes)?;

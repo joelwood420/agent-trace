@@ -3,6 +3,7 @@
 
 use std::collections::HashSet;
 use std::path::Path;
+use std::sync::Arc;
 
 use adapter_claude_code::{PollOutcome, ReadMode, Session, SessionFollower, session_key};
 use capture_core::CaptureRecord;
@@ -90,6 +91,10 @@ pub struct LiveSession {
     sent_live: bool,
     /// Which model calls have a captured API call.
     captures: CaptureIndex,
+    /// The session's captured records the index was built from, kept so the
+    /// index can be rebuilt when new trace nodes arrive. Shared with the
+    /// record cache, so holding it costs no copy.
+    capture_records: Arc<Vec<CaptureRecord>>,
 }
 
 impl LiveSession {
@@ -108,6 +113,7 @@ impl LiveSession {
             deleted: false,
             sent_live: false,
             captures: CaptureIndex::default(),
+            capture_records: Arc::new(Vec::new()),
         })
     }
 
@@ -146,17 +152,48 @@ impl LiveSession {
         }
     }
 
-    /// Rebuilds the capture index from the session's captured records.
-    // The capture commands that call this arrive with the next step of M4.
-    #[cfg_attr(not(test), allow(dead_code))]
-    pub fn set_captures(&mut self, records: &[CaptureRecord]) {
-        self.captures = CaptureIndex::build(&self.trace, records);
+    /// Keeps the session's captured records and rebuilds the capture index
+    /// from them.
+    pub fn set_captures(&mut self, records: Arc<Vec<CaptureRecord>>) {
+        self.captures = CaptureIndex::build(&self.trace, &records);
+        self.capture_records = records;
+    }
+
+    /// Replaces the session's captured records (as `set_captures`), bumps the
+    /// version and returns an `Updated` message. Its changed ids are the
+    /// model calls that gained or lost a capture, in trace order.
+    pub fn refresh_captures(&mut self, records: Arc<Vec<CaptureRecord>>) -> LiveMessage {
+        let before: HashSet<String> = self.captures.captured_trace_ids().into_iter().collect();
+        self.set_captures(records);
+        let after: HashSet<String> = self.captures.captured_trace_ids().into_iter().collect();
+        let changed = all_trace_ids(&self.trace)
+            .into_iter()
+            .filter(|id| before.contains(id) != after.contains(id))
+            .collect();
+        self.updated(changed)
     }
 
     /// The capture store key of this session, if its id is a usable one.
-    #[cfg_attr(not(test), allow(dead_code))]
     pub fn capture_key(&self) -> Option<String> {
         session_key(Some(&self.session_id))
+    }
+
+    /// The trace built so far.
+    pub fn trace(&self) -> &Trace {
+        &self.trace
+    }
+
+    /// Rebuilds the capture index after the trace changed, since a capture
+    /// may have been saved before its model call reached the transcript.
+    /// Adds the model calls that became captured to `changed`.
+    fn reindex_captures(&mut self, changed: &mut Vec<String>) {
+        let before: HashSet<String> = self.captures.captured_trace_ids().into_iter().collect();
+        self.captures = CaptureIndex::build(&self.trace, &self.capture_records);
+        for id in self.captures.captured_trace_ids() {
+            if !before.contains(&id) && !changed.contains(&id) {
+                changed.push(id);
+            }
+        }
     }
 
     /// Reads whatever was written since the last call. Returns `None` if
@@ -178,7 +215,8 @@ impl LiveSession {
                     }
                     return Ok(None);
                 }
-                let changed = apply(&mut self.trace, &mut self.skipped, session);
+                let mut changed = apply(&mut self.trace, &mut self.skipped, session);
+                self.reindex_captures(&mut changed);
                 Ok(Some(self.updated(changed)))
             }
             PollOutcome::Rewritten => self.restart("transcript was rewritten, reading it again"),
@@ -201,7 +239,8 @@ impl LiveSession {
         self.trace = trace;
         self.skipped = skipped;
         self.deleted = false;
-        let changed = all_trace_ids(&self.trace);
+        let mut changed = all_trace_ids(&self.trace);
+        self.reindex_captures(&mut changed);
         Ok(Some(self.updated(changed)))
     }
 
@@ -560,7 +599,7 @@ mod tests {
         assert!(live.view().captured_trace_ids.is_empty(), "none set yet");
         assert_eq!(live.capture_key().as_deref(), Some(SESSION));
 
-        live.set_captures(&crate::captures::fixture_records());
+        live.set_captures(Arc::new(crate::captures::fixture_records()));
         let mut ids = live.view().captured_trace_ids;
         ids.sort();
         // Only the main transcript is in this temp folder, so the subagent
@@ -572,6 +611,77 @@ mod tests {
         calls.sort();
         assert!(!calls.is_empty());
         assert_eq!(ids, calls);
+    }
+
+    #[test]
+    fn a_capture_saved_before_its_call_is_marked_when_the_call_arrives() {
+        let (root, main) = temp_root("captures-early");
+        let pieces = parts(4);
+        append(&main, &pieces[0]);
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        live.set_captures(Arc::new(crate::captures::fixture_records()));
+        let early = live.view().captured_trace_ids;
+
+        for piece in &pieces[1..] {
+            append(&main, piece);
+        }
+        let Some(LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        }) = live.refresh().expect("refresh")
+        else {
+            panic!("expected an update");
+        };
+        let late: Vec<&String> = view
+            .captured_trace_ids
+            .iter()
+            .filter(|id| !early.contains(id))
+            .collect();
+        assert!(!late.is_empty(), "some calls only arrive with later lines");
+        for id in late {
+            assert!(changed_trace_ids.contains(id), "{id} is listed as changed");
+        }
+        let mut unique = changed_trace_ids.clone();
+        unique.sort();
+        unique.dedup();
+        assert_eq!(unique.len(), changed_trace_ids.len(), "no duplicates");
+    }
+
+    #[test]
+    fn refresh_captures_lists_calls_that_gained_or_lost_a_capture() {
+        let (root, main) = temp_root("captures-refresh");
+        append(&main, &fixture_main());
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        let LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        } = live.refresh_captures(Arc::new(crate::captures::fixture_records()))
+        else {
+            panic!("expected an update");
+        };
+        assert_eq!(view.version, 2);
+        let mut marked = view.captured_trace_ids.clone();
+        marked.sort();
+        let mut changed = changed_trace_ids.clone();
+        changed.sort();
+        assert!(!marked.is_empty());
+        assert_eq!(changed, marked, "every newly captured call");
+
+        let LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        } = live.refresh_captures(Arc::new(Vec::new()))
+        else {
+            panic!("expected an update");
+        };
+        assert_eq!(view.version, 3);
+        assert!(view.captured_trace_ids.is_empty());
+        let mut changed = changed_trace_ids;
+        changed.sort();
+        assert_eq!(changed, marked, "every call that lost its capture");
     }
 
     #[test]

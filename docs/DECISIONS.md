@@ -304,3 +304,19 @@ Only local programs may use the proxy. A request is refused with `403`, without 
 ### 2026-10-06: First network access (M4)
 
 M4 is the first milestone that uses the network, and only in the Rust backend: outbound HTTPS to `api.anthropic.com` only, and a listening socket on `127.0.0.1` only (never on other interfaces). The web page gets no network access; it only calls the app's own commands.
+
+### 2026-10-06: Captures folder
+
+Captures are saved in Tauri's app data folder for the app identifier `dev.snitchcraft.app`, in a `captures` subfolder: `%APPDATA%\dev.snitchcraft.app\captures\` on Windows. The path is resolved at runtime with `app_data_dir()`, never hardcoded. This is the only folder the app writes to, and it is never under `.claude` or in the repo. If the folder cannot be resolved, capture is turned off and the rest of the app still works; the capture status says why.
+
+### 2026-10-06: Captures are read on demand
+
+The open session keeps only a small index of its captures in memory (which model calls have one), plus a shared reference to the records it was built from so the index can be rebuilt when new transcript lines arrive. The overview and the detail of a call are read from the store when the UI asks for them. The decoded records of the last session read are cached until a new record for that session arrives or its captures are deleted. Reason: a long session can hold many large requests, and most are never opened. Store reads never happen while the open session is locked; changes to the store and their effect on the open session are applied in order under one extra lock, so a capture saved while a session loads is never lost.
+
+### 2026-10-06: Captures kept until deleted (chosen by the project owner)
+
+Captures are never deleted automatically. The user deletes a session's captures in the app, which removes that session's folder in the captures folder and nothing else.
+
+### 2026-10-06: Opt-in capture per session (chosen by the project owner)
+
+A session is captured only when the user starts Claude Code with `ANTHROPIC_BASE_URL` pointing at the app's proxy (the app shows the command to copy: `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`). Snitchcraft never changes Claude Code's settings. Calls without a usable session id header are saved under `unknown`.

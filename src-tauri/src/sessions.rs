@@ -47,6 +47,16 @@ pub enum SessionError {
     /// The adapter could not read the transcript.
     #[error("could not load session: {0}")]
     Adapter(#[from] adapter_claude_code::AdapterError),
+    /// The capture store failed. Its message names no machine path.
+    #[error("{0}")]
+    Captures(#[from] capture::StoreError),
+    /// The app's captures folder could not be found at startup, so capture
+    /// is off.
+    #[error("captures are unavailable: the app data folder could not be found")]
+    CapturesOff,
+    /// A capture id was empty or too long to be one.
+    #[error("invalid capture id")]
+    InvalidCaptureId,
     /// A trace node id was empty or too long to be one.
     #[error("invalid trace id")]
     InvalidTraceId,

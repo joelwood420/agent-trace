@@ -85,7 +85,7 @@ Header filtering uses an allowlist. Kept with their values: `anthropic-*`, `x-st
 
 ## Storage (`capture`)
 
-- Location: the app data folder resolved at runtime (`%APPDATA%\snitchcraft\captures\` on Windows), built with `PathBuf`. Never under `.claude`, never in the repo.
+- Location: the app data folder resolved at runtime (Tauri's app data folder for the app identifier `dev.snitchcraft.app`, so `%APPDATA%\dev.snitchcraft.app\captures\` on Windows), built with `PathBuf`. Never under `.claude`, never in the repo.
 - One folder per session, named after the session id header. Calls without that header go in an `unknown` folder.
 - Records are appended to a compressed JSON Lines file in that folder.
 - The system prompt and the tool definitions of each request are stored once per distinct version, under their content hash, and the record refers to the hash. The message list is stored in full in each record. Compression keeps the repetition small.

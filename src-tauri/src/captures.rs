@@ -3,10 +3,6 @@
 //! changes since the call before it. Everything here works on records that
 //! are already loaded; reading the store is the caller's job.
 
-// The commands that use these views arrive with the next step of M4. Until
-// then only the tests and `LiveSession` call into this module.
-#![cfg_attr(not(test), allow(dead_code))]
-
 use adapter_claude_code::model_call_id;
 use capture::Loaded;
 use capture_core::{CaptureRecord, RequestDiff, RequestSummary, summarise};
@@ -67,7 +63,8 @@ impl CaptureIndex {
             .find(|e| e.trace_id.as_deref() == Some(trace_id))
     }
 
-    /// Every entry, in time order.
+    /// Every entry, in time order. Only the tests need the whole list.
+    #[cfg(test)]
     pub fn entries(&self) -> &[CaptureIndexEntry] {
         &self.entries
     }

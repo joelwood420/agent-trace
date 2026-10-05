@@ -1,11 +1,14 @@
 //! The Snitchcraft desktop app. The backend reads Claude Code transcripts
 //! (read-only), builds the diagram model in Rust, and hands it to the web UI
-//! through four commands. A watcher thread keeps the open session live and
-//! pushes updates to the UI over Tauri channels.
+//! through commands. A watcher thread keeps the open session live and
+//! pushes updates to the UI over Tauri channels. A local proxy captures the
+//! API calls of sessions started with capture on and saves them in the app's
+//! own captures folder.
 
 // Hide the extra console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod capture_sink;
 mod captures;
 mod live;
 mod sessions;
@@ -15,10 +18,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
 
+use capture::{CaptureStore, Proxy};
 use tauri::Manager;
 use tauri::ipc::Channel;
 use trace_view::NodeDetail;
 
+use capture_sink::{AppSink, CaptureStatus, ProxyState, RecordCache};
+use captures::{CaptureDetail, CaptureOverview};
 use live::{LiveMessage, LiveSession, LiveStatus};
 use sessions::{SessionError, SessionSummary, SessionView, TitleCache};
 use watch::{Active, SessionsChanged, Shared, Sink};
@@ -32,6 +38,22 @@ struct AppPaths {
 impl AppPaths {
     fn root(&self) -> Result<PathBuf, SessionError> {
         self.projects_root.clone().ok_or(SessionError::NoHome)
+    }
+}
+
+/// The capture store and what goes with it, set up once at startup.
+struct Captures {
+    /// `None` if the app data folder could not be found; capture is off.
+    store: Option<Arc<CaptureStore>>,
+    /// The last session's decoded records.
+    cache: Arc<RecordCache>,
+    /// The proxy's state.
+    proxy: Arc<ProxyState>,
+}
+
+impl Captures {
+    fn store(&self) -> Result<Arc<CaptureStore>, SessionError> {
+        self.store.clone().ok_or(SessionError::CapturesOff)
     }
 }
 
@@ -57,17 +79,26 @@ async fn list_sessions(
 async fn load_session(
     paths: tauri::State<'_, AppPaths>,
     shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
     project: String,
     session_id: String,
     on_update: Channel<LiveMessage>,
 ) -> Result<SessionView, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
     let shared = Arc::clone(&shared);
+    let store = captures.store.clone();
+    let cache = Arc::clone(&captures.cache);
     // Taken before any work, so a load that started later always wins, even
     // if it finishes first.
     let ticket = shared.begin_load();
     let view = run_blocking(move || {
         let mut session = LiveSession::open(&root, &project, &session_id)?;
+        // Held until the session is installed, so a capture saved meanwhile
+        // is either in these records or applied after the install.
+        let _updates = cache.lock_updates();
+        if let Some(store) = &store {
+            capture_sink::attach_captures(store, &cache, &mut session);
+        }
         let view = session.view();
         let status = if shared.watcher_ok.load(Ordering::SeqCst) {
             LiveStatus::Watching
@@ -140,6 +171,106 @@ fn watch_sessions(
     Ok(())
 }
 
+/// Whether the capture proxy is listening, the command that starts a
+/// captured Claude Code session, and any proxy or save error.
+#[tauri::command(rename_all = "snake_case")]
+fn capture_status(captures: tauri::State<'_, Captures>) -> CaptureStatus {
+    capture_sink::capture_status(&captures.proxy)
+}
+
+/// The overview of one session's captured API calls. `project` and
+/// `session_id` must be values returned by `list_sessions`.
+#[tauri::command(rename_all = "snake_case")]
+async fn session_captures(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    project: String,
+    session_id: String,
+) -> Result<CaptureOverview, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store().map_err(|e| e.to_string())?;
+    let shared = Arc::clone(&shared);
+    let view = run_blocking(move || {
+        capture_sink::session_overview(&root, &store, &shared, &project, &session_id)
+    })
+    .await?;
+    tracing::info!(calls = view.calls.len(), "loaded capture overview");
+    Ok(view)
+}
+
+/// One captured API call in full, with the changes since the call before
+/// it, or `null` if the session has no capture with that id.
+#[tauri::command(rename_all = "snake_case")]
+async fn capture_detail(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    project: String,
+    session_id: String,
+    capture_id: String,
+) -> Result<Option<CaptureDetail>, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store().map_err(|e| e.to_string())?;
+    let cache = Arc::clone(&captures.cache);
+    let shared = Arc::clone(&shared);
+    let detail = run_blocking(move || {
+        capture_sink::session_capture_detail(
+            &root,
+            &store,
+            &cache,
+            &shared,
+            &project,
+            &session_id,
+            &capture_id,
+        )
+    })
+    .await?;
+    tracing::info!(found = detail.is_some(), "loaded capture detail");
+    Ok(detail)
+}
+
+/// Deletes every saved capture of one session from the app's captures
+/// folder. Nothing under the Claude Code folders is touched.
+#[tauri::command(rename_all = "snake_case")]
+async fn delete_captures(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    project: String,
+    session_id: String,
+) -> Result<(), String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store().map_err(|e| e.to_string())?;
+    let cache = Arc::clone(&captures.cache);
+    let shared = Arc::clone(&shared);
+    run_blocking(move || {
+        capture_sink::delete_session_captures(&root, &store, &cache, &shared, &project, &session_id)
+    })
+    .await?;
+    tracing::info!("deleted a session's captures");
+    Ok(())
+}
+
+/// Starts the capture proxy on Tauri's async runtime. A failure to listen
+/// (for example, the port is in use) is logged and kept for
+/// `capture_status`; the rest of the app works without the proxy.
+fn start_proxy(sink: AppSink, state: Arc<ProxyState>) {
+    tauri::async_runtime::spawn(async move {
+        match Proxy::bind(Arc::new(sink)).await {
+            Ok(proxy) => {
+                state.listening.store(true, Ordering::SeqCst);
+                proxy.serve().await;
+                state.listening.store(false, Ordering::SeqCst);
+            }
+            Err(err) => {
+                tracing::error!(error = %err, "could not start the capture proxy");
+                state.set_error(err.to_string());
+            }
+        }
+    });
+}
+
 /// Runs file work on a blocking thread so the UI stays responsive, and turns
 /// every error into a message for the UI.
 async fn run_blocking<T, F>(work: F) -> Result<T, String>
@@ -182,8 +313,36 @@ fn main() -> anyhow::Result<()> {
                     tracing::error!(error = %err, "could not start the watcher thread");
                 }
             }
+            let store = match app.path().app_data_dir() {
+                Ok(dir) => Some(Arc::new(CaptureStore::new(dir.join("captures")))),
+                Err(err) => {
+                    tracing::error!(error = %err, "could not find the app data folder; capture is off");
+                    None
+                }
+            };
+            let cache = Arc::new(RecordCache::default());
+            let proxy = Arc::new(ProxyState::default());
+            match &store {
+                Some(store) => start_proxy(
+                    AppSink::new(
+                        Arc::clone(store),
+                        Arc::clone(&shared),
+                        Arc::clone(&cache),
+                        Arc::clone(&proxy),
+                    ),
+                    Arc::clone(&proxy),
+                ),
+                None => proxy.set_error(
+                    "capture is off: the app data folder could not be found".to_string(),
+                ),
+            }
             app.manage(AppPaths { projects_root });
             app.manage(shared);
+            app.manage(Captures {
+                store,
+                cache,
+                proxy,
+            });
             app.manage(Arc::new(TitleCache::default()));
             Ok(())
         })
@@ -191,7 +350,11 @@ fn main() -> anyhow::Result<()> {
             list_sessions,
             load_session,
             node_detail,
-            watch_sessions
+            watch_sessions,
+            capture_status,
+            session_captures,
+            capture_detail,
+            delete_captures
         ])
         .run(tauri::generate_context!())?;
     Ok(())
