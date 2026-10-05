@@ -560,18 +560,7 @@ mod tests {
         assert!(live.view().captured_trace_ids.is_empty(), "none set yet");
         assert_eq!(live.capture_key().as_deref(), Some(SESSION));
 
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("fixtures")
-            .join("captures")
-            .join("basic")
-            .join("calls.jsonl");
-        let text = std::fs::read_to_string(path).expect("capture fixture");
-        let records: Vec<CaptureRecord> = text
-            .lines()
-            .map(|l| serde_json::from_str(l).expect("record"))
-            .collect();
-        live.set_captures(&records);
+        live.set_captures(&crate::captures::fixture_records());
         let mut ids = live.view().captured_trace_ids;
         ids.sort();
         // Only the main transcript is in this temp folder, so the subagent

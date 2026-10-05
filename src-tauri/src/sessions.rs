@@ -763,19 +763,7 @@ mod tests {
         let root = fixture_root();
         let live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
         let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
-        let text = std::fs::read_to_string(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("..")
-                .join("fixtures")
-                .join("captures")
-                .join("basic")
-                .join("calls.jsonl"),
-        )
-        .expect("capture fixture");
-        let records: Vec<capture_core::CaptureRecord> = text
-            .lines()
-            .map(|l| serde_json::from_str(l).expect("record"))
-            .collect();
+        let records = crate::captures::fixture_records();
         let captures = capture::Loaded {
             records: records.clone(),
             skipped: Vec::new(),

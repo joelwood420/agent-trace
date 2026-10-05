@@ -303,6 +303,23 @@ impl Versions {
     }
 }
 
+/// The invented capture fixture (`fixtures/captures/basic/calls.jsonl`)
+/// for the sample session, one record per line.
+#[cfg(test)]
+#[allow(clippy::expect_used)]
+pub(crate) fn fixture_records() -> Vec<CaptureRecord> {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("fixtures")
+        .join("captures")
+        .join("basic")
+        .join("calls.jsonl");
+    let text = std::fs::read_to_string(path).expect("read capture fixture");
+    text.lines()
+        .map(|line| serde_json::from_str(line).expect("a CaptureRecord"))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -314,18 +331,6 @@ mod tests {
 
     fn repo_path() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
-    }
-
-    fn fixture_records() -> Vec<CaptureRecord> {
-        let path = repo_path()
-            .join("fixtures")
-            .join("captures")
-            .join("basic")
-            .join("calls.jsonl");
-        let text = std::fs::read_to_string(path).expect("read capture fixture");
-        text.lines()
-            .map(|line| serde_json::from_str(line).expect("a CaptureRecord"))
-            .collect()
     }
 
     fn fixture_trace() -> Trace {
@@ -510,6 +515,72 @@ mod tests {
             .map(|r| r.id.clone());
         assert_eq!(title.previous_capture_id, expected);
         assert_eq!(title.diff.is_some(), expected.is_some());
+    }
+
+    /// A copy of `record` with a new id, no message id (so it maps to no
+    /// model call) and the given start time.
+    fn unmapped_copy(record: &CaptureRecord, id: &str, started_at_ms: i64) -> CaptureRecord {
+        let mut copy = record.clone();
+        copy.id = id.to_string();
+        copy.message_id = None;
+        copy.started_at_ms = started_at_ms;
+        copy.ended_at_ms = Some(started_at_ms + 1_000);
+        copy
+    }
+
+    #[test]
+    fn unmapped_call_pairs_with_the_latest_earlier_call_of_the_same_system_prompt() {
+        let trace = fixture_trace();
+        let mut records = fixture_records();
+        let (main, _) = calls_by_agent(&trace);
+        let main_records: Vec<&CaptureRecord> = main
+            .iter()
+            .map(|call| {
+                let id = capture_of(&records, call);
+                records.iter().find(|r| r.id == id).expect("record")
+            })
+            .collect();
+        let latest_main = main_records
+            .iter()
+            .max_by_key(|r| r.started_at_ms)
+            .expect("main calls");
+        let last_start = records
+            .iter()
+            .map(|r| r.started_at_ms)
+            .max()
+            .expect("records");
+        let extra = unmapped_copy(main_records[0], "extra-001", last_start + 10_000);
+        let expected_previous = latest_main.id.clone();
+        records.push(extra);
+
+        let view = detail(&trace, &records, "extra-001").expect("detail");
+        assert_eq!(view.previous_capture_id, Some(expected_previous));
+        assert!(view.diff.is_some());
+    }
+
+    #[test]
+    fn unmapped_call_does_not_pair_with_a_call_that_starts_at_the_same_time() {
+        let trace = fixture_trace();
+        let records = fixture_records();
+        let (main, _) = calls_by_agent(&trace);
+        let first_id = capture_of(&records, &main[0]);
+        let first = records
+            .iter()
+            .find(|r| r.id == first_id)
+            .expect("record")
+            .clone();
+        // The first main call is the only earlier call with its system
+        // prompt once the later main calls are left out.
+        let mut set = vec![first.clone()];
+        set.push(unmapped_copy(&first, "extra-tie", first.started_at_ms));
+        let view = detail(&trace, &set, "extra-tie").expect("detail");
+        assert_eq!(view.previous_capture_id, None);
+        assert!(view.diff.is_none());
+
+        // One millisecond later it does pair.
+        set[1].started_at_ms += 1;
+        let view = detail(&trace, &set, "extra-tie").expect("detail");
+        assert_eq!(view.previous_capture_id, Some(first_id));
     }
 
     #[test]
