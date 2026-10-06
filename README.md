@@ -17,7 +17,7 @@ It is a learning and debugging tool for understanding how an agent harness behav
 | M1 | Replay a finished session from a file (schema, adapter, CLI tree printer) | Done |
 | M2 | Tauri app shell that renders one diagram per prompt | Done |
 | M3 | Live file watching: diagrams update as a session runs | Done |
-| M4 | Proxy capture of raw API requests | Planned |
+| M4 | Proxy capture of raw API requests: system prompt, tools, messages and the changes between calls | Done |
 | M5 | Toy Rust harness that emits the trace format natively | Planned |
 
 ## Try it
@@ -112,6 +112,20 @@ Sessions written in the last 10 minutes have a green dot in the list. The open s
 
 The app watches the `.claude\projects` folder for changes and also checks the open session once a second, read-only. If the folder cannot be watched, the open session still updates, and the session list needs the Refresh button.
 
+### Capturing a session's raw API calls
+
+Snitchcraft runs a small proxy on `127.0.0.1:47821` while it is open. To capture a session, start Claude Code from PowerShell with the command shown at the top of the session list:
+
+```powershell
+$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude
+```
+
+Only sessions started this way are captured; all other sessions are untouched. The proxy passes every request on to `https://api.anthropic.com` unchanged and streams the answer back, then saves a copy. It works with a Claude subscription login or an API key. If Snitchcraft is closed, a session started this way cannot reach the API, so start it normally then.
+
+Captured model call boxes get an "API" tag. Click one to see the changes since the previous call of the same agent (messages added or removed, tools or settings changed) and the full raw request: system prompt, tool definitions, messages and the response. The session panel's "API calls" section lists the system prompt and tool set versions, any API calls the transcript does not record, the size on disk, and a Delete button.
+
+Captures are stored compressed in `%APPDATA%\dev.snitchcraft.app\captures\`, one folder per session, and are kept until you delete them. They contain everything sent to the model, so treat them like the transcripts. Credential headers (authorization, API keys, cookies, tokens) are never saved, logged or shown.
+
 ### Viewing the UI in a browser (development only)
 
 To check the UI without the desktop app, run the UI dev server and open it with `?mock`. It replays the sanitised sample session from `fixtures/`, never your own sessions.
@@ -121,7 +135,7 @@ cd ui; npm run dev
 # then open http://localhost:5173/?mock
 ```
 
-Add `&delay=2000` to slow responses down, or `&fail=list`, `&fail=load` or `&fail=detail` to see how errors are shown. Add `&live` to replay the sample session growing step by step (`&step=<ms>` sets the pace, `&fail=live` ends with the file deleted). Mock mode is not included in production builds.
+Add `&delay=2000` to slow responses down, or `&fail=list`, `&fail=load`, `&fail=detail` or `&fail=captures` to see how errors are shown. The sample session includes invented captured API calls. Add `&live` to replay the sample session growing step by step (`&step=<ms>` sets the pace, `&fail=live` ends with the file deleted). Mock mode is not included in production builds.
 
 ## Test and lint
 
@@ -134,7 +148,7 @@ cd ui; npm run lint; npm run typecheck; npm test; npm run build; cd ..
 
 ## Privacy
 
-The app is read-only and never modifies anything under `.claude`. It can only read session files under `%USERPROFILE%\.claude\projects\`, and its window can only call three backend commands: list sessions, load one session, and show the details of one item in it. It has no file system, shell or network plugins. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
+The app is read-only and never modifies anything under `.claude`. It can only read session files under `%USERPROFILE%\.claude\projects\`. The only folder it writes to is its own captures folder. Its only network access is the capture proxy: it listens on `127.0.0.1` only (refusing requests from web pages) and forwards only to `https://api.anthropic.com`. The window itself has no file system, shell or network plugins and can only call the app's own commands. Real transcripts can contain secrets and are never committed. Only sanitised fixtures live in this repo.
 
 ## Licence
 

@@ -81,3 +81,8 @@ Seen by putting a pass-through proxy between Claude Code and the API (checked on
 - One request for a one-word reply was about 300 KB: a 3-block system prompt (about 28,000 characters, two blocks marked for caching), 132 tool definitions, one user message of 11 text blocks, `max_tokens` 32000, thinking enabled with its text hidden (`display: "omitted"`), and a `context_management` option.
 - Every request carries an `x-claude-code-session-id` header equal to the transcript file name. The response's message id (`msg_...`) appears in the transcript, so a capture joins to its model call exactly (`model:<message id>`).
 - Because thinking is requested with its text omitted, hidden thinking is never sent back and cannot be captured from outside.
+- In a real captured `claude -p` session (Haiku, one subagent, 6 model calls) the tool set grew during the session: the first call offered 123 tools, later calls 169 and then 186, as connected tool servers finished starting. So the tool list is not fixed for a session, and early calls can see fewer tools than later ones.
+- The subagent's requests used a different, much shorter system prompt (about 2,800 characters against about 27,700 for the main agent), and its second call kept its first message and only added the newest assistant turn and tool result.
+- In the diffs checked, a call kept every earlier message of its agent and only appended new ones, so the diff between calls is small even though each request re-sends the whole history.
+- `HEAD /api/hello` carries no `x-claude-code-session-id` header.
+- No `Origin` header is sent, and the `Host` header matches the `ANTHROPIC_BASE_URL` host (the proxy refuses anything else, and every request was accepted).

@@ -32,7 +32,7 @@ All parsing and logic lives in Rust. The UI only renders trace events and must n
 - The Claude Code transcript format is not a stable API. Parse defensively: unknown fields and unknown event types must be skipped and logged, never cause a panic.
 - Keep the raw source line alongside every parsed event so the UI can always show the original data.
 - This app is read-only. Never write to, move, or delete anything under the `.claude` folder.
-- Keep Tauri permissions minimal: read-only file access scoped to the `.claude\projects\` folder, and no network access unless a milestone needs it.
+- Keep Tauri permissions minimal: read-only file access scoped to the `.claude\projects\` folder, and no network access unless a milestone needs it. Since M4 the backend runs a capture proxy that listens on `127.0.0.1:47821` only and forwards only to `https://api.anthropic.com`; the web page has no network access. The only folder the app writes to is its own captures folder.
 - Every event has a stable `id` and a `parent_id`, so the trace is always a tree that the UI can render without guessing.
 - Claude Code may be writing a transcript while the app reads it. Open files in a way that does not block the writer, and treat an incomplete last line as "not ready yet", never as a parse error.
 - Transcripts can contain secrets and private code. Never commit real transcripts. Test fixtures in `fixtures/` must be sanitised.
@@ -82,8 +82,10 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - Format: `cargo fmt --all`
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
 - UI checks: `cd ui; npm run lint; npm run typecheck; npm test; npm run build`
-- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing)
-- Refresh the UI mock data (`ui/src/mock/fixture-data.json` and `ui/src/mock/live-steps.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of both files
+- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls)
+- Capture a Claude Code session through the app's proxy (app must be running): `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`
+- Regenerate the invented capture fixture: `cargo run -p capture --example make_fixture`
+- Refresh the UI mock data (`ui/src/mock/fixture-data.json`, `live-steps.json` and `capture-data.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of all three files
 
 If a command here turns out to be wrong after scaffolding, fix this file.
 
@@ -110,18 +112,18 @@ You are doing the implementation and I will mostly not read the code. That means
 
 ## Current milestone
 
-M3: live file watching with diagrams updating as a session runs.
+M4: proxy capture of raw API requests (system prompt, tool definitions, compaction).
 
-Status: complete. M4 (proxy capture of raw API requests) is next; plan its steps with me before starting.
+Status: complete. M5 (toy harness) is next; plan its steps with me before starting.
 
-1. `TranscriptTail`: read only the new complete lines of a growing transcript.
-2. `SessionFollower`: follow a session and its subagents, linking subagents from their meta file or tool result.
-3. `LiveSession` in the app: keep the open session's trace and diagram current, `live` and `version` fields.
-4. Watcher thread with one-second polling, updates pushed to the UI over Tauri channels.
-5. UI: live dot, Live badge, new prompt highlight, state kept across updates.
-6. Checked against real running sessions, docs updated.
+1. `capture-core`: the capture record format, header filtering, rebuilding a streamed response, request summaries and the diff.
+2. `capture`: the on-disk store (compressed, system prompts and tool sets kept once) and the local proxy.
+3. Pairing model calls by agent (`trace-view`) and mapping captures to Claude Code sessions (adapter).
+4. App: proxy started with the app, captures saved and joined to the open session live, capture commands.
+5. UI: API tag on boxes, changes since the previous call, full raw request, session overview, start command, Delete.
+6. Checked with a real captured session, docs updated.
 
-Out of scope for now: follow mode, API proxy capture, token cost breakdowns, and the toy harness.
+Out of scope for now: capturing scratchpad files, token cost breakdowns, other harnesses, and the toy harness.
 
 ## Later milestones (for context only)
 
