@@ -24,7 +24,7 @@ One `CaptureRecord` per exchange. In a file, one record per JSON object.
 | `method` | string | HTTP method. |
 | `path` | string | Path and query, for example `/v1/messages`. |
 | `headers` | array of Header | Filtered, see Header rules. |
-| `body` | Body | The request body. |
+| `body` | Body | The request body, for requests to `/v1/messages` (with or without a query). For any other path it is always `empty`: only model call bodies are kept, so nothing else Claude Code might send through the base URL is stored. |
 
 ## Response
 

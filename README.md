@@ -120,11 +120,11 @@ Snitchcraft runs a small proxy on `127.0.0.1:47821` while it is open. To capture
 $env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude
 ```
 
-Only sessions started this way are captured; all other sessions are untouched. The proxy passes every request on to `https://api.anthropic.com` unchanged and streams the answer back, then saves a copy. It works with a Claude subscription login or an API key. If Snitchcraft is closed, a session started this way cannot reach the API, so start it normally then.
+Only sessions started this way are captured; all other sessions are untouched. The proxy passes every request on to `https://api.anthropic.com` unchanged and streams the answer back, then saves a copy. Checked with a Claude subscription login; an API key login should work the same way but has not been tested. If Snitchcraft is closed, a session started this way cannot reach the API, so start it normally then.
 
 Captured model call boxes get an "API" tag. Click one to see the changes since the previous call of the same agent (messages added or removed, tools or settings changed) and the full raw request: system prompt, tool definitions, messages and the response. The session panel's "API calls" section lists the system prompt and tool set versions, any API calls the transcript does not record, the size on disk, and a Delete button.
 
-Captures are stored compressed in `%APPDATA%\dev.snitchcraft.app\captures\`, one folder per session, and are kept until you delete them. They contain everything sent to the model, so treat them like the transcripts. Credential headers (authorization, API keys, cookies, tokens) are never saved, logged or shown.
+Captures are stored compressed in `%APPDATA%\dev.snitchcraft.app\captures\`, one folder per session, and are kept until you delete them. They contain everything sent to the model, so treat them like the transcripts. Credential headers (authorization, API keys, cookies, tokens) are never saved, logged or shown. The `unknown` folder holds API calls that carried no session id; the app does not show it, and you can delete it by hand from the captures folder.
 
 ### Viewing the UI in a browser (development only)
 

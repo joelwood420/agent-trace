@@ -4,7 +4,8 @@
 //! `ANTHROPIC_BASE_URL`. Every request is forwarded to the fixed upstream with
 //! its headers and body unchanged (except hop-by-hop headers), the response is
 //! streamed back chunk by chunk as it arrives, and a copy of the exchange is
-//! handed to a [`CaptureSink`] once the response has ended.
+//! handed to a [`CaptureSink`] once the response has ended. `HEAD` requests
+//! are not recorded, and only `/v1/messages` request bodies are kept.
 
 use bytes::Bytes;
 use capture_core::{
@@ -58,6 +59,14 @@ const HOP_BY_HOP: [&str; 10] = [
     "trailer",
     "accept-encoding",
 ];
+
+/// Fetch metadata headers. Browsers send them on every request; Node and
+/// Bun clients such as Claude Code do not.
+const FETCH_METADATA: [&str; 3] = ["sec-fetch-site", "sec-fetch-mode", "sec-fetch-dest"];
+
+/// The only path whose request bodies are stored. Requests to any other
+/// path are recorded with headers, status and timing but no body.
+const MESSAGES_PATH: &str = "/v1/messages";
 
 /// Process-wide counter that makes record ids unique.
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
@@ -221,8 +230,12 @@ fn plain_response(status: StatusCode, text: &'static str) -> Response<ProxyBody>
 }
 
 /// Hand a record to the sink on a blocking thread, so a slow disk never
-/// stalls the proxy.
+/// stalls the proxy. `HEAD` requests (Claude Code's connection check) are
+/// forwarded but never recorded: they carry no body and no session id.
 fn deliver(shared: &Shared, record: CaptureRecord) {
+    if record.request.method == Method::HEAD.as_str() {
+        return;
+    }
     let sink = shared.sink.clone();
     tokio::task::spawn_blocking(move || sink.record(record));
 }
@@ -264,10 +277,14 @@ async fn handle(
 /// - The target must be a path (origin form). `OPTIONS *`, `CONNECT host:port`
 ///   and absolute URLs are refused, so a request can only ever go to the
 ///   fixed upstream.
-/// - The `Host` header must be `127.0.0.1:<port>` or `localhost:<port>` and
-///   there must be no `Origin` header. Browsers always send both, so this
-///   stops a web page (including one using DNS rebinding) from sending
-///   requests through the proxy with the user's machine as the source.
+/// - The `Host` header must be `127.0.0.1:<port>` or `localhost:<port>`,
+///   and there must be no `Origin` header and none of the fetch metadata
+///   headers (`sec-fetch-site`, `sec-fetch-mode`, `sec-fetch-dest`).
+///   Browsers send the page's own host name in `Host`, `Origin` on
+///   cross-site requests, and fetch metadata on every request including
+///   top-level navigations, so this stops a web page (including one using
+///   DNS rebinding) from sending requests through the proxy with the user's
+///   machine as the source. Claude Code sends none of them.
 fn refuse(req: &Request<Incoming>, port: u16) -> Option<Response<ProxyBody>> {
     let uri = req.uri();
     if uri.authority().is_some() || !uri.path().starts_with('/') {
@@ -284,7 +301,11 @@ fn refuse(req: &Request<Incoming>, port: u16) -> Option<Response<ProxyBody>> {
             host.eq_ignore_ascii_case(&format!("127.0.0.1:{port}"))
                 || host.eq_ignore_ascii_case(&format!("localhost:{port}"))
         });
-    if !host_ok || req.headers().contains_key(header::ORIGIN) {
+    let from_browser = [header::ORIGIN.as_str()]
+        .into_iter()
+        .chain(FETCH_METADATA)
+        .any(|name| req.headers().contains_key(name));
+    if !host_ok || from_browser {
         return Some(plain_response(
             StatusCode::FORBIDDEN,
             "snitchcraft proxy: only local programs may use this proxy",
@@ -337,7 +358,11 @@ async fn exchange(req: Request<Incoming>, shared: Arc<Shared>) -> Response<Proxy
             );
         }
     };
-    record.request.body = Body::from_bytes(&body_bytes);
+    // Only model call bodies are kept, so nothing else Claude Code might
+    // send through the base URL is stored.
+    if parts.uri.path() == MESSAGES_PATH {
+        record.request.body = Body::from_bytes(&body_bytes);
+    }
 
     // The forwarded request keeps every header, credentials included, except
     // the hop-by-hop ones. The upstream is asked not to compress, so the
@@ -572,7 +597,7 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
             body,
         });
         let response = match (method.as_str(), path.as_str()) {
-            (_, "/stream") => {
+            (_, "/stream" | "/v1/messages") => {
                 let (mut tx, body) = Channel::<Bytes, std::io::Error>::new(4);
                 tokio::spawn(async move {
                     for (i, part) in SSE_PARTS.iter().enumerate() {
@@ -713,7 +738,7 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
 
     async fn post_stream(proxy: &str) -> reqwest::Response {
         client()
-            .post(format!("{proxy}/stream?beta=true"))
+            .post(format!("{proxy}/v1/messages?beta=true"))
             .header("authorization", "Bearer test-secret")
             .header("x-claude-code-session-id", "s1")
             .header("anthropic-beta", "b1")
@@ -739,7 +764,7 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
         assert_eq!(seen.len(), 1);
         let got = &seen[0];
         assert_eq!(got.method, "POST");
-        assert_eq!(got.path_and_query, "/stream?beta=true");
+        assert_eq!(got.path_and_query, "/v1/messages?beta=true");
         assert_eq!(&got.body[..], br#"{"model":"m","messages":[]}"#);
         let header = |name: &str| got.headers.get(name).and_then(|v| v.to_str().ok());
         assert_eq!(header("authorization"), Some("Bearer test-secret"));
@@ -799,7 +824,7 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
         assert_eq!(r.message_id.as_deref(), Some("msg_test1"));
         assert_eq!(r.error, None);
         assert_eq!(r.request.method, "POST");
-        assert_eq!(r.request.path, "/stream?beta=true");
+        assert_eq!(r.request.path, "/v1/messages?beta=true");
         assert_eq!(
             r.request.body,
             Body::Json(serde_json::json!({"model":"m","messages":[]}))
@@ -848,7 +873,7 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
     }
 
     #[tokio::test]
-    async fn head_request_passes_through() {
+    async fn head_request_passes_through_but_is_not_recorded() {
         let (upstream, seen) = fake_upstream().await;
         let (proxy, sink) = start_proxy(upstream).await;
 
@@ -858,17 +883,46 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
             .await
             .expect("head");
         assert_eq!(response.status(), 200);
-
-        let records = sink.wait_for(1).await;
-        let r = &records[0];
-        assert_eq!(r.request.method, "HEAD");
-        assert_eq!(r.request.path, "/api/hello");
-        assert_eq!(r.request.body, Body::Empty);
-        assert_eq!(r.error, None);
-        let response = r.response.as_ref().expect("response");
-        assert_eq!(response.status, 200);
-        assert_eq!(response.stream, None);
         assert_eq!(seen.lock().expect("lock")[0].method, "HEAD");
+
+        // A later recorded call shows the HEAD request left no record.
+        let response = post_stream(&proxy).await;
+        response.bytes().await.expect("body");
+        let records = sink.wait_for(1).await;
+        tokio::time::sleep(Duration::from_millis(200)).await;
+        let records_now = sink.records.lock().expect("lock").clone();
+        assert_eq!(records_now.len(), 1, "{records_now:?}");
+        assert_eq!(records[0].request.method, "POST");
+    }
+
+    #[tokio::test]
+    async fn bodies_of_other_paths_are_not_stored() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+
+        for path in ["/error", "/v1/messages/count_tokens", "/v1/other?x=1"] {
+            let response = client()
+                .post(format!("{proxy}{path}"))
+                .header("content-type", "application/json")
+                .body(r#"{"secret":"not for the store"}"#)
+                .send()
+                .await
+                .expect("send");
+            response.bytes().await.expect("body");
+        }
+        let records = sink.wait_for(3).await;
+        for record in &records {
+            assert_eq!(record.request.body, Body::Empty, "{}", record.request.path);
+            assert!(record.response.is_some(), "status still recorded");
+            assert!(record.ended_at_ms.is_some(), "timing still recorded");
+        }
+        // The body was still forwarded.
+        let seen = seen.lock().expect("lock").clone();
+        assert_eq!(seen.len(), 3);
+        assert!(
+            seen.iter()
+                .all(|s| &s.body[..] == br#"{"secret":"not for the store"}"#)
+        );
     }
 
     #[tokio::test]
@@ -1079,15 +1133,44 @@ event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
     }
 
     #[tokio::test]
+    async fn browser_fetch_metadata_is_rejected() {
+        let (upstream, seen) = fake_upstream().await;
+        let (proxy, sink) = start_proxy(upstream).await;
+        let port = port_of(&proxy);
+
+        for header in [
+            "Sec-Fetch-Site: none",
+            "Sec-Fetch-Mode: navigate",
+            "Sec-Fetch-Dest: document",
+        ] {
+            let request = format!(
+                "GET /v1/messages HTTP/1.1
+Host: 127.0.0.1:{port}
+{header}
+Connection: close
+
+"
+            );
+            assert_eq!(raw_status(&proxy, &request).await, 403, "{header}");
+        }
+        assert_nothing_forwarded_or_recorded(&seen, &sink).await;
+    }
+
+    #[tokio::test]
     async fn localhost_host_is_accepted() {
         let (upstream, seen) = fake_upstream().await;
         let (proxy, sink) = start_proxy(upstream).await;
         let port = port_of(&proxy);
 
         let request = format!(
-            "HEAD /api/hello HTTP/1.1\r\nHost: localhost:{port}\r\nConnection: close\r\n\r\n"
+            "POST /error HTTP/1.1
+Host: localhost:{port}
+Content-Length: 2
+Connection: close
+
+{{}}"
         );
-        assert_eq!(raw_status(&proxy, &request).await, 200);
+        assert_eq!(raw_status(&proxy, &request).await, 529);
         sink.wait_for(1).await;
         assert_eq!(seen.lock().expect("lock").len(), 1);
     }
