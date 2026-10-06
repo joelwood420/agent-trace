@@ -190,9 +190,10 @@ async fn session_captures(
 ) -> Result<CaptureOverview, String> {
     let root = paths.root().map_err(|e| e.to_string())?;
     let store = captures.store().map_err(|e| e.to_string())?;
+    let cache = Arc::clone(&captures.cache);
     let shared = Arc::clone(&shared);
     let view = run_blocking(move || {
-        capture_sink::session_overview(&root, &store, &shared, &project, &session_id)
+        capture_sink::session_overview(&root, &store, &cache, &shared, &project, &session_id)
     })
     .await?;
     tracing::info!(calls = view.calls.len(), "loaded capture overview");

@@ -3,12 +3,14 @@
 //! changes since the call before it. Everything here works on records that
 //! are already loaded; reading the store is the caller's job.
 
+use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
+
 use adapter_claude_code::model_call_id;
-use capture::Loaded;
 use capture_core::{CaptureRecord, RequestDiff, RequestSummary, summarise};
 use serde::Serialize;
-use trace_core::Trace;
-use trace_view::previous_model_call;
+use trace_core::{Node, Trace};
+use trace_view::model_calls_by_run;
 
 /// One capture in the index of the open session.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -20,14 +22,11 @@ pub struct CaptureIndexEntry {
     pub trace_id: Option<String>,
     /// When the request was received, milliseconds since 1970-01-01 UTC.
     pub started_at_ms: i64,
-    /// Content hash of the request's system prompt, if it has one.
-    pub system_hash: Option<String>,
-    /// Content hash of the request's tool set, if it has one.
-    pub tools_hash: Option<String>,
 }
 
 /// A small index of a session's captures, in time order, kept in memory by
-/// the open session.
+/// the open session. Building it only maps message ids to model calls, so
+/// it stays cheap however large the requests are.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct CaptureIndex {
     entries: Vec<CaptureIndexEntry>,
@@ -39,24 +38,29 @@ impl CaptureIndex {
     pub fn build(trace: &Trace, records: &[CaptureRecord]) -> Self {
         let entries = in_time_order(records)
             .into_iter()
-            .map(|record| index_entry(trace, record, summarise(record).as_ref()))
+            .map(|record| CaptureIndexEntry {
+                capture_id: record.id.clone(),
+                trace_id: mapped_id(record, |id| trace.get(id).is_some()),
+                started_at_ms: record.started_at_ms,
+            })
             .collect();
         Self { entries }
     }
 
     /// Model call trace ids that have a capture, in time order, each once.
     pub fn captured_trace_ids(&self) -> Vec<String> {
-        let mut out: Vec<String> = Vec::new();
-        for id in self.entries.iter().filter_map(|e| e.trace_id.as_ref()) {
-            if !out.contains(id) {
-                out.push(id.clone());
-            }
-        }
-        out
+        let mut seen: HashSet<&str> = HashSet::new();
+        self.entries
+            .iter()
+            .filter_map(|e| e.trace_id.as_deref())
+            .filter(|id| seen.insert(id))
+            .map(String::from)
+            .collect()
     }
 
     /// The capture of one model call, if it has one. If a call somehow has
-    /// several, the first is returned.
+    /// several, the first is returned. Only the tests need it.
+    #[cfg(test)]
     pub fn capture_for(&self, trace_id: &str) -> Option<&CaptureIndexEntry> {
         self.entries
             .iter()
@@ -67,6 +71,115 @@ impl CaptureIndex {
     #[cfg(test)]
     pub fn entries(&self) -> &[CaptureIndexEntry] {
         &self.entries
+    }
+}
+
+/// The trace id a record maps to: the model call named by its response
+/// message id, if `known` says that call is in the trace.
+fn mapped_id(record: &CaptureRecord, known: impl Fn(&str) -> bool) -> Option<String> {
+    record
+        .message_id
+        .as_deref()
+        .map(model_call_id)
+        .filter(|id| known(id))
+}
+
+/// What the capture views need from a trace, copied out of it so the views
+/// can be built without holding the open session's lock.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct TraceFacts {
+    /// Every model call id in the trace.
+    model_calls: HashSet<String>,
+    /// For each model call, the model call before it in the same run.
+    previous: HashMap<String, String>,
+}
+
+impl TraceFacts {
+    /// Copies the model calls of `trace` and their order within each run.
+    pub fn of(trace: &Trace) -> Self {
+        let mut facts = Self::default();
+        for (_, calls) in model_calls_by_run(trace) {
+            for pair in calls.windows(2) {
+                facts.previous.insert(pair[1].clone(), pair[0].clone());
+            }
+        }
+        let mut stack: Vec<&str> = trace.roots().map(|e| e.id.as_str()).collect();
+        while let Some(id) = stack.pop() {
+            stack.extend(trace.children(id).map(|child| child.id.as_str()));
+            if trace
+                .get(id)
+                .is_some_and(|event| matches!(event.node, Node::ModelCall(_)))
+            {
+                facts.model_calls.insert(id.to_string());
+            }
+        }
+        facts
+    }
+
+    /// The trace id `record` maps to, if any.
+    fn trace_id(&self, record: &CaptureRecord) -> Option<String> {
+        mapped_id(record, |id| self.model_calls.contains(id))
+    }
+}
+
+/// A session's records as the app caches them, with each record's summary
+/// once it has been built and the reasons for stored data that could not
+/// be read. Cloning only copies shared pointers.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct SessionRecords {
+    /// The records, in stored order.
+    pub records: Arc<Vec<CaptureRecord>>,
+    /// Summaries by capture id; `None` for a record whose body is not a
+    /// JSON object. A record without an entry is not summarised yet.
+    pub summaries: Arc<HashMap<String, Option<RequestSummary>>>,
+    /// Reasons for stored data that could not be read.
+    pub skipped: Arc<Vec<String>>,
+}
+
+impl SessionRecords {
+    /// Records with no summaries built yet.
+    pub fn new(records: Vec<CaptureRecord>, skipped: Vec<String>) -> Self {
+        Self {
+            records: Arc::new(records),
+            summaries: Arc::new(HashMap::new()),
+            skipped: Arc::new(skipped),
+        }
+    }
+
+    /// Adds one record at the end, without summarising it.
+    pub fn push(&mut self, record: CaptureRecord) {
+        Arc::make_mut(&mut self.records).push(record);
+    }
+
+    /// Builds the summaries of the records that have none yet, so each
+    /// record is summarised at most once.
+    pub fn summarise_missing(&mut self) {
+        let built: Vec<(String, Option<RequestSummary>)> = self
+            .records
+            .iter()
+            .filter(|r| !self.summaries.contains_key(&r.id))
+            .map(|r| (r.id.clone(), summary_of(r)))
+            .collect();
+        if !built.is_empty() {
+            Arc::make_mut(&mut self.summaries).extend(built);
+        }
+    }
+
+    /// The summary of one record. One that was not summarised yet is
+    /// summarised here (and not kept).
+    fn summary(&self, record: &CaptureRecord) -> Option<RequestSummary> {
+        match self.summaries.get(&record.id) {
+            Some(summary) => summary.clone(),
+            None => summary_of(record),
+        }
+    }
+
+    /// The system prompt hash of one record, if it has one.
+    fn system_hash(&self, record: &CaptureRecord) -> Option<String> {
+        match self.summaries.get(&record.id) {
+            Some(summary) => summary.as_ref().and_then(|s| s.system_hash.clone()),
+            None => summary_of(record).and_then(|s| s.system_hash),
+        }
     }
 }
 
@@ -147,10 +260,11 @@ pub struct CaptureDetail {
 }
 
 /// The overview of a session's captures. `key` is the session's capture
-/// store key and `total_bytes` the size stored for it.
+/// store key and `total_bytes` the size stored for it. Uses the summaries
+/// kept in `captures`; call `summarise_missing` first so none are rebuilt.
 pub fn overview(
-    trace: &Trace,
-    loaded: &Loaded,
+    facts: &TraceFacts,
+    captures: &SessionRecords,
     key: Option<&str>,
     total_bytes: u64,
 ) -> CaptureOverview {
@@ -158,27 +272,23 @@ pub fn overview(
     let mut tools = Versions::default();
     let mut calls = Vec::new();
     let mut other_call_ids = Vec::new();
-    for record in in_time_order(&loaded.records) {
-        let summary = summarise(record);
-        let entry = index_entry(trace, record, summary.as_ref());
-        let system_version = match (&entry.system_hash, &summary) {
-            (Some(hash), Some(s)) => {
-                Some(systems.count(hash, &record.id, || (Some(s.system_chars), None)))
-            }
-            _ => None,
-        };
-        let tools_version = match (&entry.tools_hash, &summary) {
-            (Some(hash), Some(s)) => {
-                Some(tools.count(hash, &record.id, || (None, Some(s.tool_names.clone()))))
-            }
-            _ => None,
-        };
-        if entry.trace_id.is_none() {
+    for record in in_time_order(&captures.records) {
+        let summary = captures.summary(record);
+        let trace_id = facts.trace_id(record);
+        let system_version = summary.as_ref().and_then(|s| {
+            let hash = s.system_hash.as_deref()?;
+            Some(systems.count(hash, &record.id, || (Some(s.system_chars), None)))
+        });
+        let tools_version = summary.as_ref().and_then(|s| {
+            let hash = s.tools_hash.as_deref()?;
+            Some(tools.count(hash, &record.id, || (None, Some(s.tool_names.clone()))))
+        });
+        if trace_id.is_none() {
             other_call_ids.push(record.id.clone());
         }
         calls.push(CallSummary {
             capture_id: record.id.clone(),
-            trace_id: entry.trace_id,
+            trace_id,
             started_at_ms: record.started_at_ms,
             duration_ms: record.ended_at_ms.map(|end| end - record.started_at_ms),
             model: summary.as_ref().and_then(|s| s.model.clone()),
@@ -196,7 +306,7 @@ pub fn overview(
         system_versions: systems.list,
         tool_versions: tools.list,
         other_call_ids,
-        skipped: loaded.skipped.clone(),
+        skipped: captures.skipped.to_vec(),
     }
 }
 
@@ -205,37 +315,56 @@ pub fn overview(
 /// The previous capture is the one of the previous model call of the same
 /// agent when this capture maps to a model call. Otherwise it is the latest
 /// earlier capture with the same system prompt.
-pub fn detail(trace: &Trace, records: &[CaptureRecord], capture_id: &str) -> Option<CaptureDetail> {
-    let record = records.iter().find(|r| r.id == capture_id)?;
-    let index = CaptureIndex::build(trace, records);
-    let position = index
-        .entries
-        .iter()
-        .position(|e| e.capture_id == capture_id)?;
-    let entry = &index.entries[position];
-    let previous_capture_id = match &entry.trace_id {
-        Some(trace_id) => previous_model_call(trace, trace_id)
-            .and_then(|previous| index.capture_for(&previous))
-            .map(|e| e.capture_id.clone()),
-        None => index.entries[..position]
-            .iter()
-            .rev()
-            .find(|e| {
-                e.started_at_ms < entry.started_at_ms
-                    && entry.system_hash.is_some()
-                    && e.system_hash == entry.system_hash
+pub fn detail(
+    facts: &TraceFacts,
+    captures: &SessionRecords,
+    capture_id: &str,
+) -> Option<CaptureDetail> {
+    let record = captures.records.iter().find(|r| r.id == capture_id)?;
+    let ordered = in_time_order(&captures.records);
+    let previous = match facts.trace_id(record) {
+        Some(trace_id) => facts.previous.get(&trace_id).and_then(|previous| {
+            ordered
+                .iter()
+                .copied()
+                .find(|r| facts.trace_id(r).as_deref() == Some(previous.as_str()))
+        }),
+        None => {
+            let position = ordered.iter().position(|r| r.id == capture_id)?;
+            captures.system_hash(record).and_then(|system| {
+                ordered[..position].iter().rev().copied().find(|r| {
+                    r.started_at_ms < record.started_at_ms
+                        && captures.system_hash(r).as_deref() == Some(system.as_str())
+                })
             })
-            .map(|e| e.capture_id.clone()),
+        }
     };
-    let previous = previous_capture_id
-        .as_deref()
-        .and_then(|id| records.iter().find(|r| r.id == id));
     Some(CaptureDetail {
         record: record.clone(),
-        summary: summarise(record),
-        previous_capture_id,
+        summary: captures.summary(record),
+        previous_capture_id: previous.map(|p| p.id.clone()),
         diff: previous.and_then(|p| capture_core::diff(p, record)),
     })
+}
+
+#[cfg(test)]
+thread_local! {
+    /// How many records this thread summarised, so tests can check that
+    /// summaries are built only when needed.
+    static SUMMARISE_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+/// How many records this thread has summarised so far.
+#[cfg(test)]
+pub(crate) fn summarise_calls() -> usize {
+    SUMMARISE_CALLS.with(std::cell::Cell::get)
+}
+
+/// Summarises one record. Every summary in the app is built here.
+fn summary_of(record: &CaptureRecord) -> Option<RequestSummary> {
+    #[cfg(test)]
+    SUMMARISE_CALLS.with(|c| c.set(c.get() + 1));
+    summarise(record)
 }
 
 /// The records sorted by `started_at_ms`, keeping stored order for ties.
@@ -243,27 +372,6 @@ fn in_time_order(records: &[CaptureRecord]) -> Vec<&CaptureRecord> {
     let mut sorted: Vec<&CaptureRecord> = records.iter().collect();
     sorted.sort_by_key(|r| r.started_at_ms);
     sorted
-}
-
-/// The index entry of one record. `summary` is the record's summary, passed
-/// in so callers that need it too only build it once.
-fn index_entry(
-    trace: &Trace,
-    record: &CaptureRecord,
-    summary: Option<&RequestSummary>,
-) -> CaptureIndexEntry {
-    let trace_id = record
-        .message_id
-        .as_deref()
-        .map(model_call_id)
-        .filter(|id| trace.get(id).is_some());
-    CaptureIndexEntry {
-        capture_id: record.id.clone(),
-        trace_id,
-        started_at_ms: record.started_at_ms,
-        system_hash: summary.and_then(|s| s.system_hash.clone()),
-        tools_hash: summary.and_then(|s| s.tools_hash.clone()),
-    }
 }
 
 /// Numbers distinct hashes from 1 in order of first appearance and counts
@@ -317,6 +425,42 @@ pub(crate) fn fixture_records() -> Vec<CaptureRecord> {
         .collect()
 }
 
+/// `count` invented records shaped like real ones: a large system prompt,
+/// 180 tools and a growing message list. Every record copies the message id
+/// of a fixture record in turn, so most map to fixture model calls.
+#[cfg(test)]
+pub(crate) fn synthetic_records(count: usize) -> Vec<CaptureRecord> {
+    use serde_json::json;
+    let base = fixture_records();
+    let system = json!([{ "type": "text", "text": "An invented system prompt. ".repeat(2_000) }]);
+    let tools: Vec<serde_json::Value> = (0..180)
+        .map(|i| {
+            json!({
+                "name": format!("Tool{i}"),
+                "description": "An invented tool description. ".repeat(40),
+                "input_schema": { "type": "object", "properties": { "path": { "type": "string" } } },
+            })
+        })
+        .collect();
+    (0..count)
+        .map(|i| {
+            let mut record = base[i % base.len()].clone();
+            record.id = format!("synthetic-{i:04}");
+            record.started_at_ms = 1_000_000 + i as i64;
+            let messages: Vec<serde_json::Value> = (0..=i % 50)
+                .map(|m| json!({ "role": "user", "content": format!("message {m}") }))
+                .collect();
+            record.request.body = capture_core::Body::Json(json!({
+                "model": "test-model",
+                "system": system,
+                "tools": tools,
+                "messages": messages,
+            }));
+            record
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -360,6 +504,14 @@ mod tests {
             .expect("the title call")
     }
 
+    /// The detail of one capture among `records`, summarised up front as
+    /// the app does.
+    fn detail_of(trace: &Trace, records: &[CaptureRecord], id: &str) -> Option<CaptureDetail> {
+        let mut captures = SessionRecords::new(records.to_vec(), Vec::new());
+        captures.summarise_missing();
+        detail(&TraceFacts::of(trace), &captures, id)
+    }
+
     /// (main agent calls, subagent calls), each in order.
     fn calls_by_agent(trace: &Trace) -> (Vec<String>, Vec<String>) {
         let runs = model_calls_by_run(trace);
@@ -395,7 +547,6 @@ mod tests {
         let first = &expected[0];
         let entry = index.capture_for(first).expect("an entry");
         assert_eq!(entry.capture_id, capture_of(&records, first));
-        assert!(entry.system_hash.is_some() && entry.tools_hash.is_some());
         assert!(index.capture_for("model:nope").is_none());
 
         let times: Vec<i64> = index.entries().iter().map(|e| e.started_at_ms).collect();
@@ -406,11 +557,9 @@ mod tests {
     fn overview_lists_versions_and_other_calls() {
         let trace = fixture_trace();
         let records = fixture_records();
-        let loaded = Loaded {
-            records: records.clone(),
-            skipped: vec!["a reason".into()],
-        };
-        let view = overview(&trace, &loaded, Some(SESSION), 42);
+        let mut captures = SessionRecords::new(records.clone(), vec!["a reason".into()]);
+        captures.summarise_missing();
+        let view = overview(&TraceFacts::of(&trace), &captures, Some(SESSION), 42);
         assert_eq!(view.session_key.as_deref(), Some(SESSION));
         assert_eq!(view.total_bytes, 42);
         assert_eq!(view.skipped, vec!["a reason".to_string()]);
@@ -474,7 +623,7 @@ mod tests {
         let records = fixture_records();
         let (main, sub) = calls_by_agent(&trace);
 
-        let second = detail(&trace, &records, &capture_of(&records, &main[1])).expect("detail");
+        let second = detail_of(&trace, &records, &capture_of(&records, &main[1])).expect("detail");
         assert_eq!(
             second.previous_capture_id,
             Some(capture_of(&records, &main[0]))
@@ -483,11 +632,13 @@ mod tests {
         assert!(diff.shared_prefix > 0);
         assert!(second.summary.is_some());
 
-        let first_sub = detail(&trace, &records, &capture_of(&records, &sub[0])).expect("detail");
+        let first_sub =
+            detail_of(&trace, &records, &capture_of(&records, &sub[0])).expect("detail");
         assert_eq!(first_sub.previous_capture_id, None);
         assert!(first_sub.diff.is_none());
 
-        let webfetch = detail(&trace, &records, &capture_of(&records, &main[3])).expect("detail");
+        let webfetch =
+            detail_of(&trace, &records, &capture_of(&records, &main[3])).expect("detail");
         assert_eq!(
             webfetch.diff.expect("a diff").tools_added,
             vec!["WebFetch".to_string()]
@@ -499,7 +650,7 @@ mod tests {
         let trace = fixture_trace();
         let records = fixture_records();
         let title_id = title_capture(&records);
-        let title = detail(&trace, &records, &title_id).expect("detail");
+        let title = detail_of(&trace, &records, &title_id).expect("detail");
         let this = records.iter().find(|r| r.id == title_id).expect("record");
         let system = title.summary.as_ref().and_then(|s| s.system_hash.clone());
         let expected = records
@@ -550,7 +701,7 @@ mod tests {
         let expected_previous = latest_main.id.clone();
         records.push(extra);
 
-        let view = detail(&trace, &records, "extra-001").expect("detail");
+        let view = detail_of(&trace, &records, "extra-001").expect("detail");
         assert_eq!(view.previous_capture_id, Some(expected_previous));
         assert!(view.diff.is_some());
     }
@@ -570,13 +721,13 @@ mod tests {
         // prompt once the later main calls are left out.
         let mut set = vec![first.clone()];
         set.push(unmapped_copy(&first, "extra-tie", first.started_at_ms));
-        let view = detail(&trace, &set, "extra-tie").expect("detail");
+        let view = detail_of(&trace, &set, "extra-tie").expect("detail");
         assert_eq!(view.previous_capture_id, None);
         assert!(view.diff.is_none());
 
         // One millisecond later it does pair.
         set[1].started_at_ms += 1;
-        let view = detail(&trace, &set, "extra-tie").expect("detail");
+        let view = detail_of(&trace, &set, "extra-tie").expect("detail");
         assert_eq!(view.previous_capture_id, Some(first_id));
     }
 
@@ -584,6 +735,6 @@ mod tests {
     fn detail_of_an_unknown_id_is_none() {
         let trace = fixture_trace();
         let records = fixture_records();
-        assert!(detail(&trace, &records, "no-such-capture").is_none());
+        assert!(detail_of(&trace, &records, "no-such-capture").is_none());
     }
 }

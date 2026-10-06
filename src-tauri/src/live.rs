@@ -694,6 +694,34 @@ mod tests {
     }
 
     #[test]
+    fn marking_captures_never_summarises_records() {
+        let (root, main) = temp_root("captures-cheap");
+        let pieces = parts(2);
+        append(&main, &pieces[0]);
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        let records = Arc::new(crate::captures::synthetic_records(300));
+        let before = crate::captures::summarise_calls();
+        let started = std::time::Instant::now();
+
+        live.set_captures(Arc::clone(&records));
+        assert!(live.refresh_captures(Arc::clone(&records)).is_none());
+        append(&main, &pieces[1]);
+        assert!(live.refresh().expect("refresh").is_some());
+        assert!(!live.view().captured_trace_ids.is_empty());
+
+        assert_eq!(
+            crate::captures::summarise_calls(),
+            before,
+            "no record was summarised"
+        );
+        assert!(
+            started.elapsed() < std::time::Duration::from_secs(2),
+            "took {:?}",
+            started.elapsed()
+        );
+    }
+
+    #[test]
     fn messages_serialise_with_a_type_tag() {
         let msg = LiveMessage::Status {
             project: "p".into(),

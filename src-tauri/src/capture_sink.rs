@@ -3,21 +3,26 @@
 //! date, and serves the capture views to the commands.
 //!
 //! Lock rule: the open session's lock (`Shared::active`) is never held while
-//! the store is read or written. Records are loaded first and only then
-//! applied under the lock. Sequences that change the store and then apply
-//! the result to the open session also hold `RecordCache::lock_updates`
-//! (always taken before `active`), so they reach the session in order.
+//! the store is read or written, records are summarised, or a capture view
+//! is built. Records are loaded first and only then applied under the lock;
+//! views copy what they need from the trace under the lock and are built
+//! after it is released. Sequences that change the store and then apply the
+//! result to the open session also hold `RecordCache::lock_updates`, so they
+//! reach the session in order. The order is: `lock_updates`, then the record
+//! cache, then the store's write lock; and `lock_updates`, then `active`.
+//! The cache and store locks are never taken while `active` is held.
 
+use std::collections::HashSet;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use adapter_claude_code::{SESSION_HEADER, session_key};
 use capture::{CaptureSink, CaptureStore, PROXY_PORT, StoreError, UNKNOWN_SESSION};
-use capture_core::CaptureRecord;
+use capture_core::{CaptureRecord, RequestSummary};
 use serde::Serialize;
 
-use crate::captures::{self, CaptureDetail, CaptureOverview};
+use crate::captures::{self, CaptureDetail, CaptureOverview, SessionRecords, TraceFacts};
 use crate::live::LiveSession;
 use crate::sessions::{SessionError, session_path};
 use crate::watch::Shared;
@@ -34,13 +39,14 @@ fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
         .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
-/// The decoded records of the last session read from the store. A new
-/// record for that session is added to them; deleting the session's captures
-/// clears them.
+/// The decoded records of the last session read from the store, with the
+/// summaries built from them so far and the reasons for stored data that
+/// could not be read. A new record for that session is added to them;
+/// deleting the session's captures clears them.
 #[derive(Default)]
 pub struct RecordCache {
     /// The session key and its records.
-    last: Mutex<Option<(String, Arc<Vec<CaptureRecord>>)>>,
+    last: Mutex<Option<(String, SessionRecords)>>,
     /// Held while a change to the store is applied to the open session.
     updates: Mutex<()>,
     /// How many times the store was read, so tests can see cache hits.
@@ -49,18 +55,18 @@ pub struct RecordCache {
 }
 
 impl RecordCache {
-    /// The records of session `key`, read from the store unless they are
-    /// cached. The cache lock is held while reading, so an `invalidate`
+    /// The cached records of session `key`, read from the store unless they
+    /// are cached. The cache lock is held while reading, so an `invalidate`
     /// that follows a write always clears what was read before the write.
-    pub fn get_or_load(
+    fn get_or_load_all(
         &self,
         store: &CaptureStore,
         key: &str,
-    ) -> Result<Arc<Vec<CaptureRecord>>, StoreError> {
+    ) -> Result<SessionRecords, StoreError> {
         let mut last = lock(&self.last);
-        if let Some((cached_key, records)) = last.as_ref() {
+        if let Some((cached_key, cached)) = last.as_ref() {
             if cached_key == key {
-                return Ok(Arc::clone(records));
+                return Ok(cached.clone());
             }
         }
         #[cfg(test)]
@@ -69,27 +75,68 @@ impl RecordCache {
         for reason in &loaded.skipped {
             tracing::debug!(reason, "skipped stored capture data");
         }
-        let records = Arc::new(loaded.records);
-        *last = Some((key.to_string(), Arc::clone(&records)));
-        Ok(records)
+        let cached = SessionRecords::new(loaded.records, loaded.skipped);
+        *last = Some((key.to_string(), cached.clone()));
+        Ok(cached)
+    }
+
+    /// The records of session `key`, read from the store unless they are
+    /// cached. Builds no summaries.
+    pub fn get_or_load(
+        &self,
+        store: &CaptureStore,
+        key: &str,
+    ) -> Result<Arc<Vec<CaptureRecord>>, StoreError> {
+        Ok(self.get_or_load_all(store, key)?.records)
+    }
+
+    /// The records of session `key` with every record summarised. Only
+    /// records not summarised before are summarised, outside the cache lock,
+    /// and their summaries are kept for next time.
+    pub fn get_summarised(
+        &self,
+        store: &CaptureStore,
+        key: &str,
+    ) -> Result<SessionRecords, StoreError> {
+        let mut captures = self.get_or_load_all(store, key)?;
+        let known = captures.summaries.len();
+        captures.summarise_missing();
+        if captures.summaries.len() != known {
+            let mut last = lock(&self.last);
+            if let Some((cached_key, cached)) = last.as_mut() {
+                if cached_key == key {
+                    let ids: HashSet<&str> = cached.records.iter().map(|r| r.id.as_str()).collect();
+                    let new: Vec<(String, Option<RequestSummary>)> = captures
+                        .summaries
+                        .iter()
+                        .filter(|(id, _)| {
+                            ids.contains(id.as_str()) && !cached.summaries.contains_key(*id)
+                        })
+                        .map(|(id, summary)| (id.clone(), summary.clone()))
+                        .collect();
+                    if !new.is_empty() {
+                        Arc::make_mut(&mut cached.summaries).extend(new);
+                    }
+                }
+            }
+        }
+        Ok(captures)
     }
 
     /// Adds a record that was just saved for session `key` to the cached
     /// records, if they are this session's, so the next read needs no
     /// decoding. A record already there (read from the store after it was
-    /// saved) is not added twice.
+    /// saved) is not added twice. The record is summarised only when a view
+    /// needs it.
     pub fn add_record(&self, key: &str, record: &CaptureRecord) {
         let mut last = lock(&self.last);
-        let Some((cached_key, records)) = last.as_mut() else {
+        let Some((cached_key, cached)) = last.as_mut() else {
             return;
         };
-        if cached_key != key || records.iter().any(|r| r.id == record.id) {
+        if cached_key != key || cached.records.iter().any(|r| r.id == record.id) {
             return;
         }
-        let mut grown = Vec::with_capacity(records.len() + 1);
-        grown.extend(records.iter().cloned());
-        grown.push(record.clone());
-        *records = Arc::new(grown);
+        cached.push(record.clone());
     }
 
     /// Forgets the cached records if they belong to session `key`.
@@ -248,50 +295,44 @@ fn check_capture_id(capture_id: &str) -> Result<(), SessionError> {
     Ok(())
 }
 
-/// Runs `work` on the trace of the session, using the open session when it
-/// is this one and otherwise reading the session without keeping it. The
-/// names must already be validated.
-fn with_trace<T>(
+/// The facts the capture views need from the trace of the session, using
+/// the open session when it is this one and otherwise reading the session
+/// without keeping it. The open session's lock is held only while the facts
+/// are copied. The names must already be validated.
+fn trace_facts(
     root: &Path,
     shared: &Shared,
     project: &str,
     session_id: &str,
-    work: impl FnOnce(&trace_core::Trace) -> T,
-) -> Result<T, SessionError> {
+) -> Result<TraceFacts, SessionError> {
     {
         let guard = shared.active();
         if let Some(active) = guard.as_ref().filter(|a| a.session.is(project, session_id)) {
-            return Ok(work(active.session.trace()));
+            return Ok(TraceFacts::of(active.session.trace()));
         }
     }
     let live = LiveSession::open(root, project, session_id)?;
-    Ok(work(live.trace()))
+    Ok(TraceFacts::of(live.trace()))
 }
 
-/// The overview of one session's captures. Reads the store directly (not
-/// through the cache) so the overview also lists unreadable stored data.
+/// The overview of one session's captures, from the record cache (which
+/// also keeps the reasons for stored data that could not be read).
 pub fn session_overview(
     root: &Path,
     store: &CaptureStore,
+    cache: &RecordCache,
     shared: &Shared,
     project: &str,
     session_id: &str,
 ) -> Result<CaptureOverview, SessionError> {
     session_path(root, project, session_id)?;
     let key = session_key(Some(session_id));
-    let (loaded, bytes) = match key.as_deref() {
-        Some(key) => (store.load(key)?, store.size(key)?),
-        None => (
-            capture::Loaded {
-                records: Vec::new(),
-                skipped: Vec::new(),
-            },
-            0,
-        ),
+    let (records, bytes) = match key.as_deref() {
+        Some(key) => (cache.get_summarised(store, key)?, store.size(key)?),
+        None => (SessionRecords::default(), 0),
     };
-    with_trace(root, shared, project, session_id, |trace| {
-        captures::overview(trace, &loaded, key.as_deref(), bytes)
-    })
+    let facts = trace_facts(root, shared, project, session_id)?;
+    Ok(captures::overview(&facts, &records, key.as_deref(), bytes))
 }
 
 /// One captured call of a session in full, or `None` if there is none with
@@ -310,10 +351,9 @@ pub fn session_capture_detail(
     let Some(key) = session_key(Some(session_id)) else {
         return Ok(None);
     };
-    let records = cache.get_or_load(store, &key)?;
-    with_trace(root, shared, project, session_id, |trace| {
-        captures::detail(trace, &records, capture_id)
-    })
+    let records = cache.get_summarised(store, &key)?;
+    let facts = trace_facts(root, shared, project, session_id)?;
+    Ok(captures::detail(&facts, &records, capture_id))
 }
 
 /// Deletes every capture of a session. If it is the open session, its
@@ -617,7 +657,8 @@ mod tests {
         for record in &records {
             store.append(SESSION, record).expect("append");
         }
-        let view = session_overview(&root, &store, &shared, "basic", SESSION).expect("overview");
+        let view =
+            session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
         assert_eq!(view.calls.len(), records.len());
         assert!(view.total_bytes > 0);
 
@@ -642,9 +683,65 @@ mod tests {
             Err(SessionError::InvalidCaptureId)
         ));
         assert!(matches!(
-            session_overview(&root, &store, &shared, "..", SESSION),
+            session_overview(&root, &store, &cache, &shared, "..", SESSION),
             Err(SessionError::InvalidName { .. })
         ));
+    }
+
+    #[test]
+    fn views_summarise_each_record_once_and_keep_skipped_reasons() {
+        let (root, store) = setup("views-once");
+        let shared = Arc::new(Shared::default());
+        let cache = RecordCache::default();
+        let records = crate::captures::synthetic_records(40);
+        for record in &records {
+            store.append(SESSION, record).expect("append");
+        }
+        // A damaged tail, so the store reports a skipped reason.
+        let calls = store.root().join(SESSION).join("calls.jsonl.gz");
+        let mut bytes = std::fs::read(&calls).expect("read");
+        bytes.extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00]);
+        std::fs::write(&calls, bytes).expect("write");
+
+        let before = crate::captures::summarise_calls();
+        let first =
+            session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
+        assert_eq!(first.calls.len(), 40);
+        assert_eq!(first.skipped.len(), 1, "{:?}", first.skipped);
+        assert_eq!(crate::captures::summarise_calls() - before, 40);
+
+        let again =
+            session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
+        let id = &records[20].id;
+        let detail = session_capture_detail(&root, &store, &cache, &shared, "basic", SESSION, id)
+            .expect("detail")
+            .expect("found");
+        assert_eq!(again, first);
+        assert_eq!(detail.record.id, *id);
+        assert_eq!(
+            crate::captures::summarise_calls() - before,
+            40,
+            "nothing summarised twice"
+        );
+        assert_eq!(
+            cache.loads.load(Ordering::SeqCst),
+            1,
+            "the store was read once"
+        );
+
+        let mut extra = records[0].clone();
+        extra.id = "extra-0001".into();
+        extra.started_at_ms += 10_000_000;
+        store.append(SESSION, &extra).expect("append");
+        cache.add_record(SESSION, &extra);
+        let grown =
+            session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
+        assert_eq!(grown.calls.len(), 41);
+        assert_eq!(
+            crate::captures::summarise_calls() - before,
+            41,
+            "only the new one"
+        );
     }
 
     #[test]

@@ -774,16 +774,14 @@ mod tests {
         let live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
         let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
         let records = crate::captures::fixture_records();
-        let captures = capture::Loaded {
-            records: records.clone(),
-            skipped: Vec::new(),
-        };
+        let mut captures = crate::captures::SessionRecords::new(records.clone(), Vec::new());
+        captures.summarise_missing();
+        let facts = crate::captures::TraceFacts::of(&loaded.trace);
         let key = live.capture_key();
-        let overview = crate::captures::overview(&loaded.trace, &captures, key.as_deref(), 123_456);
+        let overview = crate::captures::overview(&facts, &captures, key.as_deref(), 123_456);
         let mut details = serde_json::Map::new();
         for record in &records {
-            let detail =
-                crate::captures::detail(&loaded.trace, &records, &record.id).expect("known id");
+            let detail = crate::captures::detail(&facts, &captures, &record.id).expect("known id");
             details.insert(
                 record.id.clone(),
                 serde_json::to_value(detail).expect("serialise"),
