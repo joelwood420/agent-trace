@@ -4,6 +4,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { errorMessage, type Api } from '../api.ts'
+import type { CaptureState } from '../captureView.ts'
 import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
 import type { ContentBlock, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
 import { CaptureSections } from './CapturePanel.tsx'
@@ -16,8 +17,8 @@ interface Props {
   node: DiagramNode
   /** Goes up when the box's trace nodes changed in a live update, to refetch. */
   refreshKey: number
-  /** The captured API call of this box, if it is a model call with one. */
-  captureId: string | null
+  /** The captured API call of this box, if it is a model call with the API tag. */
+  capture: CaptureState | null
   onClose: () => void
 }
 
@@ -35,7 +36,7 @@ const KIND_NAMES: Record<DiagramNode['kind'], string> = {
   marker: 'Marker',
 }
 
-export default function DetailsPanel({ api, project, sessionId, node, refreshKey, captureId, onClose }: Props) {
+export default function DetailsPanel({ api, project, sessionId, node, refreshKey, capture, onClose }: Props) {
   const key = `${project}/${sessionId}/${node.id}`
   const [fetched, setFetched] = useState<Fetched | null>(null)
   // A live update hands over a new node object each time; keying the fetch on
@@ -58,6 +59,10 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
   }, [api, project, sessionId, node.id, traceIdsKey, refreshKey, key])
 
   const current = fetched?.key === key ? fetched : null
+  const captureView = capture && <CaptureView api={api} project={project} sessionId={sessionId} capture={capture} />
+  // With one trace node the capture goes above its raw source lines;
+  // otherwise it goes after the list.
+  const captureInDetail = current?.status === 'ready' && current.details.length === 1 && current.details[0] !== null
 
   return (
     <aside className="details" aria-label="Details of the selected box">
@@ -91,7 +96,7 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
                 </p>
               )
             }
-            if (current.details.length === 1) return <Detail key={id} detail={detail} />
+            if (current.details.length === 1) return <Detail key={id} detail={detail} capture={captureView} />
             return (
               // Two items (a subagent's run and task) start open; longer
               // lists (groups, summaries) start closed so they stay scannable.
@@ -101,9 +106,7 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
               </details>
             )
           })}
-        {captureId !== null && (
-          <CaptureSections api={api} project={project} sessionId={sessionId} captureId={captureId} />
-        )}
+        {!captureInDetail && captureView}
       </div>
     </aside>
   )
@@ -128,7 +131,33 @@ function summaryLine(detail: NodeDetail): string {
   }
 }
 
-function Detail({ detail }: { detail: NodeDetail }) {
+/** The captured call of a box, or why it is not shown yet. */
+function CaptureView({
+  api,
+  project,
+  sessionId,
+  capture,
+}: {
+  api: Api
+  project: string
+  sessionId: string
+  capture: CaptureState
+}) {
+  switch (capture.kind) {
+    case 'capture':
+      return <CaptureSections api={api} project={project} sessionId={sessionId} captureId={capture.captureId} />
+    case 'loading':
+      return <p className="muted small loading detail-section">API call details are loading</p>
+    case 'error':
+      return (
+        <div className="notice notice-error detail-section" role="alert">
+          Could not load API call details: {capture.message}
+        </div>
+      )
+  }
+}
+
+function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: ReactNode }) {
   const n = detail.node
   return (
     <div className="detail">
@@ -198,6 +227,8 @@ function Detail({ detail }: { detail: NodeDetail }) {
           <pre className="code">{prettyJson(detail.metadata)}</pre>
         </Section>
       )}
+
+      {capture}
 
       <Section title={`Raw source (${detail.raw.length})`}>
         {detail.raw.length === 0 ? (

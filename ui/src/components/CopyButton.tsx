@@ -7,7 +7,11 @@ import { errorMessage } from '../api.ts'
 /** How long the "Copied" confirmation stays. */
 const CONFIRM_MS = 1500
 
-export default function CopyButton({ text, label }: { text: string; label: string }) {
+/**
+ * `text` may be a function so large text (a whole request) is only built
+ * when the button is clicked.
+ */
+export default function CopyButton({ text, label }: { text: string | (() => string); label: string }) {
   const [state, setState] = useState<{ kind: 'idle' } | { kind: 'copied' } | { kind: 'failed'; message: string }>({
     kind: 'idle',
   })
@@ -28,8 +32,15 @@ export default function CopyButton({ text, label }: { text: string; label: strin
       setState({ kind: 'failed', message: 'the clipboard is not available' })
       return
     }
+    let value: string
+    try {
+      value = typeof text === 'function' ? text() : text
+    } catch (err: unknown) {
+      setState({ kind: 'failed', message: errorMessage(err) })
+      return
+    }
     clipboard
-      .writeText(text)
+      .writeText(value)
       .then(() => {
         setState({ kind: 'copied' })
         timer.current = setTimeout(() => setState({ kind: 'idle' }), CONFIRM_MS)

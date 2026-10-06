@@ -10,7 +10,6 @@ import type {
   DiagramNode,
   MessageSummary,
   RequestDiff,
-  SessionView,
 } from './types.ts'
 
 /** JSON on one line; falls back to `String` for values JSON cannot write. */
@@ -95,11 +94,6 @@ export function isCaptured(node: DiagramNode, capturedIds: ReadonlySet<string>):
   return node.kind === 'model_call' && node.trace_ids.some((id) => capturedIds.has(id))
 }
 
-/** True if an update changed how many model calls have a capture. */
-export function capturedCountChanged(previous: SessionView | null, next: SessionView): boolean {
-  return (previous?.captured_trace_ids.length ?? 0) !== next.captured_trace_ids.length
-}
-
 /** The request body to copy: formatted JSON, text as is, or nothing. */
 export function requestJsonText(record: CaptureRecord): string {
   const body = record.request.body
@@ -111,4 +105,47 @@ export function requestJsonText(record: CaptureRecord): string {
     case 'empty':
       return ''
   }
+}
+
+/** True if the session load that started an action is still the current one. */
+export function sameLoad(startToken: number, currentToken: number): boolean {
+  return startToken === currentToken
+}
+
+/**
+ * How long to wait before a throttled action may run again: 0 if it may run
+ * now (never ran, or the interval has passed), else the rest of the interval.
+ */
+export function throttleDelay(lastRunMs: number | null, nowMs: number, intervalMs: number): number {
+  if (lastRunMs === null) return 0
+  return Math.max(0, lastRunMs + intervalMs - nowMs)
+}
+
+/** The capture overview as the app holds it (same shape as `Loadable`). */
+export type OverviewState =
+  | { status: 'loading' }
+  | { status: 'ready'; value: CaptureOverview }
+  | { status: 'error'; message: string }
+
+/** What the details panel shows for a box's captured API call. */
+export type CaptureState =
+  | { kind: 'capture'; captureId: string }
+  | { kind: 'loading' }
+  | { kind: 'error'; message: string }
+
+/**
+ * The captured call of a box with the API tag: its id once the overview is
+ * loaded, or a loading or error state meanwhile. Null for boxes without the
+ * tag, or when the loaded overview no longer has the call.
+ */
+export function captureState(
+  node: DiagramNode,
+  capturedIds: ReadonlySet<string>,
+  overview: OverviewState,
+): CaptureState | null {
+  if (!isCaptured(node, capturedIds)) return null
+  if (overview.status === 'loading') return { kind: 'loading' }
+  if (overview.status === 'error') return { kind: 'error', message: overview.message }
+  const captureId = captureIdForNode(overview.value, node)
+  return captureId === null ? null : { kind: 'capture', captureId }
 }

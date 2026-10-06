@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { errorMessage, getApi, insideTauri, mockMode, type Api } from './api.ts'
-import { captureIdForNode, capturedCountChanged } from './captureView.ts'
+import { captureState, sameLoad, throttleDelay } from './captureView.ts'
 import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
@@ -18,6 +18,9 @@ import type {
   SessionSummary,
   SessionView,
 } from './types.ts'
+
+/** Live updates reload the capture overview at most this often. */
+const CAPTURE_RELOAD_MS = 2000
 
 /** How long a prompt that arrived live stays highlighted. */
 const NEW_PROMPT_MS = 4000
@@ -47,6 +50,9 @@ export default function App() {
   const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
+  // When the overview was last requested, and a pending throttled reload.
+  const lastCaptureLoad = useRef<number | null>(null)
+  const captureTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Ignores responses to requests that were overtaken by a newer one.
   const loadToken = useRef(0)
   // The view on screen, read by the live handler to drop older versions.
@@ -147,6 +153,7 @@ export default function App() {
     (s: SessionSummary, fresh = false) => {
       if (!api) return
       const token = ++captureToken.current
+      lastCaptureLoad.current = Date.now()
       if (fresh) setCaptureOverview({ status: 'loading' })
       api
         .sessionCaptures(s.project, s.session_id)
@@ -158,6 +165,33 @@ export default function App() {
         })
     },
     [api],
+  )
+
+  const cancelCaptureReload = useCallback(() => {
+    if (captureTimer.current !== null) clearTimeout(captureTimer.current)
+    captureTimer.current = null
+  }, [])
+
+  useEffect(() => cancelCaptureReload, [cancelCaptureReload])
+
+  /**
+   * Reloads the overview after a live update of session `s` (opened with
+   * load `token`), at most once every CAPTURE_RELOAD_MS.
+   */
+  const scheduleCaptureReload = useCallback(
+    (token: number, s: SessionSummary) => {
+      if (captureTimer.current !== null) return
+      const delay = throttleDelay(lastCaptureLoad.current, Date.now(), CAPTURE_RELOAD_MS)
+      if (delay === 0) {
+        loadCaptures(s)
+        return
+      }
+      captureTimer.current = setTimeout(() => {
+        captureTimer.current = null
+        if (sameLoad(token, loadToken.current)) loadCaptures(s)
+      }, delay)
+    },
+    [loadCaptures],
   )
 
   /** Applies a message pushed by the backend while session `s` is open. */
@@ -172,7 +206,8 @@ export default function App() {
       const next = message.view
       if (!showView(next)) return
       highlightPrompts(newPromptIndexes(previous?.diagram ?? null, next.diagram))
-      if (capturedCountChanged(previous, next)) loadCaptures(s)
+      // Other calls, sizes and versions can change with any update.
+      scheduleCaptureReload(token, s)
       // The selected box may be gone (the details close) or may have changed.
       setSelected((sel) => (sel ? findNode(next.diagram, sel.id) : null))
       const sel = selectedRef.current
@@ -181,7 +216,7 @@ export default function App() {
         setDetailRefresh((n) => n + 1)
       }
     },
-    [showView, highlightPrompts, loadCaptures],
+    [showView, highlightPrompts, scheduleCaptureReload],
   )
 
   const refreshSessions = () => {
@@ -202,6 +237,8 @@ export default function App() {
     setLiveStatus(null)
     clearHighlights()
     captureToken.current++
+    cancelCaptureReload()
+    lastCaptureLoad.current = null
     setCaptureOverview({ status: 'loading' })
     if (!keepPrompt) {
       setPromptIndex(null)
@@ -225,6 +262,7 @@ export default function App() {
     loadToken.current++
     viewRef.current = null
     captureToken.current++
+    cancelCaptureReload()
     setSession(null)
     setSelected(null)
     setSelectedCapture(null)
@@ -250,14 +288,17 @@ export default function App() {
 
   const deleteCaptures = async () => {
     if (!api || !session) return
-    await api.deleteCaptures(session.project, session.session_id)
+    // The user may open another session while the delete runs.
+    const token = loadToken.current
+    const s = session
+    await api.deleteCaptures(s.project, s.session_id)
+    if (!sameLoad(token, loadToken.current)) return
     setSelectedCapture(null)
-    loadCaptures(session)
+    loadCaptures(s)
   }
 
   const viewValue = view.status === 'ready' ? view.value : null
   const capturedIds = useMemo(() => new Set(viewValue?.captured_trace_ids ?? []), [viewValue])
-  const overviewValue = captureOverview.status === 'ready' ? captureOverview.value : null
 
   const onToggle = useCallback((id: string, open: boolean) => {
     setOpenState((prev) => new Map(prev).set(id, open))
@@ -385,7 +426,7 @@ export default function App() {
           sessionId={session.session_id}
           node={selected}
           refreshKey={detailRefresh}
-          captureId={captureIdForNode(overviewValue, selected)}
+          capture={captureState(selected, capturedIds, captureOverview)}
           onClose={() => setSelected(null)}
         />
       )}

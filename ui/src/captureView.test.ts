@@ -6,7 +6,7 @@ import { test } from 'node:test'
 
 import {
   callLine,
-  capturedCountChanged,
+  captureState,
   captureIdForNode,
   compactJson,
   diffLines,
@@ -14,10 +14,12 @@ import {
   messageLine,
   otherCalls,
   requestJsonText,
+  sameLoad,
   settingRows,
   systemHeading,
+  throttleDelay,
 } from './captureView.ts'
-import type { CaptureDetail, CaptureOverview, DiagramNode, RequestDiff, SessionView } from './types.ts'
+import type { CaptureDetail, CaptureOverview, DiagramNode, RequestDiff } from './types.ts'
 
 const url = new URL('./mock/capture-data.json', import.meta.url)
 const data = JSON.parse(readFileSync(url, 'utf8')) as {
@@ -183,14 +185,6 @@ test('isCaptured checks model call boxes against the captured ids', () => {
   assert.equal(isCaptured(node('tool_call', ['model:a']), ids), false)
 })
 
-test('capturedCountChanged compares the number of captured trace ids', () => {
-  const view = (ids: string[]) => ({ captured_trace_ids: ids }) as unknown as SessionView
-  assert.equal(capturedCountChanged(null, view([])), false)
-  assert.equal(capturedCountChanged(null, view(['a'])), true)
-  assert.equal(capturedCountChanged(view(['a']), view(['b'])), false)
-  assert.equal(capturedCountChanged(view(['a']), view(['a', 'b'])), true)
-})
-
 test('requestJsonText formats a JSON body and returns text bodies as they are', () => {
   const record = structuredClone(data.details['fixture-001'].record)
   const text = requestJsonText(record)
@@ -200,4 +194,31 @@ test('requestJsonText formats a JSON body and returns text bodies as they are', 
   assert.equal(requestJsonText(record), 'not json')
   record.request.body = { kind: 'empty' }
   assert.equal(requestJsonText(record), '')
+})
+
+test('sameLoad is true only while the same session load is current', () => {
+  assert.equal(sameLoad(3, 3), true)
+  assert.equal(sameLoad(3, 4), false)
+})
+
+test('throttleDelay runs at once after the interval and waits for the rest otherwise', () => {
+  assert.equal(throttleDelay(null, 10_000, 2000), 0)
+  assert.equal(throttleDelay(5000, 7000, 2000), 0)
+  assert.equal(throttleDelay(5000, 9000, 2000), 0)
+  assert.equal(throttleDelay(5000, 5500, 2000), 1500)
+})
+
+test('captureState gives the capture id, a loading or error state, or nothing', () => {
+  const call = data.overview.calls[0]
+  const traceId = call.trace_id ?? ''
+  const box = node('model_call', [traceId])
+  const ids = new Set([traceId])
+  assert.deepEqual(captureState(box, ids, { status: 'ready', value: data.overview }), { kind: 'capture', captureId: call.capture_id })
+  assert.deepEqual(captureState(box, ids, { status: 'loading' }), { kind: 'loading' })
+  assert.deepEqual(captureState(box, ids, { status: 'error', message: 'boom' }), { kind: 'error', message: 'boom' })
+  // Not tagged: nothing, whatever the overview says.
+  assert.equal(captureState(box, new Set(), { status: 'loading' }), null)
+  assert.equal(captureState(node('tool_call', [traceId]), ids, { status: 'loading' }), null)
+  // Tagged but missing from a loaded overview (for example just deleted): nothing.
+  assert.equal(captureState(node('model_call', ['model:x']), new Set(['model:x']), { status: 'ready', value: data.overview }), null)
 })

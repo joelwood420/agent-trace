@@ -2,7 +2,7 @@
 // the session overview): what changed since the previous call, and the full
 // request and response. Fetched with `capture_detail`.
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { errorMessage, type Api } from '../api.ts'
 import { diffLines, messageLine, requestJsonText, settingRows, systemHeading } from '../captureView.ts'
@@ -167,10 +167,11 @@ function MessageSummaries({
 }
 
 function RequestView({ record, summary }: { record: CaptureRecord; summary: RequestSummary | null }) {
-  const body = requestBody(record)
-  const system = systemBlocks(body)
-  const tools = toolList(body)
-  const messages = messageList(body)
+  // Reshaped once per record, so re-renders do not walk a large body again.
+  const { body, system, tools, messages } = useMemo(() => {
+    const b = requestBody(record)
+    return { body: b, system: systemBlocks(b), tools: toolList(b), messages: messageList(b) }
+  }, [record])
   const ended = record.ended_at_ms
   return (
     <div className="request">
@@ -195,7 +196,7 @@ function RequestView({ record, summary }: { record: CaptureRecord; summary: Requ
         )}
       </dl>
       <div className="request-actions">
-        <CopyButton text={requestJsonText(record)} label="Copy request JSON" />
+        <CopyButton text={() => requestJsonText(record)} label="Copy request JSON" />
       </div>
 
       {summary && (
