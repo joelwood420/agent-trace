@@ -12,6 +12,7 @@ import {
 } from '@xyflow/react'
 import { useCallback, useMemo, useRef } from 'react'
 
+import { isCaptured } from '../captureView.ts'
 import { initialViewport, layoutTree, type OpenState } from '../layout.ts'
 import type { DiagramNode, PromptDiagram } from '../types.ts'
 import {
@@ -42,11 +43,13 @@ interface Props {
   prompt: PromptDiagram
   openState: OpenState
   selectedId: string | null
+  /** Model call trace ids with a captured API call. */
+  capturedIds: ReadonlySet<string>
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
 
-export default function Diagram({ prompt, openState, selectedId, onToggle, onSelect }: Props) {
+export default function Diagram({ prompt, openState, selectedId, capturedIds, onToggle, onSelect }: Props) {
   const layout = useMemo(() => layoutTree(prompt.root, openState), [prompt.root, openState])
   const paneRef = useRef<HTMLDivElement>(null)
 
@@ -63,9 +66,16 @@ export default function Diagram({ prompt, openState, selectedId, onToggle, onSel
         zIndex: box.node.kind === 'parallel_group' ? 0 : 1,
         draggable: false,
         connectable: false,
-        data: { node: box.node, open: box.open, selected: box.id === selectedId, onToggle, onSelect },
+        data: {
+          node: box.node,
+          open: box.open,
+          selected: box.id === selectedId,
+          captured: isCaptured(box.node, capturedIds),
+          onToggle,
+          onSelect,
+        },
       })),
-    [layout, selectedId, onToggle, onSelect],
+    [layout, selectedId, capturedIds, onToggle, onSelect],
   )
 
   const edges: Edge[] = useMemo(

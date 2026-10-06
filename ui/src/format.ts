@@ -60,3 +60,12 @@ export function shortId(id: string): string {
 export function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? '' : 's'}`
 }
+
+/** JSON with two-space indents; falls back to `String` for values JSON cannot write. */
+export function prettyJson(value: unknown): string {
+  try {
+    return JSON.stringify(value, null, 2) ?? String(value)
+  } catch {
+    return String(value)
+  }
+}

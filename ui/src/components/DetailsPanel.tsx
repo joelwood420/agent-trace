@@ -4,8 +4,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { errorMessage, type Api } from '../api.ts'
-import { formatDuration, formatTimestamp, formatTokens } from '../format.ts'
+import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
 import type { ContentBlock, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
+import { CaptureSections } from './CapturePanel.tsx'
 import { StatusChip } from './nodes.tsx'
 
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
   node: DiagramNode
   /** Goes up when the box's trace nodes changed in a live update, to refetch. */
   refreshKey: number
+  /** The captured API call of this box, if it is a model call with one. */
+  captureId: string | null
   onClose: () => void
 }
 
@@ -32,7 +35,7 @@ const KIND_NAMES: Record<DiagramNode['kind'], string> = {
   marker: 'Marker',
 }
 
-export default function DetailsPanel({ api, project, sessionId, node, refreshKey, onClose }: Props) {
+export default function DetailsPanel({ api, project, sessionId, node, refreshKey, captureId, onClose }: Props) {
   const key = `${project}/${sessionId}/${node.id}`
   const [fetched, setFetched] = useState<Fetched | null>(null)
   // A live update hands over a new node object each time; keying the fetch on
@@ -98,6 +101,9 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
               </details>
             )
           })}
+        {captureId !== null && (
+          <CaptureSections api={api} project={project} sessionId={sessionId} captureId={captureId} />
+        )}
       </div>
     </aside>
   )
@@ -316,14 +322,6 @@ function stopReasonText(reason: StopReason | undefined): string | null {
   if (reason === undefined) return null
   if (typeof reason === 'string') return reason
   return reason.other
-}
-
-function prettyJson(value: unknown): string {
-  try {
-    return JSON.stringify(value, null, 2) ?? String(value)
-  } catch {
-    return String(value)
-  }
 }
 
 /** The raw line pretty-printed if it is JSON, else unchanged. */

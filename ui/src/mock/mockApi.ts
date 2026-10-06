@@ -65,6 +65,14 @@ export function createMockApi(params: URLSearchParams): Api {
     timer = null
   }
 
+  // The fixture view is generated without captures, so mark the model calls
+  // that capture-data.json has, like the real backend does.
+  const withCaptures = (view: SessionView, project: string, sessionId: string): SessionView => {
+    if (capturesDeleted || `${project}/${sessionId}` !== CAPTURE_KEY) return view
+    const ids = captures.overview.calls.flatMap((c) => (c.trace_id === null ? [] : [c.trace_id]))
+    return { ...view, captured_trace_ids: ids }
+  }
+
   return {
     async listSessions() {
       await wait()
@@ -94,7 +102,7 @@ export function createMockApi(params: URLSearchParams): Api {
 
       const first = steps[0]
       if (!live || first?.type !== 'updated' || first.project !== project || first.session_id !== sessionId) {
-        return view
+        return withCaptures(view, project, sessionId)
       }
       let next = 1
       // An overlapping call may have started a replay while this one waited.

@@ -1,13 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { errorMessage, getApi, insideTauri, mockMode, type Api } from './api.ts'
+import { captureIdForNode, capturedCountChanged } from './captureView.ts'
+import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
 import { formatDuration, formatTokens, plural } from './format.ts'
 import { collapsibleIds } from './layout.ts'
 import { findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
-import type { DiagramNode, LiveMessage, LiveStatus, SessionSummary, SessionView } from './types.ts'
+import type {
+  CaptureOverview,
+  CaptureStatus,
+  DiagramNode,
+  LiveMessage,
+  LiveStatus,
+  SessionSummary,
+  SessionView,
+} from './types.ts'
 
 /** How long a prompt that arrived live stays highlighted. */
 const NEW_PROMPT_MS = 4000
@@ -31,6 +41,12 @@ export default function App() {
   const [newPrompts, setNewPrompts] = useState<ReadonlySet<number>>(new Set())
   // Goes up when the selected box's trace nodes changed, so the details refetch.
   const [detailRefresh, setDetailRefresh] = useState(0)
+  const [captureStatus, setCaptureStatus] = useState<Loadable<CaptureStatus>>({ status: 'loading' })
+  const [captureOverview, setCaptureOverview] = useState<Loadable<CaptureOverview>>({ status: 'loading' })
+  // A captured call picked in the session overview, shown instead of a box.
+  const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
+  // Ignores capture overview responses overtaken by a newer request.
+  const captureToken = useRef(0)
   // Ignores responses to requests that were overtaken by a newer one.
   const loadToken = useRef(0)
   // The view on screen, read by the live handler to drop older versions.
@@ -63,6 +79,10 @@ export default function App() {
    * the Refresh button show the error.
    */
   const listSessions = useCallback((which: Api, background = false) => {
+    which
+      .captureStatus()
+      .then((value) => setCaptureStatus({ status: 'ready', value }))
+      .catch((err: unknown) => setCaptureStatus({ status: 'error', message: errorMessage(err) }))
     which
       .listSessions()
       .then((value) => {
@@ -122,6 +142,24 @@ export default function App() {
     }
   }, [])
 
+  /** Loads the capture overview of session `s`; `fresh` shows loading first. */
+  const loadCaptures = useCallback(
+    (s: SessionSummary, fresh = false) => {
+      if (!api) return
+      const token = ++captureToken.current
+      if (fresh) setCaptureOverview({ status: 'loading' })
+      api
+        .sessionCaptures(s.project, s.session_id)
+        .then((value) => {
+          if (token === captureToken.current) setCaptureOverview({ status: 'ready', value })
+        })
+        .catch((err: unknown) => {
+          if (token === captureToken.current) setCaptureOverview({ status: 'error', message: errorMessage(err) })
+        })
+    },
+    [api],
+  )
+
   /** Applies a message pushed by the backend while session `s` is open. */
   const handleLive = useCallback(
     (token: number, s: SessionSummary, message: LiveMessage) => {
@@ -134,6 +172,7 @@ export default function App() {
       const next = message.view
       if (!showView(next)) return
       highlightPrompts(newPromptIndexes(previous?.diagram ?? null, next.diagram))
+      if (capturedCountChanged(previous, next)) loadCaptures(s)
       // The selected box may be gone (the details close) or may have changed.
       setSelected((sel) => (sel ? findNode(next.diagram, sel.id) : null))
       const sel = selectedRef.current
@@ -142,7 +181,7 @@ export default function App() {
         setDetailRefresh((n) => n + 1)
       }
     },
-    [showView, highlightPrompts],
+    [showView, highlightPrompts, loadCaptures],
   )
 
   const refreshSessions = () => {
@@ -159,8 +198,11 @@ export default function App() {
     setSession(s)
     setView({ status: 'loading' })
     setSelected(null)
+    setSelectedCapture(null)
     setLiveStatus(null)
     clearHighlights()
+    captureToken.current++
+    setCaptureOverview({ status: 'loading' })
     if (!keepPrompt) {
       setPromptIndex(null)
       setOpenState(new Map())
@@ -170,18 +212,22 @@ export default function App() {
       .then((value) => {
         if (token !== loadToken.current) return
         showView(value)
+        loadCaptures(s, true)
       })
       .catch((err: unknown) => {
         if (token !== loadToken.current) return
         setView({ status: 'error', message: errorMessage(err) })
+        loadCaptures(s, true)
       })
   }
 
   const closeSession = () => {
     loadToken.current++
     viewRef.current = null
+    captureToken.current++
     setSession(null)
     setSelected(null)
+    setSelectedCapture(null)
     setPromptIndex(null)
     setLiveStatus(null)
     clearHighlights()
@@ -191,6 +237,27 @@ export default function App() {
     setPromptIndex(index)
     setSelected(null)
   }
+
+  const selectNode = useCallback((node: DiagramNode) => {
+    setSelectedCapture(null)
+    setSelected(node)
+  }, [])
+
+  const selectCapture = (captureId: string) => {
+    setSelected(null)
+    setSelectedCapture(captureId)
+  }
+
+  const deleteCaptures = async () => {
+    if (!api || !session) return
+    await api.deleteCaptures(session.project, session.session_id)
+    setSelectedCapture(null)
+    loadCaptures(session)
+  }
+
+  const viewValue = view.status === 'ready' ? view.value : null
+  const capturedIds = useMemo(() => new Set(viewValue?.captured_trace_ids ?? []), [viewValue])
+  const overviewValue = captureOverview.status === 'ready' ? captureOverview.value : null
 
   const onToggle = useCallback((id: string, open: boolean) => {
     setOpenState((prev) => new Map(prev).set(id, open))
@@ -212,7 +279,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app${selected ? ' app-with-details' : ''}`}>
+    <div className={`app${selected || selectedCapture ? ' app-with-details' : ''}`}>
       <header className="app-header">
         <h1>Snitchcraft</h1>
         <p className="tagline">snitches get traces</p>
@@ -221,7 +288,13 @@ export default function App() {
 
       <aside className="sidebar">
         {session === null ? (
-          <SessionList sessions={sessions} now={listedAt} onOpen={(s) => openSession(s)} onRetry={refreshSessions} />
+          <SessionList
+            sessions={sessions}
+            now={listedAt}
+            captureStatus={captureStatus}
+            onOpen={(s) => openSession(s)}
+            onRetry={refreshSessions}
+          />
         ) : (
           <SessionPanel
             session={session}
@@ -233,7 +306,13 @@ export default function App() {
             onBack={closeSession}
             onReload={() => openSession(session, true)}
             onSelectPrompt={selectPrompt}
-            onSelectMarker={setSelected}
+            onSelectMarker={selectNode}
+            captureOverview={captureOverview}
+            captureStatus={captureStatus}
+            selectedCaptureId={selectedCapture}
+            onSelectCapture={selectCapture}
+            onDeleteCaptures={deleteCaptures}
+            onReloadCaptures={() => loadCaptures(session, true)}
           />
         )}
       </aside>
@@ -276,8 +355,9 @@ export default function App() {
               prompt={prompt}
               openState={openState}
               selectedId={selected?.id ?? null}
+              capturedIds={capturedIds}
               onToggle={onToggle}
-              onSelect={setSelected}
+              onSelect={selectNode}
             />
           </>
         ) : (
@@ -305,7 +385,17 @@ export default function App() {
           sessionId={session.session_id}
           node={selected}
           refreshKey={detailRefresh}
+          captureId={captureIdForNode(overviewValue, selected)}
           onClose={() => setSelected(null)}
+        />
+      )}
+      {selectedCapture && !selected && session && api && (
+        <CaptureDetailsPanel
+          api={api}
+          project={session.project}
+          sessionId={session.session_id}
+          captureId={selectedCapture}
+          onClose={() => setSelectedCapture(null)}
         />
       )}
     </div>

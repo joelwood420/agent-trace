@@ -6,7 +6,8 @@ import { useMemo, useState } from 'react'
 import { formatBytes, formatDuration, formatRelative, formatTokens, plural, shortId } from '../format.ts'
 import { groupSessions } from '../grouping.ts'
 import { statusMessage } from '../live.ts'
-import type { DiagramNode, LiveStatus, SessionSummary, SessionView } from '../types.ts'
+import type { CaptureOverview, CaptureStatus, DiagramNode, LiveStatus, SessionSummary, SessionView } from '../types.ts'
+import { CaptureOverviewSection, CaptureStartBox } from './CaptureOverview.tsx'
 
 export type Loadable<T> =
   | { status: 'loading' }
@@ -17,11 +18,12 @@ interface SessionListProps {
   sessions: Loadable<SessionSummary[]>
   /** When the list was read, for relative times. */
   now: number
+  captureStatus: Loadable<CaptureStatus>
   onOpen: (session: SessionSummary) => void
   onRetry: () => void
 }
 
-export function SessionList({ sessions, now, onOpen, onRetry }: SessionListProps) {
+export function SessionList({ sessions, now, captureStatus, onOpen, onRetry }: SessionListProps) {
   const [filter, setFilter] = useState('')
   const groups = useMemo(
     () => (sessions.status === 'ready' ? groupSessions(sessions.value, filter) : []),
@@ -30,6 +32,7 @@ export function SessionList({ sessions, now, onOpen, onRetry }: SessionListProps
 
   return (
     <nav className="sidebar-section" aria-label="Sessions">
+      <CaptureStartBox status={captureStatus} />
       <div className="sidebar-heading">
         <h2>Sessions</h2>
         <button type="button" className="link-button" onClick={onRetry} title="Read the session list again">
@@ -102,6 +105,12 @@ interface SessionPanelProps {
   liveStatus: LiveStatus | null
   /** Indexes of prompts that just arrived, highlighted for a moment. */
   newPrompts: ReadonlySet<number>
+  captureOverview: Loadable<CaptureOverview>
+  captureStatus: Loadable<CaptureStatus>
+  selectedCaptureId: string | null
+  onSelectCapture: (captureId: string) => void
+  onDeleteCaptures: () => Promise<void>
+  onReloadCaptures: () => void
   onBack: () => void
   onReload: () => void
   onSelectPrompt: (index: number) => void
@@ -163,6 +172,12 @@ function SessionContents({
   newPrompts,
   onSelectPrompt,
   onSelectMarker,
+  captureOverview,
+  captureStatus,
+  selectedCaptureId,
+  onSelectCapture,
+  onDeleteCaptures,
+  onReloadCaptures,
 }: SessionPanelProps & { diagramView: SessionView }) {
   const { diagram, skipped } = diagramView
   const duration = formatDuration(diagram.duration_ms)
@@ -211,6 +226,15 @@ function SessionContents({
           </ul>
         </details>
       )}
+
+      <CaptureOverviewSection
+        overview={captureOverview}
+        status={captureStatus}
+        selectedCaptureId={selectedCaptureId}
+        onSelectCapture={onSelectCapture}
+        onDelete={onDeleteCaptures}
+        onRetry={onReloadCaptures}
+      />
 
       {diagram.prompts.length === 0 && <p className="muted">This session has no prompts yet.</p>}
       <ol className="item-list scroll prompt-list">

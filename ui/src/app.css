@@ -798,3 +798,206 @@ button:focus-visible,
   color: var(--muted);
   margin-bottom: 4px;
 }
+
+/* --- Captured API calls (M4) --- */
+
+.tag-api {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.chip-cached {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  background: var(--running-bg);
+  color: var(--running);
+  vertical-align: 1px;
+}
+
+.small-button,
+.danger-button,
+.button-row button {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.danger-button {
+  border-color: var(--error);
+  color: var(--error);
+  font-weight: 600;
+}
+
+.button-row {
+  display: flex;
+  gap: 6px;
+}
+
+.copy {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.copy-ok {
+  font-size: 12px;
+  color: var(--ok);
+}
+
+.plain-list {
+  margin: 0 0 6px;
+  padding-left: 16px;
+}
+
+.capture-sections h4,
+.capture-overview h4 {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.fold {
+  margin: 4px 0;
+}
+
+.fold > summary {
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.fold-body {
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid var(--border);
+  margin-left: 4px;
+}
+
+.fold-main {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.fold-main > summary {
+  font-weight: 600;
+}
+
+.fold-main > .fold-body {
+  border-left: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.request-actions {
+  margin: 6px 0;
+}
+
+.message-block-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 4px 0 2px;
+}
+
+.diff p {
+  margin: 4px 0;
+}
+
+.diff-messages ul,
+.diff-changes {
+  margin: 0 0 6px;
+  padding-left: 16px;
+  font-size: 12px;
+}
+
+.diff-messages li {
+  margin-bottom: 2px;
+}
+
+.diff-added {
+  border-left: 3px solid var(--ok);
+  padding-left: 6px;
+}
+
+.diff-removed {
+  border-left: 3px solid var(--error);
+  padding-left: 6px;
+}
+
+.diff-preview {
+  display: block;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capture-box {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.capture-box h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.capture-box .notice,
+.capture-overview .notice {
+  margin-top: 4px;
+}
+
+.command-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.command {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel);
+  font-family: var(--mono);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capture-overview {
+  font-size: 13px;
+}
+
+.capture-overview > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.capture-overview-body {
+  padding: 4px 0 4px 8px;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.capture-delete {
+  margin-top: 8px;
+}

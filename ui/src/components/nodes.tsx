@@ -12,6 +12,8 @@ export interface BoxData extends Record<string, unknown> {
   /** `null` if the box cannot be expanded or collapsed, else whether it is open. */
   open: boolean | null
   selected: boolean
+  /** True for a model call box with a captured raw API request. */
+  captured: boolean
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
@@ -135,6 +137,11 @@ function Shell({ data, tag, labelLine = false, showMetrics = true }: ShellProps)
         {tag && <span className="tag">{tag}</span>}
         {!labelLine && label}
         <span className="spacer" />
+        {data.captured && (
+          <span className="tag tag-api" title="Raw API request captured">
+            API
+          </span>
+        )}
         <StatusChip status={node.status} />
       </div>
       {labelLine && <div className="box-row">{label}</div>}
