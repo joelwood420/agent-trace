@@ -8,6 +8,7 @@
 //!   once. In a stored record these two body fields are replaced in place by
 //!   `{"snitchcraft_blob": "<sha256>"}` and listed in the line's `blobs` map.
 
+use std::collections::HashMap;
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -193,6 +194,8 @@ impl CaptureStore {
         // damaged stretch.
         let mut offset = 0;
         let mut damage: Option<usize> = None;
+        // Records of a session share a few blobs, so each is decoded once.
+        let mut blobs: HashMap<String, Result<Value, String>> = HashMap::new();
         while offset < bytes.len() {
             let mut rest: &[u8] = &bytes[offset..];
             let mut text = String::new();
@@ -225,7 +228,7 @@ impl CaptureStore {
             for line in text.lines().filter(|l| !l.trim().is_empty()) {
                 match serde_json::from_str::<StoredIn>(line) {
                     Ok(stored) => {
-                        let record = restore(&dir, stored, &mut loaded.skipped);
+                        let record = restore(&dir, stored, &mut blobs, &mut loaded.skipped);
                         loaded.records.push(record);
                     }
                     Err(e) => loaded
@@ -299,7 +302,21 @@ fn write_blob(blobs_dir: &Path, hash: &str, value: &Value) -> Result<(), StoreEr
     Ok(())
 }
 
+#[cfg(test)]
+thread_local! {
+    /// How many blobs this thread read from disk, so tests can check that a
+    /// load reads each blob once.
+    static BLOB_READS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+#[cfg(test)]
+fn blob_reads() -> usize {
+    BLOB_READS.with(std::cell::Cell::get)
+}
+
 fn read_blob(dir: &Path, hash: &str) -> Result<Value, String> {
+    #[cfg(test)]
+    BLOB_READS.with(|c| c.set(c.get() + 1));
     if !is_hash(hash) {
         return Err(format!("blob name {hash:?} is not a content hash"));
     }
@@ -312,15 +329,25 @@ fn read_blob(dir: &Path, hash: &str) -> Result<Value, String> {
     serde_json::from_str(&text).map_err(|e| format!("blob {hash} is not JSON: {e}"))
 }
 
-fn restore(dir: &Path, stored: StoredIn, skipped: &mut Vec<String>) -> CaptureRecord {
+/// Puts the blobs named in `stored` back into its body. `blobs` holds the
+/// blobs read so far during this load, so each is read and decoded once.
+fn restore(
+    dir: &Path,
+    stored: StoredIn,
+    blobs: &mut HashMap<String, Result<Value, String>>,
+    skipped: &mut Vec<String>,
+) -> CaptureRecord {
     let mut record = stored.record;
     if let Body::Json(Value::Object(map)) = &mut record.request.body {
         for (field, hash) in &stored.blobs {
             let (Some(slot), Some(hash)) = (map.get_mut(field), hash.as_str()) else {
                 continue;
             };
-            match read_blob(dir, hash) {
-                Ok(value) => *slot = value,
+            let blob = blobs
+                .entry(hash.to_string())
+                .or_insert_with(|| read_blob(dir, hash));
+            match blob {
+                Ok(value) => *slot = value.clone(),
                 Err(reason) => skipped.push(format!("{field}: {reason}")),
             }
         }
@@ -428,6 +455,35 @@ mod tests {
         assert_eq!(blobs, 2);
         let size = store.size("s1").unwrap();
         assert!(size < 3 * system_text().len() as u64, "size was {size}");
+        let _ = fs::remove_dir_all(store.root());
+    }
+
+    #[test]
+    fn each_blob_is_read_once_per_load() {
+        let store = CaptureStore::new(temp_root("blob-once"));
+        for id in ["a", "b", "c", "d", "e"] {
+            store.append("s1", &record(id, id)).unwrap();
+        }
+        let before = blob_reads();
+        let loaded = store.load("s1").unwrap();
+        assert_eq!(loaded.records.len(), 5);
+        assert!(loaded.skipped.is_empty(), "{:?}", loaded.skipped);
+        assert_eq!(blob_reads() - before, 2, "one system prompt, one tool set");
+        let _ = fs::remove_dir_all(store.root());
+    }
+
+    #[test]
+    fn a_missing_blob_is_reported_for_every_record_that_uses_it() {
+        let store = CaptureStore::new(temp_root("missing-blob-many"));
+        store.append("s1", &record("a", "x")).unwrap();
+        store.append("s1", &record("b", "y")).unwrap();
+        let blobs = store.root().join("s1").join(BLOBS_DIR);
+        for entry in fs::read_dir(&blobs).unwrap() {
+            fs::remove_file(entry.unwrap().path()).unwrap();
+        }
+        let loaded = store.load("s1").unwrap();
+        assert_eq!(loaded.records.len(), 2);
+        assert_eq!(loaded.skipped.len(), 4);
         let _ = fs::remove_dir_all(store.root());
     }
 
