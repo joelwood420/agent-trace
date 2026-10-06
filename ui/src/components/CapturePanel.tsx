@@ -108,7 +108,9 @@ function Changes({ detail }: { detail: CaptureDetail }) {
   const { diff, previous_capture_id } = detail
   return (
     <Fold title="Changes since the previous call" defaultOpen={diff !== null} className="fold-main">
-      {previous_capture_id === null && <p className="muted">First call of this agent.</p>}
+      {previous_capture_id === null && (
+        <p className="muted">No earlier captured call of this agent to compare with.</p>
+      )}
       {previous_capture_id !== null && diff === null && (
         <p className="muted">The previous call could not be compared with this one.</p>
       )}
