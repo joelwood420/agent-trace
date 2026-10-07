@@ -86,3 +86,14 @@ Seen by putting a pass-through proxy between Claude Code and the API (checked on
 - In the diffs checked, a call kept every earlier message of its agent and only appended new ones, so the diff between calls is small even though each request re-sends the whole history.
 - `HEAD /api/hello` carries no `x-claude-code-session-id` header. Snitchcraft forwards it but does not record it.
 - No `Origin` header is sent, and the `Host` header matches the `ANTHROPIC_BASE_URL` host (the proxy refuses anything else, and every request was accepted).
+
+## What fills the context (seen during M5.1)
+
+Checked on 2026-10-08 with a short captured `claude -p` session (Haiku, one Read) and the app's context breakdown. Structure and sizes only.
+
+- On a call of about 82k input tokens, tool definitions were 78% (about 64k tokens, 123 tools, 89 of them from MCP servers; the largest servers added about 16k and 14k tokens each). The system prompt was about 10%, injected instructions and reminders about 8%, and the actual conversation under 5%. For a short task, almost everything the model reads is setup, not the task.
+- Injected reminders are `<system-reminder>` blocks inside user messages. One request held 12 reminder sections: SessionStart hook output, the environment block, the model name, the agent type list, MCP server instructions, the skills list, the instructions files (each one starts with `Contents of <path> (<description>):`), user context, the date, and git attribution notes. Reminders also appear inside tool results.
+- The instruction files are not only CLAUDE.md: an `AGENTS.md` in a parent folder was injected the same way.
+- Recent transcripts record much of this hidden context too, as `attachment` lines: `prompt_snapshot` (the system prompt blocks, 14 to 15 of them), `instructions` (each instructions file with its path and content), `skill_listing` and `mcp_instructions_delta`. Tool definitions are not recorded, only tool names (`deferred_tools_record`, `deferred_tools_delta`). Older fixture transcripts had tools inside `prompt_snapshot`, so this has changed between versions.
+- Open question: on a long transcript-only session (about 990 model calls, 1M-token model), the transcript accounted for only about a third of the latest call's reported 630k input tokens. The rest is far more than a system prompt plus tools. Possible causes, not yet checked: hidden thinking sent back to the model, content the transcript shortens, or reminders the transcript does not keep. A captured long session would answer it.
+- The adapter does not yet emit a marker for compaction, so transcript-only estimates do not reset at a compaction.

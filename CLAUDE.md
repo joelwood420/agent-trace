@@ -18,6 +18,7 @@ This is a learning tool and a future debugging tool. The long-term goal is to bu
 Tauri 2 desktop app in a Cargo workspace:
 
 - `crates/trace-core`: the harness-agnostic trace schema (Run > Turn > ModelCall > ToolCall, where a ToolCall that spawns a subagent contains a nested Run) and nothing else. No I/O, no Claude Code specifics, no Tauri.
+- `crates/insights`: harness-neutral analysis of trace and capture data (5.1: what fills each call's context, and advice). Harness-specific rules come in as data from the adapter.
 - `crates/adapter-claude-code`: reads Claude Code JSONL transcripts from the `.claude\projects\` folder in my home directory and converts them into `trace-core` events.
 - `src-tauri/`: the app backend. Watches transcript files, runs the adapter, and pushes trace events to the UI through Tauri events or channels.
 - `ui/`: React + TypeScript + React Flow frontend (Vite) that renders one diagram per prompt inside the Tauri webview.
@@ -112,16 +113,11 @@ You are doing the implementation and I will mostly not read the code. That means
 
 ## Current milestone
 
-M4: proxy capture of raw API requests (system prompt, tool definitions, compaction).
+M5: insights, split into four sub-milestones, each with its own spec, plan and branch.
 
-Status: complete. M5 (insights) is next; plan its steps with me before starting.
-
-1. `capture-core`: the capture record format, header filtering, rebuilding a streamed response, request summaries and the diff.
-2. `capture`: the on-disk store (compressed, system prompts and tool sets kept once) and the local proxy.
-3. Pairing model calls by agent (`trace-view`) and mapping captures to Claude Code sessions (adapter).
-4. App: proxy started with the app, captures saved and joined to the open session live, capture commands.
-5. UI: API tag on boxes, changes since the previous call, full raw request, session overview, start command, Delete.
-6. Checked with a real captured session, docs updated.
+- 5.1 Context breakdown per call: complete. New `insights` crate (harness-neutral measuring, scaling to the reported total, advice), Claude Code rules in the adapter, `session_context` and `call_context` commands, bar on model-call boxes, Context section in the details panel, Context card in the session overview. Spec: `docs/superpowers/specs/2026-10-08-m5-1-context-breakdown-design.md`.
+- 5.1b Read the hidden context Claude Code records in transcripts (`prompt_snapshot`, `instructions`, `skill_listing`): next candidate, needs a trace schema decision with me first.
+- 5.2 Waste and problem flags, 5.3 compare two runs, 5.4 shareable report: planned; plan each with me before starting.
 
 Out of scope for now: capturing scratchpad files, token cost breakdowns, other harnesses, and the toy harness.
 

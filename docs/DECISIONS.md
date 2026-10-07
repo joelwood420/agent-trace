@@ -327,3 +327,27 @@ A session is captured only when the user starts Claude Code with `ANTHROPIC_BASE
 
 The insight features (context breakdown, waste detection, run comparison, shareable reports) come before the toy harness. They are the most useful part of the app on their own, and the context breakdown and run comparison are also what the harness work needs to design and test its own context handling. Specs and plans written before this date still call the toy harness M5.
 
+
+### 2026-10-08: M5 is split into four sub-milestones (chosen by the project owner)
+
+5.1 context breakdown, 5.2 waste and problem flags, 5.3 compare two runs, 5.4 shareable report. Each gets its own spec, plan and branch, because the four share little code and each changes what the app shows in a different way.
+
+### 2026-10-08: A new `insights` crate, with harness rules passed in as data
+
+The context breakdown lives in its own crate, `insights`, with pure functions and no I/O. It depends only on `trace-core`, `serde`, `serde_json` and `tracing`. The two things that are specific to Claude Code (what an injected reminder looks like, and which tool reads files) are a plain `ContextRules` value that the adapter supplies, so the same code will work for the toy harness in M6. 5.2 will add its waste flags to the same crate. `trace-view` stays the "shape it for the UI" layer.
+
+### 2026-10-08: The context split is an estimate scaled to the reported total
+
+The API reports only a call's total input tokens, not a per-section count. Each part of a request is measured in characters (text length, or compact JSON length for tool definitions and inputs), then all parts are scaled so they add up exactly to the reported total; the largest slice absorbs the rounding. When no total is known, 4 characters per token is used and the UI says the total is estimated. An image counts as 6,000 characters (about 1,500 tokens) so it is visible without decoding it. Calling the `count_tokens` API would be exact but needs the network and a credential per call, and the estimate is close enough to show where the context goes. Only the character measure is cached per capture, never the scaled numbers, so a bar updates when usage arrives after the capture.
+
+### 2026-10-08: Calls without a capture get a "not captured" slice (chosen by the project owner)
+
+A call with only the transcript is measured from the trace (prompts, replies, tool inputs and results of earlier calls in the same run, reset at a compaction marker). Everything else in the reported total is one grey slice, with advice to run the session through the proxy. So every session gets a breakdown, and the gap shows what the proxy adds.
+
+### 2026-10-08: Advice thresholds
+
+Advice is written in Rust as finished sentences, so the UI only shows it. Warnings: tool definitions at least 20% of a call; an MCP server at least 2,000 tokens; instructions and reminders at least 5,000 tokens; a file in context 3 or more times; one file read or tool result at least 10% of a call. Notes: conversation at least 60% of a call; a call that was not captured. The thresholds are named constants in `crates/insights/src/advice.rs` and are a first guess to tune with use.
+
+### 2026-10-08: Transcript context attachments deferred to 5.1b (chosen by the project owner)
+
+Recent Claude Code transcripts record much of the hidden context as `attachment` lines (see `HARNESS-NOTES.md`). Using them would shrink the "not captured" slice for sessions without the proxy, but it needs a trace schema addition, so it gets its own small step with its own schema design.

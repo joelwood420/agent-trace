@@ -161,6 +161,36 @@ Returned by `node_detail(trace, trace_id)`, or nothing if the id is unknown.
 | `metadata` | object | Harness-specific extras. |
 | `raw` | list | The original source records: `{ "source", "line", "text" }`. |
 
+## Context breakdown (M5.1)
+
+Two commands describe what fills each model call's context. They are built by the `insights` crate (with Claude Code rules from the adapter) and are separate from the diagram model, so the diagram contract above does not change.
+
+`session_context(project, session_id)` returns a `SessionContext`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `bars` | object | Trace id of a model call to its `ContextBar`. A call with no reported token total and no capture has no entry. |
+| `latest` | `ContextBreakdown` or null | The latest model call of the main agent, in full. |
+| `latest_trace_id` | string or null | That call's trace id (may be set while `latest` is null, when the call has no token counts yet). |
+
+`call_context(project, session_id, trace_id)` returns one call's `ContextBreakdown`, or null if the id is not a model call.
+
+`ContextBreakdown`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `source` | string | `captured` (measured from the raw request) or `transcript` (measured from the trace alone). |
+| `total_tokens` | integer | The call's input context in tokens. |
+| `total_is_reported` | boolean | True when the total is the API's reported count; false when it was estimated at 4 characters per token. |
+| `slices` | list | In this order, empty ones left out: `system_prompt`, `tool_definitions`, `instructions`, `files_read`, `tool_results`, `conversation`, `not_captured`. Each has `kind`, `label` (display name), `tokens`, `share` (0 to 1) and `items`. The slice tokens add up exactly to `total_tokens`. |
+| `advice` | list | `{ "level": "warn" or "info", "slice", "text" }`, finished sentences, most important first. |
+
+An item is `{ "label", "tokens", "count", "largest_tokens" }`: for example one file read (`count` is how many times it is in context), one MCP server (`count` is its number of tools) or one reminder section. Items are sorted largest first. Item tokens are rounded separately and need not add up to the slice.
+
+`ContextBar` is the same without labels, items or advice: `source`, `total_tokens`, `total_is_reported` and `slices` as `{ "kind", "tokens" }`.
+
+All token splits are estimates: each part is measured in characters and scaled to the reported total. See `DECISIONS.md` (2026-10-08).
+
 ## Example
 
 The JSON for `fixtures/trace-core/example-trace.jsonl` is checked in at `crates/trace-view/tests/snapshots/example-trace.diagram.json`. A test fails if the output changes, so the contract cannot drift without a visible diff. To accept an intended change, run the tests with `SNITCHCRAFT_UPDATE_SNAPSHOTS=1` set and review the diff.

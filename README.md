@@ -31,12 +31,12 @@ Snitchcraft shows both, per prompt, live, and privately on your own machine: wha
 | M2 | Tauri app shell that renders one diagram per prompt | Done |
 | M3 | Live file watching: diagrams update as a session runs | Done |
 | M4 | Proxy capture of raw API requests: system prompt, tools, messages and the changes between calls | Done |
-| M5 | Insights: context breakdown, waste detection, run comparison, shareable reports | Planned |
+| M5 | Insights: context breakdown, waste detection, run comparison, shareable reports | 5.1 context breakdown done; 5.2 to 5.4 planned |
 | M6 | Toy Rust harness that emits the trace format natively | Planned |
 
-### Next: M5 insights
+### M5 insights
 
-1. **Context breakdown per call.** A bar showing what fills the context: system prompt, tool definitions, CLAUDE.md and memory, files read, conversation history. Then plain advice, like "your 3 MCP servers add 40k tokens to every call" or "this file was read 6 times".
+1. **Context breakdown per call (done, 5.1).** Every model call box has a thin bar showing what fills its context: system prompt, tool definitions (built-in and per MCP server), instructions and reminders (CLAUDE.md, memory, skills list), files read, other tool results and conversation. The details panel shows the full split, and the session overview has a Context card with plain advice, like "MCP server `github` adds about 14k tokens to every call (46 tools)". Calls captured through the proxy get the full split; for other calls, what the transcript does not record is one grey "not captured" slice. The split is an estimate (each part's size in characters, scaled to the token total the API reported).
 2. **Waste and problem detection.** Automatic flags for loops, repeated reads, failed tools retried the same way, compaction that dropped something, and very large tool results.
 3. **Compare two runs.** The same task with a different CLAUDE.md, model or harness, side by side, to test agent setups.
 4. **A shareable report.** Export one prompt's trace with secrets removed, to attach to a bug report or show a teammate.
