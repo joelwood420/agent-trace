@@ -60,6 +60,7 @@ fn main() {
                 system,
                 tools,
                 &steps[..position],
+                is_main,
             ));
             call_index += 1;
         }
@@ -184,7 +185,7 @@ fn tool_results(trace: &Trace, call: &TraceEvent) -> Vec<Value> {
 }
 
 /// The request's `messages`: every step before this call, as a conversation.
-fn messages(trace: &Trace, earlier: &[Step]) -> Vec<Value> {
+fn messages(trace: &Trace, earlier: &[Step], is_main: bool) -> Vec<Value> {
     let mut out = Vec::new();
     for step in earlier {
         match step {
@@ -194,10 +195,12 @@ fn messages(trace: &Trace, earlier: &[Step]) -> Vec<Value> {
                 if text.is_empty() {
                     text = "(empty prompt)".to_string();
                 }
-                out.push(json!({
-                    "role": "user",
-                    "content": [{ "type": "text", "text": text }],
-                }));
+                let mut content = Vec::new();
+                if out.is_empty() {
+                    content.push(json!({ "type": "text", "text": first_reminder(is_main) }));
+                }
+                content.push(json!({ "type": "text", "text": text }));
+                out.push(json!({ "role": "user", "content": content }));
             }
             Step::Call(call) => {
                 let content = reply_content(trace, call);
@@ -247,6 +250,7 @@ fn model_call_record(
     system: Value,
     tools: Value,
     earlier: &[Step],
+    is_main: bool,
 ) -> CaptureRecord {
     let details = model_call(call);
     let model = details.model.clone().unwrap_or_else(|| "test-model".into());
@@ -255,7 +259,7 @@ fn model_call_record(
         "max_tokens": 32000,
         "system": system,
         "tools": tools,
-        "messages": messages(trace, earlier),
+        "messages": messages(trace, earlier, is_main),
         "stream": true,
     });
     let id = message_id(call);
@@ -520,6 +524,8 @@ fn base_tools() -> Value {
             json!({ "skill": { "type": "string", "description": "The skill name." } }),
             &["skill"],
         ),
+        mcp_tool("mcp__docs__search", "Search"),
+        mcp_tool("mcp__docs__fetch", "Fetch"),
     ])
 }
 
@@ -534,4 +540,27 @@ fn tools_with_web_fetch() -> Value {
         ));
     }
     tools
+}
+
+/// An invented reminder placed before the first prompt of a run.
+fn first_reminder(is_main: bool) -> String {
+    if !is_main {
+        return "<system-reminder>\nThe following skills are available: invented-skill-a, invented-skill-b.\n</system-reminder>".to_string();
+    }
+    let instructions = "Invented instruction: keep answers short and plain.\n".repeat(40);
+    let claude_md = r"C:\work\example\CLAUDE.md";
+    let memory_md = r"C:\work\example\memory\MEMORY.md";
+    format!(
+        "<system-reminder>\nAs you answer, use this context:\nContents of {claude_md} (project instructions):\n{instructions}\nContents of {memory_md} (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+    )
+}
+
+fn mcp_tool(name: &str, verb: &str) -> Value {
+    let description = format!("{verb} the invented documentation index. ").repeat(36);
+    tool(
+        name,
+        &description,
+        json!({ "query": { "type": "string", "description": "What to look for." } }),
+        &["query"],
+    )
 }

@@ -265,7 +265,7 @@
     "tool_versions": [
       {
         "version": 1,
-        "hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "first_capture_id": "fixture-001",
         "call_count": 5,
         "system_chars": null,
@@ -274,12 +274,14 @@
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ]
       },
       {
         "version": 2,
-        "hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "first_capture_id": "fixture-005",
         "call_count": 14,
         "system_chars": null,
@@ -289,6 +291,8 @@
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ]
       }
@@ -435,12 +439,48 @@
                       "skill"
                     ]
                   }
+                },
+                {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
                 }
               ],
               "messages": [
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder.",
@@ -504,13 +544,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "tools_hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ],
         "system_chars": 340,
         "message_count": 1,
@@ -773,12 +815,48 @@
                       "skill"
                     ]
                   }
+                },
+                {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
                 }
               ],
               "messages": [
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -871,13 +949,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "tools_hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ],
         "system_chars": 340,
         "message_count": 3,
@@ -1070,12 +1150,48 @@
                       "skill"
                     ]
                   }
+                },
+                {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
                 }
               ],
               "messages": [
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -1188,13 +1304,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "tools_hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ],
         "system_chars": 340,
         "message_count": 5,
@@ -1389,6 +1507,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -1409,6 +1559,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -1546,13 +1700,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -1749,6 +1905,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -1769,6 +1957,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -1943,13 +2135,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -2144,6 +2338,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -2164,6 +2390,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -2370,13 +2600,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -2573,6 +2805,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -2593,6 +2857,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -2819,13 +3087,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -3020,6 +3290,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -3040,6 +3342,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -3292,13 +3598,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -3493,6 +3801,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -3513,6 +3853,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -3785,13 +4129,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -3986,6 +4332,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -4006,6 +4384,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -4301,13 +4683,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -4502,6 +4886,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -4522,6 +4938,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -4842,13 +5262,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -5043,6 +5465,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -5063,6 +5517,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -5413,13 +5871,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -5614,6 +6074,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -5634,6 +6126,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -6009,13 +6505,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -6211,6 +6709,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -6231,6 +6761,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -6635,13 +7169,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -6834,12 +7370,48 @@
                       "skill"
                     ]
                   }
+                },
+                {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
                 }
               ],
               "messages": [
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nThe following skills are available: invented-skill-a, invented-skill-b.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "Example text 1774.",
@@ -6899,13 +7471,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "02dc529d46234eb18ba230c43bc963a61a3d75081038cb0f2cca5b1667690cb3",
-        "tools_hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "tools_hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ],
         "system_chars": 269,
         "message_count": 1,
@@ -7069,6 +7643,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -7089,6 +7695,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -7513,13 +8123,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -7713,12 +8325,48 @@
                       "skill"
                     ]
                   }
+                },
+                {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
                 }
               ],
               "messages": [
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nThe following skills are available: invented-skill-a, invented-skill-b.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "Example text 1774."
@@ -7798,13 +8446,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "02dc529d46234eb18ba230c43bc963a61a3d75081038cb0f2cca5b1667690cb3",
-        "tools_hash": "af3a101ab5bbf9da8eddc21d9653cd4915181496a56e6ffa54d04af0e1c6b9b6",
+        "tools_hash": "6994edd05aea4cff04e85087f5491f117db383da1e72e0ed4f8dd09cd7c0638a",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
-          "Skill"
+          "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch"
         ],
         "system_chars": 269,
         "message_count": 3,
@@ -7998,6 +8648,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -8018,6 +8700,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -8470,13 +9156,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
@@ -8671,6 +9359,38 @@
                   }
                 },
                 {
+                  "name": "mcp__docs__search",
+                  "description": "Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. Search the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
+                  "name": "mcp__docs__fetch",
+                  "description": "Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. Fetch the invented documentation index. ",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "What to look for."
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                },
+                {
                   "name": "WebFetch",
                   "description": "Fetch an invented web page.",
                   "input_schema": {
@@ -8691,6 +9411,10 @@
                 {
                   "role": "user",
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "<system-reminder>\nAs you answer, use this context:\nContents of C:\\work\\example\\CLAUDE.md (project instructions):\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\nInvented instruction: keep answers short and plain.\n\nContents of C:\\work\\example\\memory\\MEMORY.md (memory):\n- Invented note one.\n- Invented note two.\n</system-reminder>"
+                    },
                     {
                       "type": "text",
                       "text": "List the PowerShell scripts in this folder."
@@ -9163,13 +9887,15 @@
       "summary": {
         "model": "claude-opus-5-5",
         "system_hash": "266a9ad5cdb4ee9595ab13ffe8d0bba8ceb7f8fd60845a74c6a168c7218b92ea",
-        "tools_hash": "fe0c0365eb71b2573c5f5efb4653482c8d391feab9fba6a50dd0971f26cdcb49",
+        "tools_hash": "015e8501333e87da178a9ae00e377611a256ca9d3ce063940721fc2b66b6c842",
         "tool_names": [
           "Read",
           "Grep",
           "PowerShell",
           "Bash",
           "Skill",
+          "mcp__docs__search",
+          "mcp__docs__fetch",
           "WebFetch"
         ],
         "system_chars": 340,
