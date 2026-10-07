@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The main window may list sessions, watch the list for changes, load one (with live updates over a channel), read the details of its nodes, see the capture proxy's status, and read and delete the app's own captures of API calls. Nothing else: no file system, shell, network or other plugin access.",
+  "description": "The main window may list sessions, watch the list for changes, load one (with live updates over a channel), read the details of its nodes and the context breakdown of the session and its model calls, see the capture proxy's status, and read and delete the app's own captures of API calls. Nothing else: no file system, shell, network or other plugin access.",
   "windows": ["main"],
   "permissions": [
     "allow-list-sessions",
@@ -11,6 +11,8 @@
     "allow-capture-status",
     "allow-session-captures",
     "allow-capture-detail",
-    "allow-delete-captures"
+    "allow-delete-captures",
+    "allow-session-context",
+    "allow-call-context"
   ]
 }
