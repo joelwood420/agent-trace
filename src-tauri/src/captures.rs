@@ -6,8 +6,9 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use adapter_claude_code::model_call_id;
+use adapter_claude_code::{context_rules, model_call_id};
 use capture_core::{CaptureRecord, RequestDiff, RequestSummary, summarise};
+use insights::{ContextMeasure, ContextRules, measure_request};
 use serde::Serialize;
 use trace_core::{Node, Trace};
 use trace_view::model_calls_by_run;
@@ -76,7 +77,7 @@ impl CaptureIndex {
 
 /// The trace id a record maps to: the model call named by its response
 /// message id, if `known` says that call is in the trace.
-fn mapped_id(record: &CaptureRecord, known: impl Fn(&str) -> bool) -> Option<String> {
+pub(crate) fn mapped_id(record: &CaptureRecord, known: impl Fn(&str) -> bool) -> Option<String> {
     record
         .message_id
         .as_deref()
@@ -132,6 +133,10 @@ pub struct SessionRecords {
     /// Summaries by capture id; `None` for a record whose body is not a
     /// JSON object. A record without an entry is not summarised yet.
     pub summaries: Arc<HashMap<String, Option<RequestSummary>>>,
+    /// Context measures by capture id, built with the summaries; `None` for
+    /// a record whose body is not JSON. A record without an entry is not
+    /// measured yet.
+    pub measures: Arc<HashMap<String, Option<ContextMeasure>>>,
     /// Reasons for stored data that could not be read.
     pub skipped: Arc<Vec<String>>,
 }
@@ -142,6 +147,7 @@ impl SessionRecords {
         Self {
             records: Arc::new(records),
             summaries: Arc::new(HashMap::new()),
+            measures: Arc::new(HashMap::new()),
             skipped: Arc::new(skipped),
         }
     }
@@ -151,8 +157,8 @@ impl SessionRecords {
         Arc::make_mut(&mut self.records).push(record);
     }
 
-    /// Builds the summaries of the records that have none yet, so each
-    /// record is summarised at most once.
+    /// Builds the summaries and context measures of the records that have
+    /// none yet, so each record is summarised and measured at most once.
     pub fn summarise_missing(&mut self) {
         let built: Vec<(String, Option<RequestSummary>)> = self
             .records
@@ -163,6 +169,20 @@ impl SessionRecords {
         if !built.is_empty() {
             Arc::make_mut(&mut self.summaries).extend(built);
         }
+        let missing: Vec<&CaptureRecord> = self
+            .records
+            .iter()
+            .filter(|r| !self.measures.contains_key(&r.id))
+            .collect();
+        if missing.is_empty() {
+            return;
+        }
+        let rules = context_rules();
+        let measured: Vec<(String, Option<ContextMeasure>)> = missing
+            .into_iter()
+            .map(|r| (r.id.clone(), measure_of(r, &rules)))
+            .collect();
+        Arc::make_mut(&mut self.measures).extend(measured);
     }
 
     /// The summary of one record. One that was not summarised yet is
@@ -358,6 +378,31 @@ thread_local! {
 #[cfg(test)]
 pub(crate) fn summarise_calls() -> usize {
     SUMMARISE_CALLS.with(std::cell::Cell::get)
+}
+
+#[cfg(test)]
+thread_local! {
+    /// How many records this thread measured, so tests can check that
+    /// measures are built only once.
+    static MEASURE_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+/// How many records this thread has measured so far.
+#[cfg(test)]
+pub(crate) fn measure_calls() -> usize {
+    MEASURE_CALLS.with(std::cell::Cell::get)
+}
+
+/// Measures what fills one record's request. `None` when the body is not
+/// JSON. Every capture measure in the app is built here.
+fn measure_of(record: &CaptureRecord, rules: &ContextRules) -> Option<ContextMeasure> {
+    #[cfg(test)]
+    MEASURE_CALLS.with(|c| c.set(c.get() + 1));
+    record
+        .request
+        .body
+        .json()
+        .map(|body| measure_request(body, rules))
 }
 
 /// Summarises one record. Every summary in the app is built here.

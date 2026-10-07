@@ -6,25 +6,30 @@
 //! the store is read or written, records are summarised, or a capture view
 //! is built. Records are loaded first and only then applied under the lock;
 //! views copy what they need from the trace under the lock and are built
-//! after it is released. Sequences that change the store and then apply the
+//! after it is released. The context views also measure the transcript
+//! while copying (one linear pass over the trace, no JSON decoding); their
+//! bars and breakdowns are built after the lock is released. Sequences that change the store and then apply the
 //! result to the open session also hold `RecordCache::lock_updates`, so they
 //! reach the session in order. The order is: `lock_updates`, then the record
 //! cache, then the store's write lock; and `lock_updates`, then `active`.
 //! The cache and store locks are never taken while `active` is held.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use adapter_claude_code::{SESSION_HEADER, session_key};
 use capture::{CaptureSink, CaptureStore, PROXY_PORT, StoreError, UNKNOWN_SESSION};
-use capture_core::{CaptureRecord, RequestSummary};
+use capture_core::CaptureRecord;
+use insights::ContextBreakdown;
 use serde::Serialize;
+use trace_core::Trace;
 
 use crate::captures::{self, CaptureDetail, CaptureOverview, SessionRecords, TraceFacts};
+use crate::context::{self, ContextFacts, SessionContext};
 use crate::live::LiveSession;
-use crate::sessions::{SessionError, session_path};
+use crate::sessions::{SessionError, check_trace_id, session_path};
 use crate::watch::Shared;
 
 /// The longest capture id a command accepts. Record ids are short; this
@@ -90,32 +95,30 @@ impl RecordCache {
         Ok(self.get_or_load_all(store, key)?.records)
     }
 
-    /// The records of session `key` with every record summarised. Only
-    /// records not summarised before are summarised, outside the cache lock,
-    /// and their summaries are kept for next time.
+    /// The records of session `key` with every record summarised and
+    /// measured. Only records not summarised before are summarised (and
+    /// measured), outside the cache lock, and the results are kept for next
+    /// time.
     pub fn get_summarised(
         &self,
         store: &CaptureStore,
         key: &str,
     ) -> Result<SessionRecords, StoreError> {
         let mut captures = self.get_or_load_all(store, key)?;
-        let known = captures.summaries.len();
+        let known = (captures.summaries.len(), captures.measures.len());
         captures.summarise_missing();
-        if captures.summaries.len() != known {
+        if (captures.summaries.len(), captures.measures.len()) != known {
             let mut last = lock(&self.last);
             if let Some((cached_key, cached)) = last.as_mut() {
                 if cached_key == key {
                     let ids: HashSet<&str> = cached.records.iter().map(|r| r.id.as_str()).collect();
-                    let new: Vec<(String, Option<RequestSummary>)> = captures
-                        .summaries
-                        .iter()
-                        .filter(|(id, _)| {
-                            ids.contains(id.as_str()) && !cached.summaries.contains_key(*id)
-                        })
-                        .map(|(id, summary)| (id.clone(), summary.clone()))
-                        .collect();
-                    if !new.is_empty() {
-                        Arc::make_mut(&mut cached.summaries).extend(new);
+                    let summaries = new_entries(&ids, &cached.summaries, &captures.summaries);
+                    let measures = new_entries(&ids, &cached.measures, &captures.measures);
+                    if !summaries.is_empty() {
+                        Arc::make_mut(&mut cached.summaries).extend(summaries);
+                    }
+                    if !measures.is_empty() {
+                        Arc::make_mut(&mut cached.measures).extend(measures);
                     }
                 }
             }
@@ -152,6 +155,20 @@ impl RecordCache {
     pub fn lock_updates(&self) -> MutexGuard<'_, ()> {
         lock(&self.updates)
     }
+}
+
+/// The entries of `built` for records in `ids` that `cached` does not have
+/// yet.
+fn new_entries<T: Clone>(
+    ids: &HashSet<&str>,
+    cached: &HashMap<String, T>,
+    built: &HashMap<String, T>,
+) -> Vec<(String, T)> {
+    built
+        .iter()
+        .filter(|(id, _)| ids.contains(id.as_str()) && !cached.contains_key(*id))
+        .map(|(id, value)| (id.clone(), value.clone()))
+        .collect()
 }
 
 /// The capture proxy's state, for the status line in the UI.
@@ -305,14 +322,78 @@ fn trace_facts(
     project: &str,
     session_id: &str,
 ) -> Result<TraceFacts, SessionError> {
+    copy_from_trace(root, shared, project, session_id, TraceFacts::of)
+}
+
+/// Runs `copy` on the trace of the session: the open session's, under its
+/// lock, when it is this one, otherwise a freshly read one that is not
+/// kept. `copy` should only copy facts out. The names must already be
+/// validated.
+fn copy_from_trace<T>(
+    root: &Path,
+    shared: &Shared,
+    project: &str,
+    session_id: &str,
+    copy: impl Fn(&Trace) -> T,
+) -> Result<T, SessionError> {
     {
         let guard = shared.active();
         if let Some(active) = guard.as_ref().filter(|a| a.session.is(project, session_id)) {
-            return Ok(TraceFacts::of(active.session.trace()));
+            return Ok(copy(active.session.trace()));
         }
     }
     let live = LiveSession::open(root, project, session_id)?;
-    Ok(TraceFacts::of(live.trace()))
+    Ok(copy(live.trace()))
+}
+
+/// The session's records with every record summarised and measured, or
+/// none when capture is off or the session id is not a usable store key.
+fn measured_records(
+    store: Option<&CaptureStore>,
+    cache: &RecordCache,
+    session_id: &str,
+) -> Result<SessionRecords, SessionError> {
+    match (store, session_key(Some(session_id))) {
+        (Some(store), Some(key)) => Ok(cache.get_summarised(store, &key)?),
+        _ => Ok(SessionRecords::default()),
+    }
+}
+
+/// What fills the context of every model call of a session, as bars, with
+/// the main run's latest call in full. Works without captures (capture off
+/// or none saved): calls then use the transcript.
+pub fn session_context_view(
+    root: &Path,
+    store: Option<&CaptureStore>,
+    cache: &RecordCache,
+    shared: &Shared,
+    project: &str,
+    session_id: &str,
+) -> Result<SessionContext, SessionError> {
+    session_path(root, project, session_id)?;
+    let records = measured_records(store, cache, session_id)?;
+    let facts = copy_from_trace(root, shared, project, session_id, ContextFacts::of)?;
+    Ok(context::session_context(&facts, &records))
+}
+
+/// What fills the context of one model call in full, or `None` if
+/// `trace_id` is not a model call of the session or the call has no data.
+pub fn call_context_view(
+    root: &Path,
+    store: Option<&CaptureStore>,
+    cache: &RecordCache,
+    shared: &Shared,
+    project: &str,
+    session_id: &str,
+    trace_id: &str,
+) -> Result<Option<ContextBreakdown>, SessionError> {
+    session_path(root, project, session_id)?;
+    check_trace_id(trace_id)?;
+    let records = measured_records(store, cache, session_id)?;
+    let facts = copy_from_trace(root, shared, project, session_id, |trace| {
+        ContextFacts::of_call(trace, trace_id)
+    })?;
+    Ok(context::call_context(&facts, &records, trace_id))
 }
 
 /// The overview of one session's captures, from the record cache (which
@@ -704,11 +785,13 @@ mod tests {
         std::fs::write(&calls, bytes).expect("write");
 
         let before = crate::captures::summarise_calls();
+        let measured_before = crate::captures::measure_calls();
         let first =
             session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
         assert_eq!(first.calls.len(), 40);
         assert_eq!(first.skipped.len(), 1, "{:?}", first.skipped);
         assert_eq!(crate::captures::summarise_calls() - before, 40);
+        assert_eq!(crate::captures::measure_calls() - measured_before, 40);
 
         let again =
             session_overview(&root, &store, &cache, &shared, "basic", SESSION).expect("overview");
@@ -722,6 +805,11 @@ mod tests {
             crate::captures::summarise_calls() - before,
             40,
             "nothing summarised twice"
+        );
+        assert_eq!(
+            crate::captures::measure_calls() - measured_before,
+            40,
+            "nothing measured twice"
         );
         assert_eq!(
             cache.loads.load(Ordering::SeqCst),
@@ -742,6 +830,74 @@ mod tests {
             41,
             "only the new one"
         );
+        assert_eq!(
+            crate::captures::measure_calls() - measured_before,
+            41,
+            "only the new one measured"
+        );
+    }
+
+    #[test]
+    fn context_views_use_the_store_and_work_without_it() {
+        let (root, store) = setup("context");
+        let cache = RecordCache::default();
+        for record in &fixture_records() {
+            store.append(SESSION, record).expect("append");
+        }
+        let (_, call) = mapped_capture();
+
+        // Not the open session: read from the file.
+        let closed = Arc::new(Shared::default());
+        let view = session_context_view(&root, Some(&store), &cache, &closed, "basic", SESSION)
+            .expect("context");
+        assert_eq!(
+            view.bars.get(&call).expect("a bar").source,
+            insights::ContextSource::Captured
+        );
+        assert!(view.latest_trace_id.is_some());
+
+        // The open session gives the same answer.
+        let (open, _rx) = open_session(&root);
+        let again = session_context_view(&root, Some(&store), &cache, &open, "basic", SESSION)
+            .expect("context");
+        assert_eq!(again, view);
+
+        let one = call_context_view(&root, Some(&store), &cache, &open, "basic", SESSION, &call)
+            .expect("call")
+            .expect("found");
+        assert_eq!(one.bar(), view.bars[&call]);
+
+        // Capture off: every bar comes from the transcript.
+        let off =
+            session_context_view(&root, None, &cache, &open, "basic", SESSION).expect("context");
+        assert!(!off.bars.is_empty());
+        assert!(
+            off.bars
+                .values()
+                .all(|b| b.source == insights::ContextSource::Transcript)
+        );
+
+        assert!(
+            call_context_view(
+                &root,
+                Some(&store),
+                &cache,
+                &open,
+                "basic",
+                SESSION,
+                "turn:x"
+            )
+            .expect("call")
+            .is_none()
+        );
+        assert!(matches!(
+            call_context_view(&root, Some(&store), &cache, &open, "basic", SESSION, ""),
+            Err(SessionError::InvalidTraceId)
+        ));
+        assert!(matches!(
+            session_context_view(&root, Some(&store), &cache, &open, "..", SESSION),
+            Err(SessionError::InvalidName { .. })
+        ));
     }
 
     #[test]

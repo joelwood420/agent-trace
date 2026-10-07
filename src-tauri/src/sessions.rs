@@ -715,6 +715,10 @@ mod tests {
         }
         let actual = std::fs::read_to_string(path).unwrap_or_default();
         let actual: serde_json::Value = serde_json::from_str(&actual).unwrap_or_default();
+        // Compare after the same text round trip on both sides: parsing a
+        // float back can differ from the in-memory value in its last bit.
+        let expected: serde_json::Value = serde_json::from_str(&text).expect("parse");
+        let expected = &expected;
         let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("?");
         assert!(
             &actual == expected,
@@ -789,6 +793,29 @@ mod tests {
         }
         let expected = serde_json::json!({ "overview": overview, "details": details });
         check_snapshot(&mock_file("capture-data.json"), &expected);
+    }
+
+    /// `ui/src/mock/context-data.json` holds the session context and every
+    /// model call's context breakdown for the sanitised fixture with the
+    /// invented captures, so the dev mock mode can show the context views.
+    #[test]
+    fn ui_context_data_matches_the_backend() {
+        let root = fixture_root();
+        let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
+        let mut captures =
+            crate::captures::SessionRecords::new(crate::captures::fixture_records(), Vec::new());
+        captures.summarise_missing();
+        let facts = crate::context::ContextFacts::of(&loaded.trace);
+        let session = crate::context::session_context(&facts, &captures);
+        let mut calls = serde_json::Map::new();
+        for (_, ids) in trace_view::model_calls_by_run(&loaded.trace) {
+            for id in ids {
+                let view = crate::context::call_context(&facts, &captures, &id);
+                calls.insert(id, serde_json::to_value(view).expect("serialise"));
+            }
+        }
+        let expected = serde_json::json!({ "session": session, "calls": calls });
+        check_snapshot(&mock_file("context-data.json"), &expected);
     }
 
     /// Copies a folder and everything in it.

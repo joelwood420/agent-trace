@@ -10,6 +10,7 @@
 
 mod capture_sink;
 mod captures;
+mod context;
 mod live;
 mod sessions;
 mod watch;
@@ -25,6 +26,8 @@ use trace_view::NodeDetail;
 
 use capture_sink::{AppSink, CaptureStatus, ProxyState, RecordCache};
 use captures::{CaptureDetail, CaptureOverview};
+use context::SessionContext;
+use insights::ContextBreakdown;
 use live::{LiveMessage, LiveSession, LiveStatus};
 use sessions::{SessionError, SessionSummary, SessionView, TitleCache};
 use watch::{Active, SessionsChanged, Shared, Sink};
@@ -200,6 +203,72 @@ async fn session_captures(
     Ok(view)
 }
 
+/// What fills the context of every model call of one session, as one bar
+/// per call, with the main agent's latest call in full. Calls with a
+/// captured request use it; the others are estimated from the transcript.
+/// Works when capture is off.
+#[tauri::command(rename_all = "snake_case")]
+async fn session_context(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    project: String,
+    session_id: String,
+) -> Result<SessionContext, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store.clone();
+    let cache = Arc::clone(&captures.cache);
+    let shared = Arc::clone(&shared);
+    let view = run_blocking(move || {
+        capture_sink::session_context_view(
+            &root,
+            store.as_deref(),
+            &cache,
+            &shared,
+            &project,
+            &session_id,
+        )
+    })
+    .await?;
+    tracing::info!(
+        bars = view.bars.len(),
+        latest = view.latest.is_some(),
+        "loaded session context"
+    );
+    Ok(view)
+}
+
+/// What fills the context of one model call in full, with advice, or `null`
+/// if the session has no such model call or the call has no data yet.
+#[tauri::command(rename_all = "snake_case")]
+async fn call_context(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    project: String,
+    session_id: String,
+    trace_id: String,
+) -> Result<Option<ContextBreakdown>, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store.clone();
+    let cache = Arc::clone(&captures.cache);
+    let shared = Arc::clone(&shared);
+    let view = run_blocking(move || {
+        capture_sink::call_context_view(
+            &root,
+            store.as_deref(),
+            &cache,
+            &shared,
+            &project,
+            &session_id,
+            &trace_id,
+        )
+    })
+    .await?;
+    tracing::info!(found = view.is_some(), "loaded call context");
+    Ok(view)
+}
+
 /// One captured API call in full, with the changes since the call before
 /// it, or `null` if the session has no capture with that id.
 #[tauri::command(rename_all = "snake_case")]
@@ -354,6 +423,8 @@ fn main() -> anyhow::Result<()> {
             watch_sessions,
             capture_status,
             session_captures,
+            session_context,
+            call_context,
             capture_detail,
             delete_captures
         ])
