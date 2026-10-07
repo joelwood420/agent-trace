@@ -22,6 +22,8 @@ Made by the coordinator (owner said "your call" / "go for it"):
 - No cache hit or cost figures (CLAUDE.md lists token cost breakdowns as out of scope).
 - `trace-core` and `docs/SCHEMA.md` do not change.
 
+Found while planning (owner chose to defer it): real transcripts also record much of the hidden context, as `attachment` lines: `prompt_snapshot` (the system prompt blocks), `instructions` (each CLAUDE.md path and content), `skill_listing` and `mcp_instructions_delta`. Tool definitions are not recorded, only tool names. Using them needs a trace schema addition, so it becomes its own step, 5.1b, with its own schema design. 5.1 notes the finding in `docs/HARNESS-NOTES.md`.
+
 ## Scope
 
 In:
@@ -56,6 +58,7 @@ Measuring rules:
 - Text counts its character length. JSON values (tool definitions, tool inputs, unknown blocks) count the length of their compact JSON text.
 - An image counts as a fixed 6,000 characters (about 1,500 tokens), so it is visible without decoding it.
 - In a captured request, a `tool_result` block is matched to its tool by the `tool_use` block with the same id in an earlier assistant message of the same request. A result whose tool cannot be found goes to "Other tool results" as "unknown tool".
+- Reminder splitting applies to every text in user messages, including text inside `tool_result` content, because harnesses also append reminders to tool results.
 - A reminder section is the text between the opening and closing reminder tags. Inside one reminder, every occurrence of a section marker (for Claude Code: `Contents of `) starts a new item, so one reminder holding three CLAUDE.md files gives three items. Text before the first marker, or a reminder with no marker, is labelled by the first matching label rule, else "other reminders".
 
 Scaling:
@@ -63,6 +66,7 @@ Scaling:
 - `tokens_per_char = reported_total / measured_chars` for captured calls, where `reported_total` is the model call's `Usage::context_tokens()` from the trace.
 - If a captured call has no reported total (no usage yet, or the capture maps to no model call), use the fixed estimate of 4 characters per token and mark the total as estimated.
 - Transcript-only calls always use 4 characters per token for slices 4 to 6. Slice 7 is `reported_total` minus their sum, never below zero. Without a reported total there is no slice 7 and the total is marked estimated.
+- If the transcript estimate of slices 4 to 6 is larger than the reported total, they are scaled down to fit it and slice 7 is zero.
 - Rounding: each slice rounds to whole tokens, and the largest slice absorbs the rounding difference so the slices add up exactly to the total shown.
 
 ## Measuring a call from the trace
@@ -95,7 +99,7 @@ Depends on `trace-core`, `serde` and `serde_json` only. Public surface, kept sma
 
 - `source`: `captured` or `transcript`.
 - `total_tokens`, and `total_is_reported` (false when the 4-characters estimate was used).
-- `slices`: in the order above, empty slices left out. Each has `kind`, `label`, `tokens`, `share` (0 to 1) and `items` (each with `label`, `tokens`, `count`), largest item first.
+- `slices`: in the order above, empty slices left out. Each has `kind`, `label`, `tokens`, `share` (0 to 1) and `items` (each with `label`, `tokens`, `count`, and `largest_tokens`: the biggest single occurrence, used by advice rule 5), largest item first.
 - `advice`: a list of `{ level: "warn" | "info", slice, text }`, most important first.
 
 `ContextBar`: `source`, `total_tokens`, `total_is_reported`, and `slices` as `(kind, tokens)` only.
@@ -120,7 +124,7 @@ Numbers round to the nearest thousand as "about Nk" from 1,000 tokens up, else e
 - `SessionRecords` keeps a `ContextMeasure` per capture, built in `summarise_missing` from the same decoded body as the summary, so each body is decoded once.
 - New command `session_context(project, session_id) -> SessionContext`:
   - `bars`: a map from model call trace id to `ContextBar`, for every model call in the trace. A call with a mapped capture uses the capture's measure, otherwise the transcript measure.
-  - `latest`: the full `ContextBreakdown` of the latest model call of the main run, or `None` if there is none.
+  - `latest`: the full `ContextBreakdown` of the latest model call of the main run, or `None` if there is none, and `latest_trace_id`, its id, so the card can select it.
 - New command `call_context(project, session_id, trace_id) -> Option<ContextBreakdown>` for the details panel.
 - Trace facts are copied under the session lock as today; measuring runs outside the lock.
 - Transcript measures are cheap for one call but a session has hundreds. `session_context` measures all calls of a run in one pass, carrying the running total forward, rather than walking the run again per call.
