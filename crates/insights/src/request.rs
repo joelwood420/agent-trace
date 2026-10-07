@@ -243,22 +243,34 @@ fn add_section(
     rules: &ContextRules,
     out: &mut ContextMeasure,
 ) {
-    let label = match rules.labels.iter().find(|r| section.contains(&r.needle)) {
-        None => "other reminders".to_string(),
-        Some(rule) => match marker {
-            Some(m) if rule.with_detail => {
-                let after = &section[m.len()..];
-                let stop = [after.find(" ("), after.find('\n')]
-                    .into_iter()
-                    .flatten()
-                    .min()
-                    .unwrap_or(after.len());
-                format!("{}: {}", rule.label, after[..stop].trim())
-            }
-            _ => rule.label.clone(),
+    let label = match marker {
+        Some(m) => marker_label(&section[m.len()..], rules),
+        None => match rules.labels.iter().find(|r| section.contains(&r.needle)) {
+            Some(rule) => rule.label.clone(),
+            None => "other reminders".to_string(),
         },
     };
     out.add(SliceKind::Instructions, &label, text_chars(section));
+}
+
+/// Names a section that starts with the section marker. Only its header
+/// line (the text after the marker up to the first line end) is matched, so
+/// a file whose body mentions another rule's needle keeps its own name. A
+/// section no rule matches is shown as "file: <detail>".
+fn marker_label(after_marker: &str, rules: &ContextRules) -> String {
+    let header = after_marker.split('\n').next().unwrap_or("");
+    match rules.labels.iter().find(|r| header.contains(&r.needle)) {
+        Some(rule) if rule.with_detail => format!("{}: {}", rule.label, header_detail(header)),
+        Some(rule) => rule.label.clone(),
+        None => format!("file: {}", header_detail(header)),
+    }
+}
+
+/// The detail of a header line: the text up to its last " (", or the whole
+/// line, trimmed and without a trailing ":".
+fn header_detail(header: &str) -> &str {
+    let detail = header.rfind(" (").map_or(header, |i| &header[..i]).trim();
+    detail.strip_suffix(':').unwrap_or(detail).trim_end()
 }
 
 #[cfg(test)]
@@ -373,6 +385,52 @@ mod tests {
             item(&m, SliceKind::Conversation, "your prompts").0,
             text_chars("hi ") + text_chars(" bye")
         );
+    }
+
+    #[test]
+    fn marker_sections_match_labels_on_the_header_line_only() {
+        let text = "<r>Contents of /p/GUIDE.md (project):\nsee NOTES.md too</r>";
+        let m = measure_request(&user(text), &rules());
+        let i = SliceKind::Instructions;
+        assert_eq!(m.items(i).len(), 1, "{:?}", m.items(i));
+        assert_eq!(
+            item(&m, i, "guide: /p/GUIDE.md").0,
+            text_chars(&text[3..text.len() - 4])
+        );
+    }
+
+    #[test]
+    fn unmatched_marker_section_is_labelled_as_a_file() {
+        let text = "<r>Contents of X/foo.txt (bar):\nhello</r>";
+        let m = measure_request(&user(text), &rules());
+        let i = SliceKind::Instructions;
+        assert_eq!(
+            item(&m, i, "file: X/foo.txt").0,
+            text_chars("Contents of X/foo.txt (bar):\nhello")
+        );
+    }
+
+    #[test]
+    fn detail_keeps_a_path_containing_a_bracket() {
+        let text = "<r>Contents of /p/a (copy)/GUIDE.md (project):\nx</r>";
+        let m = measure_request(&user(text), &rules());
+        let i = SliceKind::Instructions;
+        assert_ne!(
+            item(&m, i, "guide: /p/a (copy)/GUIDE.md").1,
+            0,
+            "{:?}",
+            m.items(i)
+        );
+        let text = "<r>Contents of /p/GUIDE.md:\nx</r>";
+        let m = measure_request(&user(text), &rules());
+        assert_ne!(item(&m, i, "guide: /p/GUIDE.md").1, 0, "{:?}", m.items(i));
+    }
+
+    #[test]
+    fn sections_without_the_marker_match_the_whole_text() {
+        let text = "<r>intro line\nthe skills: a, b</r>";
+        let m = measure_request(&user(text), &rules());
+        assert_ne!(item(&m, SliceKind::Instructions, "skills list").1, 0);
     }
 
     #[test]
