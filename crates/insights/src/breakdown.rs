@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-use crate::advice::Advice;
+use crate::advice::{Advice, advise};
 use crate::measure::{ContextMeasure, ContextSource, SliceKind};
 
 /// Characters per token used when no reported total is known.
@@ -154,13 +154,15 @@ pub fn breakdown(measure: &ContextMeasure, reported_total: Option<u64>) -> Conte
         };
     }
 
-    ContextBreakdown {
+    let mut result = ContextBreakdown {
         source: measure.source,
         total_tokens: total,
         total_is_reported: reported,
         slices,
         advice: Vec::new(),
-    }
+    };
+    result.advice = advise(&result);
+    result
 }
 
 impl ContextBreakdown {
