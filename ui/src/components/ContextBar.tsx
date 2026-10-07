@@ -10,11 +10,13 @@ interface Props {
 }
 
 export default function ContextBar({ bar, height, label }: Props) {
+  const segments = barSegments(bar)
+  if (segments.length === 0) return null
   const text = barTooltip(bar)
   const description = label ? `${label}\n${text}` : text
   return (
     <div className="context-bar" role="img" aria-label={description} title={description} style={{ height }}>
-      {barSegments(bar).map((s) => (
+      {segments.map((s) => (
         <span
           key={s.kind}
           className={`context-slice context-slice-${s.kind}`}

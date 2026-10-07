@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { barSegments, barTooltip, SLICE_NAMES } from './context.ts'
-import type { ContextBar } from './types.ts'
+import { barSegments, barTooltip, SLICE_NAMES, topSlices, totalNote } from './context.ts'
+import type { ContextBar, ContextBreakdown, ContextSlice } from './types.ts'
 
 function bar(slices: [ContextBar['slices'][number]['kind'], number][], total: number): ContextBar {
   return {
@@ -57,4 +57,34 @@ test('barTooltip has one grouped line per slice with whole percentages', () => {
 test('a not_captured slice is named Not captured', () => {
   assert.equal(SLICE_NAMES.not_captured, 'Not captured')
   assert.match(barTooltip(bar([['not_captured', 500]], 500)), /^Not captured: 500 tokens \(100%\)$/)
+})
+
+function slice(kind: ContextSlice['kind'], tokens: number): ContextSlice {
+  return { kind, label: SLICE_NAMES[kind], tokens, share: 0, items: [] }
+}
+
+function breakdown(slices: ContextSlice[], total: number, reported: boolean): ContextBreakdown {
+  return { source: 'captured', total_tokens: total, total_is_reported: reported, slices, advice: [] }
+}
+
+test('totalNote says the split of a reported total', () => {
+  assert.equal(totalNote(breakdown([], 41234, true)), 'Estimated split of 41,234 reported tokens')
+})
+
+test('totalNote says the total is an estimate when not reported', () => {
+  assert.equal(totalNote(breakdown([], 9800, false)), 'Estimated total: about 9,800 tokens')
+})
+
+test('topSlices gives the largest first and at most n', () => {
+  const b = breakdown([slice('system_prompt', 10), slice('conversation', 30), slice('files_read', 20), slice('instructions', 5)], 65, true)
+  assert.deepEqual(
+    topSlices(b, 3).map((s) => s.kind),
+    ['conversation', 'files_read', 'system_prompt'],
+  )
+})
+
+test('topSlices with n larger than the slices gives all of them', () => {
+  const b = breakdown([slice('system_prompt', 10), slice('conversation', 30)], 40, true)
+  assert.equal(topSlices(b, 3).length, 2)
+  assert.deepEqual(b.slices.map((s) => s.kind), ['system_prompt', 'conversation'])
 })

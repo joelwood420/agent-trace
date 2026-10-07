@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
 import {
+  findByTraceId,
   findNode,
   isForSession,
   isNewer,
@@ -106,4 +107,12 @@ test('keepPromptIndex keeps the prompt while it exists', () => {
   assert.equal(keepPromptIndex(null, 3), 0)
   assert.equal(keepPromptIndex(4, 3), 0)
   assert.equal(keepPromptIndex(1, 0), null)
+})
+
+test('findByTraceId finds a nested box by one of its trace ids', () => {
+  const leaf = { id: 'b2', trace_ids: ['model:x', 'model:y'], children: [] } as unknown as DiagramNode
+  const root = { id: 'b0', trace_ids: ['turn:1'], children: [leaf] } as unknown as DiagramNode
+  assert.equal(findByTraceId(root, 'model:y'), leaf)
+  assert.equal(findByTraceId(root, 'turn:1'), root)
+  assert.equal(findByTraceId(root, 'model:none'), null)
 })

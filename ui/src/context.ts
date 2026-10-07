@@ -1,7 +1,7 @@
 // Display helpers for the context bar. The numbers come from Rust; this only
 // turns them into widths and text.
 
-import type { ContextBar, SliceKind } from './types.ts'
+import type { ContextBar, ContextBreakdown, ContextSlice, SliceKind } from './types.ts'
 
 /** Slice names, the same as `SliceKind::label` in Rust. */
 export const SLICE_NAMES: Record<SliceKind, string> = {
@@ -27,9 +27,20 @@ export function barSegments(bar: ContextBar): Segment[] {
   return bar.slices.map((s) => ({ kind: s.kind, tokens: s.tokens, percent: (s.tokens / bar.total_tokens) * 100 }))
 }
 
-/** One tooltip line per slice: "Tool definitions: 41,234 tokens (38%)". */
+/** One tooltip line per slice: "Tool definitions: 41,234 tokens (37%)". */
 export function barTooltip(bar: ContextBar): string {
   return barSegments(bar)
     .map((s) => `${SLICE_NAMES[s.kind]}: ${s.tokens.toLocaleString('en-US')} tokens (${Math.round(s.percent)}%)`)
     .join('\n')
+}
+
+/** "Estimated split of 41,234 reported tokens" or "Estimated total: about 9,800 tokens" when not reported. */
+export function totalNote(b: ContextBreakdown): string {
+  const n = b.total_tokens.toLocaleString('en-US')
+  return b.total_is_reported ? `Estimated split of ${n} reported tokens` : `Estimated total: about ${n} tokens`
+}
+
+/** The `n` largest slices, largest first. */
+export function topSlices(b: ContextBreakdown, n: number): ContextSlice[] {
+  return [...b.slices].sort((a, c) => c.tokens - a.tokens).slice(0, n)
 }

@@ -8,14 +8,14 @@ import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
 import { formatDuration, formatTokens, plural } from './format.ts'
 import { collapsibleIds } from './layout.ts'
-import { findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
+import { findByTraceId, findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
 import type {
   CaptureOverview,
   CaptureStatus,
-  ContextBar,
   DiagramNode,
   LiveMessage,
   LiveStatus,
+  SessionContext,
   SessionSummary,
   SessionView,
 } from './types.ts'
@@ -49,8 +49,8 @@ export default function App() {
   const [captureOverview, setCaptureOverview] = useState<Loadable<CaptureOverview>>({ status: 'loading' })
   // A captured call picked in the session overview, shown instead of a box.
   const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
-  // What fills each model call's context, by trace id. Empty if loading failed.
-  const [contextBars, setContextBars] = useState<Readonly<Record<string, ContextBar>>>({})
+  // What fills each model call's context: bars by trace id and the latest breakdown.
+  const [sessionContext, setSessionContext] = useState<Loadable<SessionContext>>({ status: 'loading' })
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
   // When the overview was last requested, and a pending throttled reload.
@@ -158,14 +158,15 @@ export default function App() {
       const token = ++captureToken.current
       lastCaptureLoad.current = Date.now()
       if (fresh) setCaptureOverview({ status: 'loading' })
-      // The context bars follow the same moments and the same guard.
+      // The context follows the same moments and the same guard.
+      if (fresh) setSessionContext({ status: 'loading' })
       api
         .sessionContext(s.project, s.session_id)
         .then((value) => {
-          if (token === captureToken.current) setContextBars(value.bars)
+          if (token === captureToken.current) setSessionContext({ status: 'ready', value })
         })
-        .catch(() => {
-          if (token === captureToken.current) setContextBars({})
+        .catch((err: unknown) => {
+          if (token === captureToken.current) setSessionContext({ status: 'error', message: errorMessage(err) })
         })
       api
         .sessionCaptures(s.project, s.session_id)
@@ -252,7 +253,7 @@ export default function App() {
     cancelCaptureReload()
     lastCaptureLoad.current = null
     setCaptureOverview({ status: 'loading' })
-    setContextBars({})
+    setSessionContext({ status: 'loading' })
     if (!keepPrompt) {
       setPromptIndex(null)
       setOpenState(new Map())
@@ -277,7 +278,7 @@ export default function App() {
     captureToken.current++
     cancelCaptureReload()
     setSession(null)
-    setContextBars({})
+    setSessionContext({ status: 'loading' })
     setSelected(null)
     setSelectedCapture(null)
     setPromptIndex(null)
@@ -295,6 +296,19 @@ export default function App() {
     setSelected(node)
   }, [])
 
+  /** Selects the model call box with this trace id, as a click on it would. */
+  const selectTrace = (traceId: string) => {
+    if (view.status !== 'ready') return
+    for (const p of view.value.diagram.prompts) {
+      const found = findByTraceId(p.root, traceId)
+      if (found) {
+        setPromptIndex(p.index)
+        selectNode(found)
+        return
+      }
+    }
+  }
+
   const selectCapture = (captureId: string) => {
     setSelected(null)
     setSelectedCapture(captureId)
@@ -311,6 +325,10 @@ export default function App() {
     loadCaptures(s)
   }
 
+  const contextBars = useMemo(
+    () => (sessionContext.status === 'ready' ? sessionContext.value.bars : {}),
+    [sessionContext],
+  )
   const viewValue = view.status === 'ready' ? view.value : null
   const capturedIds = useMemo(() => new Set(viewValue?.captured_trace_ids ?? []), [viewValue])
 
@@ -363,6 +381,8 @@ export default function App() {
             onSelectPrompt={selectPrompt}
             onSelectMarker={selectNode}
             captureOverview={captureOverview}
+            sessionContext={sessionContext}
+            onSelectTrace={selectTrace}
             captureStatus={captureStatus}
             selectedCaptureId={selectedCapture}
             onSelectCapture={selectCapture}

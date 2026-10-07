@@ -26,6 +26,16 @@ export function findNode(diagram: SessionDiagram, id: string): DiagramNode | nul
   return search(diagram.markers) ?? search(diagram.prompts.map((p) => p.root))
 }
 
+/** The box under `root` that has this trace id among its own, or null. */
+export function findByTraceId(root: DiagramNode, traceId: string): DiagramNode | null {
+  if (root.trace_ids.includes(traceId)) return root
+  for (const child of root.children) {
+    const found = findByTraceId(child, traceId)
+    if (found) return found
+  }
+  return null
+}
+
 /** True if any trace node behind this box changed in the update. */
 export function needsDetailRefetch(node: DiagramNode, changed: readonly string[]): boolean {
   return node.trace_ids.some((id) => changed.includes(id))

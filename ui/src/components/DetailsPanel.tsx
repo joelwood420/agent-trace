@@ -8,6 +8,7 @@ import type { CaptureState } from '../captureView.ts'
 import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
 import type { ContentBlock, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
 import { CaptureSections } from './CapturePanel.tsx'
+import { CallContextSection } from './ContextSection.tsx'
 import { StatusChip } from './nodes.tsx'
 
 interface Props {
@@ -80,6 +81,15 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
         {node.detail_label && <p className="muted">{node.detail_label}</p>}
       </div>
       <div className="details-body">
+        {node.kind === 'model_call' && node.trace_ids[0] !== undefined && (
+          <CallContextSection
+            api={api}
+            project={project}
+            sessionId={sessionId}
+            traceId={node.trace_ids[0]}
+            refreshKey={refreshKey}
+          />
+        )}
         {current === null && <p className="muted loading">Loading details...</p>}
         {current?.status === 'error' && (
           <div className="notice notice-error" role="alert">

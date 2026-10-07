@@ -6,8 +6,17 @@ import { useMemo, useState } from 'react'
 import { formatBytes, formatDuration, formatRelative, formatTokens, plural, shortId } from '../format.ts'
 import { groupSessions } from '../grouping.ts'
 import { statusMessage } from '../live.ts'
-import type { CaptureOverview, CaptureStatus, DiagramNode, LiveStatus, SessionSummary, SessionView } from '../types.ts'
+import type {
+  CaptureOverview,
+  CaptureStatus,
+  DiagramNode,
+  LiveStatus,
+  SessionContext,
+  SessionSummary,
+  SessionView,
+} from '../types.ts'
 import { CaptureOverviewSection, CaptureStartBox } from './CaptureOverview.tsx'
+import { ContextCard } from './ContextSection.tsx'
 
 export type Loadable<T> =
   | { status: 'loading' }
@@ -106,6 +115,8 @@ interface SessionPanelProps {
   /** Indexes of prompts that just arrived, highlighted for a moment. */
   newPrompts: ReadonlySet<number>
   captureOverview: Loadable<CaptureOverview>
+  sessionContext: Loadable<SessionContext>
+  onSelectTrace: (traceId: string) => void
   captureStatus: Loadable<CaptureStatus>
   selectedCaptureId: string | null
   onSelectCapture: (captureId: string) => void
@@ -173,6 +184,8 @@ function SessionContents({
   onSelectPrompt,
   onSelectMarker,
   captureOverview,
+  sessionContext,
+  onSelectTrace,
   captureStatus,
   selectedCaptureId,
   onSelectCapture,
@@ -226,6 +239,8 @@ function SessionContents({
           </ul>
         </details>
       )}
+
+      <ContextCard context={sessionContext} onSelect={onSelectTrace} onRetry={onReloadCaptures} />
 
       <CaptureOverviewSection
         overview={captureOverview}
