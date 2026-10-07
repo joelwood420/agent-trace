@@ -94,9 +94,10 @@ pub fn advise(b: &ContextBreakdown) -> Vec<Advice> {
                 AdviceLevel::Warn,
                 SliceKind::ToolDefinitions,
                 format!(
-                    "Tool definitions are {}% of this call ({} tokens): {n} tools{mcp}.",
+                    "Tool definitions are {}% of this call ({} tokens): {}{mcp}.",
                     pct(s.share),
-                    about_tokens(s.tokens)
+                    about_tokens(s.tokens),
+                    plural(n, "tool")
                 ),
             );
         }
@@ -283,7 +284,7 @@ mod tests {
         );
         assert_eq!(
             texts(&b),
-            vec!["Tool definitions are 30% of this call (300 tokens): 1 tools."]
+            vec!["Tool definitions are 30% of this call (300 tokens): 1 tool."]
         );
         let a = &advise(&mk(200))[0];
         assert_eq!(a.level, AdviceLevel::Warn);
