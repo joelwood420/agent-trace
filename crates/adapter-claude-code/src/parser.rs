@@ -498,6 +498,20 @@ impl Parser {
                 }
                 self.marker(line, "info", text.to_string(), metadata, out);
             }
+            // The history before this line was replaced by a summary, which
+            // arrives next as a user line with `isCompactSummary`.
+            Some("compact_boundary") => {
+                let meta = line.obj.get("compactMetadata");
+                let summary = match meta.and_then(|m| str_at(m, "trigger")) {
+                    Some(trigger) => format!("Context compacted ({trigger})"),
+                    None => "Context compacted".to_string(),
+                };
+                let mut metadata = Map::new();
+                if let Some(meta) = meta {
+                    metadata.insert("compact_metadata".into(), meta.clone());
+                }
+                self.marker(line, "compaction", summary, metadata, out);
+            }
             // A recap shown to the user on returning to a session, not a step.
             Some("away_summary") => {}
             Some(other) => self.skip(line.raw.line, format!("unknown system subtype {other:?}")),
@@ -865,6 +879,54 @@ mod tests {
             ("info", "Example warning")
         );
         assert!(!events.iter().any(|e| e.id == "marker:u4"));
+    }
+
+    /// An invented session: one prompt and reply, a compaction, then the
+    /// summary that starts the new history and one more reply.
+    const COMPACTED: &[&str] = &[
+        r#"{"type":"user","uuid":"u1","message":{"content":"Write a long example story."}}"#,
+        r#"{"type":"assistant","uuid":"a1","parentUuid":"u1","message":{"id":"m1","content":[{"type":"text","text":"Once upon a time there was an example."}]}}"#,
+        r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","content":"Conversation compacted","compactMetadata":{"trigger":"manual","preTokens":1234}}"#,
+        r#"{"type":"user","uuid":"u2","isCompactSummary":true,"message":{"content":"Summary: a story was written."}}"#,
+        r#"{"type":"assistant","uuid":"a2","parentUuid":"u2","message":{"id":"m2","content":[{"type":"text","text":"Ready."}]}}"#,
+    ];
+
+    #[test]
+    fn compact_boundary_becomes_a_compaction_marker() {
+        let (events, skipped) = run_lines(COMPACTED);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let marker = events
+            .iter()
+            .rev()
+            .find(|e| e.id == "marker:c1")
+            .expect("compaction marker");
+        let Node::Marker(m) = &marker.node else {
+            panic!("not a marker")
+        };
+        assert_eq!(m.kind, "compaction");
+        assert_eq!(m.summary, "Context compacted (manual)");
+        assert_eq!(marker.parent_id.as_deref(), Some("turn:u1"));
+        assert_eq!(marker.metadata["compact_metadata"]["preTokens"], 1234);
+        assert_eq!(marker.raw.len(), 1);
+    }
+
+    #[test]
+    fn context_estimate_resets_at_a_compaction() {
+        let (events, _) = run_lines(COMPACTED);
+        let mut trace = trace_core::Trace::new();
+        for event in events {
+            trace.apply(event).expect("valid tree");
+        }
+        let rules = crate::context::context_rules();
+        let all = insights::measure_transcript_all(&trace, &rules);
+        let after = all.get("model:m2").expect("measure for the call after");
+        let labels: Vec<(&str, u64)> = after
+            .items(insights::SliceKind::Conversation)
+            .iter()
+            .map(|i| (i.label.as_str(), i.chars))
+            .collect();
+        let summary = "Summary: a story was written.".chars().count() as u64;
+        assert_eq!(labels, vec![("your prompts", summary)]);
     }
 
     #[test]
