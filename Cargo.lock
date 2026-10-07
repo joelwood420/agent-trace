@@ -1580,6 +1580,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "insights"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "trace-core",
+ "tracing",
+]
+
+[[package]]
 name = "ipnet"
 version = "2.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
