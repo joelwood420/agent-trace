@@ -114,7 +114,7 @@ Advice is built in Rust as finished sentences; the UI only shows it. Thresholds 
 4. **warn** a file in context 3 or more times: "`src/main.rs` is in context 4 times (about 12k tokens). Each read adds the full file again."
 5. **warn** a single file read or other tool result of at least 10% of the call: "One `Bash` result is 14% of this call (about 15k tokens)."
 6. **info** conversation is at least 60% of the call: "Conversation history is 64% of this call. /compact or a fresh session would shrink it."
-7. **info** transcript-only call: "The system prompt, tool definitions and instructions are not visible for this call. Run Claude Code through the proxy to see them."
+7. **info** transcript-only call: "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
 
 Numbers round to the nearest thousand as "about Nk" from 1,000 tokens up, else exact. Percentages are whole numbers.
 

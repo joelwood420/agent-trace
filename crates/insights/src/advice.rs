@@ -196,7 +196,7 @@ pub fn advise(b: &ContextBreakdown) -> Vec<Advice> {
         push(
             AdviceLevel::Info,
             SliceKind::NotCaptured,
-            "The system prompt, tool definitions and instructions are not visible for this call. Run the session through the capture proxy to see them.".to_string(),
+            "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it.".to_string(),
         );
     }
 
@@ -432,7 +432,7 @@ mod tests {
         assert_eq!(a[0].slice, SliceKind::NotCaptured);
         assert_eq!(
             a[0].text,
-            "The system prompt, tool definitions and instructions are not visible for this call. Run the session through the capture proxy to see them."
+            "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
         );
     }
 
