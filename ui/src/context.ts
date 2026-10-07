@@ -44,3 +44,16 @@ export function totalNote(b: ContextBreakdown): string {
 export function topSlices(b: ContextBreakdown, n: number): ContextSlice[] {
   return [...b.slices].sort((a, c) => c.tokens - a.tokens).slice(0, n)
 }
+
+/** A value that loads in the background (same shape as `Loadable` in Sidebar.tsx). */
+export type LoadState<T> = { status: 'loading' } | { status: 'ready'; value: T } | { status: 'error'; message: string }
+
+/**
+ * The state after a load failed. A background reload (`fresh` false) keeps a
+ * ready value, so the bars do not vanish over one failed refresh; a fresh
+ * load, or one with nothing ready yet, shows the error.
+ */
+export function afterFailedLoad<T>(current: LoadState<T>, fresh: boolean, message: string): LoadState<T> {
+  if (!fresh && current.status === 'ready') return current
+  return { status: 'error', message }
+}

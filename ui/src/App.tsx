@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { errorMessage, getApi, insideTauri, mockMode, type Api } from './api.ts'
 import { captureState, sameLoad, throttleDelay } from './captureView.ts'
+import { afterFailedLoad } from './context.ts'
 import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
@@ -166,7 +167,10 @@ export default function App() {
           if (token === captureToken.current) setSessionContext({ status: 'ready', value })
         })
         .catch((err: unknown) => {
-          if (token === captureToken.current) setSessionContext({ status: 'error', message: errorMessage(err) })
+          if (token !== captureToken.current) return
+          const message = errorMessage(err)
+          if (!fresh) console.warn('Could not refresh the session context:', message)
+          setSessionContext((current) => afterFailedLoad(current, fresh, message))
         })
       api
         .sessionCaptures(s.project, s.session_id)

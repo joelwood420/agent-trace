@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { barSegments, barTooltip, SLICE_NAMES, topSlices, totalNote } from './context.ts'
+import { afterFailedLoad, barSegments, barTooltip, SLICE_NAMES, topSlices, totalNote } from './context.ts'
 import type { ContextBar, ContextBreakdown, ContextSlice } from './types.ts'
 
 function bar(slices: [ContextBar['slices'][number]['kind'], number][], total: number): ContextBar {
@@ -87,4 +87,19 @@ test('topSlices with n larger than the slices gives all of them', () => {
   const b = breakdown([slice('system_prompt', 10), slice('conversation', 30)], 40, true)
   assert.equal(topSlices(b, 3).length, 2)
   assert.deepEqual(b.slices.map((s) => s.kind), ['system_prompt', 'conversation'])
+})
+
+test('afterFailedLoad keeps the ready value when a background reload fails', () => {
+  const ready = { status: 'ready' as const, value: 7 }
+  assert.deepEqual(afterFailedLoad(ready, false, 'boom'), ready)
+})
+
+test('afterFailedLoad shows the error on a fresh load or when nothing is ready', () => {
+  const ready = { status: 'ready' as const, value: 7 }
+  assert.deepEqual(afterFailedLoad(ready, true, 'boom'), { status: 'error', message: 'boom' })
+  assert.deepEqual(afterFailedLoad<number>({ status: 'loading' }, false, 'boom'), { status: 'error', message: 'boom' })
+  assert.deepEqual(afterFailedLoad<number>({ status: 'error', message: 'old' }, false, 'boom'), {
+    status: 'error',
+    message: 'boom',
+  })
 })
