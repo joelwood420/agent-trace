@@ -7,6 +7,7 @@ pub mod breakdown;
 pub mod measure;
 mod request;
 pub mod rules;
+mod transcript;
 
 pub use advice::{Advice, AdviceLevel};
 pub use breakdown::{
@@ -17,3 +18,4 @@ pub use measure::{
 };
 pub use request::measure_request;
 pub use rules::{ContextRules, FileReadRule, LabelRule};
+pub use transcript::{measure_transcript, measure_transcript_all};
