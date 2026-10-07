@@ -114,7 +114,7 @@ You are doing the implementation and I will mostly not read the code. That means
 
 M4: proxy capture of raw API requests (system prompt, tool definitions, compaction).
 
-Status: complete. M5 (toy harness) is next; plan its steps with me before starting.
+Status: complete. M5 (insights) is next; plan its steps with me before starting.
 
 1. `capture-core`: the capture record format, header filtering, rebuilding a streamed response, request summaries and the diff.
 2. `capture`: the on-disk store (compressed, system prompts and tool sets kept once) and the local proxy.
@@ -130,4 +130,5 @@ Out of scope for now: capturing scratchpad files, token cost breakdowns, other h
 - M2: Tauri app shell that loads a saved session and renders one diagram per prompt
 - M3: live file watching with diagrams updating as a session runs
 - M4: proxy capture of raw API requests (system prompt, tool definitions, compaction)
-- M5: toy harness in Rust that emits `trace-core` events natively. Try a fast decision model (for example Jev) inside the loop for routing and stop checks, and trace each decision call as its own node so wrong routing choices are visible.
+- M5: insights. (1) Context breakdown per call: a bar showing what fills the context (system prompt, tool definitions, CLAUDE.md and memory, files read, conversation history) with plain advice, like "your 3 MCP servers add 40k tokens to every call" or "this file was read 6 times". (2) Waste and problem detection: flags for loops, repeated reads, failed tools retried the same way, compaction that dropped something, very large tool results. (3) Compare two runs: the same task with a different CLAUDE.md, model or harness, side by side. (4) A shareable report: export one prompt's trace with secrets removed.
+- M6: toy harness in Rust that emits `trace-core` events natively. Try a fast decision model (for example Jev) inside the loop for routing and stop checks, and trace each decision call as its own node so wrong routing choices are visible.

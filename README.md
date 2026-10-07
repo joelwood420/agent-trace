@@ -6,6 +6,19 @@ A local desktop app that watches Claude Code sessions and draws a diagram of wha
 
 It is a learning and debugging tool for understanding how an agent harness behaves. The trace format is harness-agnostic, so other harnesses can emit it too.
 
+## Why
+
+Your coding agent sends a large amount of hidden context on every model call, and you normally cannot see any of it. In one captured Claude Code session, a request for a one-word reply was about 300 KB: a system prompt of about 28,000 characters, up to 186 tool definitions, and the injected project instructions and memory, with the tool list changing partway through the session. The transcript Claude Code keeps on disk shows what the agent did, but not what it was given.
+
+Snitchcraft shows both, per prompt, live, and privately on your own machine: what the agent did (model calls, tool calls, results, subagents) and what it actually saw (the raw requests and what changed between them).
+
+### Where it fits
+
+- **When an agent goes wrong.** It edited the wrong file, looped, or ignored an instruction. Click the step and see exactly what was in its context at that moment, and what changed since the call before. "Did it even see my rule? Was it compacted away?" becomes something you can check.
+- **When tuning your setup.** CLAUDE.md, skills, MCP servers and hooks all cost context on every call. See what each one adds and whether it is worth it.
+- **When it is slow or expensive.** See where the time and tokens went: repeated file reads, failed tool calls, huge tool results, cache misses.
+- **When building your own agent.** Use an existing harness as the reference, and put your own harness's trace next to it in the same format.
+
 ![Snitchcraft showing one prompt of the sanitised sample session: a summary of four repeated Bash calls, a tool call that started a subagent, and the details panel for that tool call](docs/screenshot.png)
 
 *The sanitised sample session from `fixtures/`, not a real one.*
@@ -18,7 +31,15 @@ It is a learning and debugging tool for understanding how an agent harness behav
 | M2 | Tauri app shell that renders one diagram per prompt | Done |
 | M3 | Live file watching: diagrams update as a session runs | Done |
 | M4 | Proxy capture of raw API requests: system prompt, tools, messages and the changes between calls | Done |
-| M5 | Toy Rust harness that emits the trace format natively | Planned |
+| M5 | Insights: context breakdown, waste detection, run comparison, shareable reports | Planned |
+| M6 | Toy Rust harness that emits the trace format natively | Planned |
+
+### Next: M5 insights
+
+1. **Context breakdown per call.** A bar showing what fills the context: system prompt, tool definitions, CLAUDE.md and memory, files read, conversation history. Then plain advice, like "your 3 MCP servers add 40k tokens to every call" or "this file was read 6 times".
+2. **Waste and problem detection.** Automatic flags for loops, repeated reads, failed tools retried the same way, compaction that dropped something, and very large tool results.
+3. **Compare two runs.** The same task with a different CLAUDE.md, model or harness, side by side, to test agent setups.
+4. **A shareable report.** Export one prompt's trace with secrets removed, to attach to a bug report or show a teammate.
 
 ## Try it
 

@@ -219,7 +219,7 @@ Each box is a focusable element with the button role: Tab moves between boxes an
 
 ### 2026-10-04: Decision models belong in the harness, not the viewer
 
-Fast decision models such as Jev (TypeSafe AI, released 2026-09-15) answer typed questions about a piece of text with choices, scores, or probabilities. They were considered as a way to explain traces in Snitchcraft and rejected for that: they give their own judgement of the text, not the agent's real reasons, most labels they could add are already exact in the trace, and using one would send private transcripts to a third party. Instead, the M5 toy harness will try one inside its loop for routing and stop checks, and Snitchcraft will trace each decision call as its own node. That shows how often a router chose wrong, which is the debugging use this project exists for.
+Fast decision models such as Jev (TypeSafe AI, released 2026-09-15) answer typed questions about a piece of text with choices, scores, or probabilities. They were considered as a way to explain traces in Snitchcraft and rejected for that: they give their own judgement of the text, not the agent's real reasons, most labels they could add are already exact in the trace, and using one would send private transcripts to a third party. Instead, the toy harness (originally M5, now M6) will try one inside its loop for routing and stop checks, and Snitchcraft will trace each decision call as its own node. That shows how often a router chose wrong, which is the debugging use this project exists for.
 
 ### 2026-10-05: Subagents are linked from their meta file as well as the tool result
 
@@ -231,7 +231,7 @@ A foreground Agent call only reports its subagent's id in the tool result when t
 
 ### 2026-10-05: The backend sends a full diagram on every update (chosen by the project owner)
 
-While a session runs, the backend keeps its parsers open and reads only new lines, but after each change it rebuilds the whole diagram model and sends it to the UI. This keeps all diagram logic in Rust and the UI a plain renderer. Measured on the sample session, the view is about 400 bytes of JSON per box (its 52 boxes come to about 21 KB), so a long real session can be hundreds of KB per update. That is still fine for a local channel at the update rate a session produces. Revisit this and send only the changes if diagrams grow large enough for updates to feel slow, or when the M5 harness streams events directly.
+While a session runs, the backend keeps its parsers open and reads only new lines, but after each change it rebuilds the whole diagram model and sends it to the UI. This keeps all diagram logic in Rust and the UI a plain renderer. Measured on the sample session, the view is about 400 bytes of JSON per box (its 52 boxes come to about 21 KB), so a long real session can be hundreds of KB per update. That is still fine for a local channel at the update rate a session produces. Revisit this and send only the changes if diagrams grow large enough for updates to feel slow, or when the toy harness (M6) streams events directly.
 
 ### 2026-10-05: A session is live if written in the last 10 minutes (chosen by the project owner)
 
@@ -322,3 +322,8 @@ Captures are never deleted automatically. The user deletes a session's captures 
 ### 2026-10-06: Opt-in capture per session (chosen by the project owner)
 
 A session is captured only when the user starts Claude Code with `ANTHROPIC_BASE_URL` pointing at the app's proxy (the app shows the command to copy: `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`). Snitchcraft never changes Claude Code's settings. Calls without a usable session id header are saved under `unknown`.
+
+### 2026-10-08: Insights become M5, the toy harness moves to M6 (chosen by the project owner)
+
+The insight features (context breakdown, waste detection, run comparison, shareable reports) come before the toy harness. They are the most useful part of the app on their own, and the context breakdown and run comparison are also what the harness work needs to design and test its own context handling. Specs and plans written before this date still call the toy harness M5.
+
