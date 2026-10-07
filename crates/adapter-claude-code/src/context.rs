@@ -4,38 +4,16 @@
 use insights::{ContextRules, FileReadRule, LabelRule};
 
 /// The rules that let `insights` recognise Claude Code's system reminders
-/// (CLAUDE.md, memory, skill and tool lists) and its `Read` tool.
+/// and its `Read` tool. Specific content rules (SessionStart hook, MCP
+/// instructions, agent types, environment, skills, deferred tools) are
+/// checked first so they match before broader filename rules (AGENTS.md,
+/// MEMORY.md, CLAUDE.md).
 pub fn context_rules() -> ContextRules {
     ContextRules {
         reminder_open: "<system-reminder>".into(),
         reminder_close: "</system-reminder>".into(),
         section_marker: Some("Contents of ".into()),
         labels: vec![
-            LabelRule {
-                needle: "MEMORY.md".into(),
-                label: "memory".into(),
-                with_detail: true,
-            },
-            LabelRule {
-                needle: "CLAUDE.md".into(),
-                label: "CLAUDE.md".into(),
-                with_detail: true,
-            },
-            LabelRule {
-                needle: "skills are available".into(),
-                label: "skills list".into(),
-                with_detail: false,
-            },
-            LabelRule {
-                needle: "deferred tools".into(),
-                label: "deferred tools list".into(),
-                with_detail: false,
-            },
-            LabelRule {
-                needle: "AGENTS.md".into(),
-                label: "AGENTS.md".into(),
-                with_detail: true,
-            },
             LabelRule {
                 needle: "SessionStart hook".into(),
                 label: "hook output".into(),
@@ -55,6 +33,31 @@ pub fn context_rules() -> ContextRules {
                 needle: "# Environment".into(),
                 label: "environment".into(),
                 with_detail: false,
+            },
+            LabelRule {
+                needle: "skills are available".into(),
+                label: "skills list".into(),
+                with_detail: false,
+            },
+            LabelRule {
+                needle: "deferred tools".into(),
+                label: "deferred tools list".into(),
+                with_detail: false,
+            },
+            LabelRule {
+                needle: "AGENTS.md".into(),
+                label: "AGENTS.md".into(),
+                with_detail: true,
+            },
+            LabelRule {
+                needle: "MEMORY.md".into(),
+                label: "memory".into(),
+                with_detail: true,
+            },
+            LabelRule {
+                needle: "CLAUDE.md".into(),
+                label: "CLAUDE.md".into(),
+                with_detail: true,
             },
         ],
         file_reads: vec![FileReadRule {
@@ -157,5 +160,11 @@ mod tests {
             let text = format!("<system-reminder>\n{body}\n</system-reminder>");
             assert_eq!(instruction_labels(&text), vec![label.to_string()], "{body}");
         }
+    }
+
+    #[test]
+    fn hook_mentioning_claude_md_is_labeled_as_hook() {
+        let text = "<system-reminder>\nSessionStart hook additional context: remember to read CLAUDE.md first.\n</system-reminder>";
+        assert_eq!(instruction_labels(text), vec!["hook output".to_string()]);
     }
 }
