@@ -12,6 +12,7 @@ import { findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, n
 import type {
   CaptureOverview,
   CaptureStatus,
+  ContextBar,
   DiagramNode,
   LiveMessage,
   LiveStatus,
@@ -48,6 +49,8 @@ export default function App() {
   const [captureOverview, setCaptureOverview] = useState<Loadable<CaptureOverview>>({ status: 'loading' })
   // A captured call picked in the session overview, shown instead of a box.
   const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
+  // What fills each model call's context, by trace id. Empty if loading failed.
+  const [contextBars, setContextBars] = useState<Readonly<Record<string, ContextBar>>>({})
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
   // When the overview was last requested, and a pending throttled reload.
@@ -155,6 +158,15 @@ export default function App() {
       const token = ++captureToken.current
       lastCaptureLoad.current = Date.now()
       if (fresh) setCaptureOverview({ status: 'loading' })
+      // The context bars follow the same moments and the same guard.
+      api
+        .sessionContext(s.project, s.session_id)
+        .then((value) => {
+          if (token === captureToken.current) setContextBars(value.bars)
+        })
+        .catch(() => {
+          if (token === captureToken.current) setContextBars({})
+        })
       api
         .sessionCaptures(s.project, s.session_id)
         .then((value) => {
@@ -240,6 +252,7 @@ export default function App() {
     cancelCaptureReload()
     lastCaptureLoad.current = null
     setCaptureOverview({ status: 'loading' })
+    setContextBars({})
     if (!keepPrompt) {
       setPromptIndex(null)
       setOpenState(new Map())
@@ -264,6 +277,7 @@ export default function App() {
     captureToken.current++
     cancelCaptureReload()
     setSession(null)
+    setContextBars({})
     setSelected(null)
     setSelectedCapture(null)
     setPromptIndex(null)
@@ -397,6 +411,7 @@ export default function App() {
               openState={openState}
               selectedId={selected?.id ?? null}
               capturedIds={capturedIds}
+              contextBars={contextBars}
               onToggle={onToggle}
               onSelect={selectNode}
             />

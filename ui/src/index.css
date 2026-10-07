@@ -33,6 +33,14 @@
   --kind-summary: #5c677d;
   --kind-marker: #868e96;
 
+  --slice-system_prompt: #1971c2;
+  --slice-tool_definitions: #6741d9;
+  --slice-instructions: #c2255c;
+  --slice-files_read: #0b7285;
+  --slice-tool_results: #66780a;
+  --slice-conversation: #495057;
+  --slice-not_captured: #868e96;
+
   --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
@@ -64,6 +72,14 @@
     --kind-subagent: #ff922b;
     --kind-summary: #adb5bd;
     --kind-marker: #868e96;
+
+    --slice-system_prompt: #74a7ff;
+    --slice-tool_definitions: #b197fc;
+    --slice-instructions: #f783ac;
+    --slice-files_read: #3bc9db;
+    --slice-tool_results: #c4d65a;
+    --slice-conversation: #adb5bd;
+    --slice-not_captured: #868e96;
   }
 }
 

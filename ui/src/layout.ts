@@ -25,7 +25,7 @@ export const GROUP_HEADER = 34
 /** Fixed box heights. Box text is single-line, so every box of a kind has the same size. */
 export const NODE_HEIGHT: Record<NodeKind, number> = {
   prompt: 92,
-  model_call: 80,
+  model_call: 88,
   tool_call: 64,
   parallel_group: 0, // computed from its contents
   subagent: 92,

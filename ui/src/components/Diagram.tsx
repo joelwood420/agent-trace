@@ -14,7 +14,7 @@ import { useCallback, useMemo, useRef } from 'react'
 
 import { isCaptured } from '../captureView.ts'
 import { initialViewport, layoutTree, type OpenState } from '../layout.ts'
-import type { DiagramNode, PromptDiagram } from '../types.ts'
+import type { ContextBar, DiagramNode, PromptDiagram } from '../types.ts'
 import {
   MarkerNode,
   ModelCallNode,
@@ -28,6 +28,15 @@ import {
 
 /** Diagrams with more boxes than this get a minimap. */
 const MINIMAP_MIN_BOXES = 30
+
+/** The bar of a model call box: the first of its trace ids that has one. */
+function barFor(node: DiagramNode, bars: Readonly<Record<string, ContextBar>>): ContextBar | null {
+  for (const id of node.trace_ids) {
+    const bar = bars[id]
+    if (bar) return bar
+  }
+  return null
+}
 
 const nodeTypes: NodeTypes = {
   prompt: PromptNode,
@@ -45,11 +54,13 @@ interface Props {
   selectedId: string | null
   /** Model call trace ids with a captured API call. */
   capturedIds: ReadonlySet<string>
+  /** Context bars by model call trace id. */
+  contextBars: Readonly<Record<string, ContextBar>>
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
 
-export default function Diagram({ prompt, openState, selectedId, capturedIds, onToggle, onSelect }: Props) {
+export default function Diagram({ prompt, openState, selectedId, capturedIds, contextBars, onToggle, onSelect }: Props) {
   const layout = useMemo(() => layoutTree(prompt.root, openState), [prompt.root, openState])
   const paneRef = useRef<HTMLDivElement>(null)
 
@@ -71,11 +82,12 @@ export default function Diagram({ prompt, openState, selectedId, capturedIds, on
           open: box.open,
           selected: box.id === selectedId,
           captured: isCaptured(box.node, capturedIds),
+          context: box.node.kind === 'model_call' ? barFor(box.node, contextBars) : null,
           onToggle,
           onSelect,
         },
       })),
-    [layout, selectedId, capturedIds, onToggle, onSelect],
+    [layout, selectedId, capturedIds, contextBars, onToggle, onSelect],
   )
 
   const edges: Edge[] = useMemo(

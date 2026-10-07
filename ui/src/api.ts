@@ -9,8 +9,10 @@ import type {
   CaptureDetail,
   CaptureOverview,
   CaptureStatus,
+  ContextBreakdown,
   LiveMessage,
   NodeDetail,
+  SessionContext,
   SessionSummary,
   SessionView,
 } from './types.ts'
@@ -26,6 +28,8 @@ export interface Api {
   sessionCaptures(project: string, sessionId: string): Promise<CaptureOverview>
   captureDetail(project: string, sessionId: string, captureId: string): Promise<CaptureDetail | null>
   deleteCaptures(project: string, sessionId: string): Promise<void>
+  sessionContext(project: string, sessionId: string): Promise<SessionContext>
+  callContext(project: string, sessionId: string, traceId: string): Promise<ContextBreakdown | null>
 }
 
 const tauriApi: Api = {
@@ -57,6 +61,9 @@ const tauriApi: Api = {
     }),
   deleteCaptures: (project, sessionId) =>
     invoke<void>('delete_captures', { project, session_id: sessionId }),
+  sessionContext: (project, sessionId) => invoke<SessionContext>('session_context', { project, session_id: sessionId }),
+  callContext: (project, sessionId, traceId) =>
+    invoke<ContextBreakdown | null>('call_context', { project, session_id: sessionId, trace_id: traceId }),
 }
 
 /** True when running inside the Tauri app window. */

@@ -5,7 +5,7 @@
 //
 // URL flags (combine with `?mock`):
 //   delay=<ms>   wait this long before each response (default 250)
-//   fail=list|load|detail|captures   make that command fail, to see error handling
+//   fail=list|load|detail|captures|context   make that command fail, to see error handling
 //   live         replay the session growing (ui/src/mock/live-steps.json),
 //                one step every `step` ms (default 1500)
 //   fail=live    with `live`, end the replay with a "deleted" status
@@ -16,13 +16,16 @@ import type { Api } from '../api.ts'
 import type {
   CaptureDetail,
   CaptureOverview,
+  ContextBreakdown,
   LiveMessage,
   LiveStatus,
   NodeDetail,
+  SessionContext,
   SessionSummary,
   SessionView,
 } from '../types.ts'
 import captureData from './capture-data.json'
+import contextData from './context-data.json'
 import data from './fixture-data.json'
 import liveSteps from './live-steps.json'
 
@@ -37,6 +40,11 @@ const captures = captureData as unknown as {
   overview: CaptureOverview
   details: Record<string, CaptureDetail>
 }
+const context = contextData as unknown as {
+  session: SessionContext
+  calls: Record<string, ContextBreakdown>
+}
+const emptyContext: SessionContext = { bars: {}, latest: null, latest_trace_id: null }
 const CAPTURE_KEY = 'basic/00000000-0000-4000-8000-000000000002'
 const emptyOverview: CaptureOverview = {
   session_key: null,
@@ -154,6 +162,19 @@ export function createMockApi(params: URLSearchParams): Api {
     async deleteCaptures() {
       await wait()
       capturesDeleted = true
+    },
+    // The real backend keeps transcript bars after captures are deleted, but
+    // the mock cannot compute them, so it always returns the stored value.
+    async sessionContext(project, sessionId) {
+      await wait()
+      if (fail === 'context') throw 'could not measure the context: mock failure'
+      return `${project}/${sessionId}` === CAPTURE_KEY ? context.session : emptyContext
+    },
+    async callContext(project, sessionId, traceId) {
+      await wait()
+      if (fail === 'context') throw 'could not measure the context: mock failure'
+      if (`${project}/${sessionId}` !== CAPTURE_KEY) return null
+      return context.calls[traceId] ?? null
     },
   }
 }

@@ -270,3 +270,72 @@ export interface CaptureStatus {
   error: string | null
   last_save_error: string | null
 }
+
+// --- Context breakdown (what fills each model call's context) ---
+
+/** What a slice of the context is made of. */
+export type SliceKind =
+  | 'system_prompt'
+  | 'tool_definitions'
+  | 'instructions'
+  | 'files_read'
+  | 'tool_results'
+  | 'conversation'
+  | 'not_captured'
+
+/** Where a breakdown was measured from. */
+export type ContextSource = 'captured' | 'transcript'
+
+/** One thing inside a slice, such as one file or one tool. */
+export interface ContextItem {
+  label: string
+  tokens: number
+  count: number
+  largest_tokens: number
+}
+
+/** One slice of a call's context, with the items it is made of. */
+export interface ContextSlice {
+  kind: SliceKind
+  label: string
+  tokens: number
+  share: number
+  items: ContextItem[]
+}
+
+/** A plain-language remark about the context. */
+export interface Advice {
+  level: 'warn' | 'info'
+  slice: SliceKind
+  text: string
+}
+
+/** The full breakdown of one model call's context. */
+export interface ContextBreakdown {
+  source: ContextSource
+  total_tokens: number
+  total_is_reported: boolean
+  slices: ContextSlice[]
+  advice: Advice[]
+}
+
+/** A slice of a bar: just its kind and size. */
+export interface BarSlice {
+  kind: SliceKind
+  tokens: number
+}
+
+/** The short form of a breakdown, drawn on a model call box. */
+export interface ContextBar {
+  source: ContextSource
+  total_tokens: number
+  total_is_reported: boolean
+  slices: BarSlice[]
+}
+
+/** Bars for every model call of a session, plus the latest full breakdown. */
+export interface SessionContext {
+  bars: Record<string, ContextBar>
+  latest: ContextBreakdown | null
+  latest_trace_id: string | null
+}

@@ -5,7 +5,8 @@ import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { KeyboardEvent, ReactNode } from 'react'
 
 import { formatDuration, formatTokens } from '../format.ts'
-import type { DiagramNode, Status } from '../types.ts'
+import type { ContextBar as Bar, DiagramNode, Status } from '../types.ts'
+import ContextBar from './ContextBar.tsx'
 
 export interface BoxData extends Record<string, unknown> {
   node: DiagramNode
@@ -14,6 +15,8 @@ export interface BoxData extends Record<string, unknown> {
   selected: boolean
   /** True for a model call box with a captured raw API request. */
   captured: boolean
+  /** What fills this model call's context, if known. */
+  context: Bar | null
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
@@ -157,6 +160,7 @@ function Shell({ data, tag, labelLine = false, showMetrics = true }: ShellProps)
           <Toggle data={data} />
         </div>
       )}
+      {data.context && <ContextBar bar={data.context} height={6} />}
     </div>
   )
 }

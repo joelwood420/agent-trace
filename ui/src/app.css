@@ -1001,3 +1001,33 @@ button:focus-visible,
 .capture-delete {
   margin-top: 8px;
 }
+
+/* --- Context bar --- */
+
+.context-bar {
+  display: flex;
+  width: 100%;
+  flex: none;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--panel-2);
+}
+
+.context-slice {
+  display: block;
+  height: 100%;
+}
+
+.context-slice-system_prompt { background: var(--slice-system_prompt); }
+.context-slice-tool_definitions { background: var(--slice-tool_definitions); }
+.context-slice-instructions { background: var(--slice-instructions); }
+.context-slice-files_read { background: var(--slice-files_read); }
+.context-slice-tool_results { background: var(--slice-tool_results); }
+.context-slice-conversation { background: var(--slice-conversation); }
+.context-slice-not_captured {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--slice-not_captured) 0 2px,
+    transparent 2px 4px
+  );
+}
