@@ -116,7 +116,7 @@ You are doing the implementation and I will mostly not read the code. That means
 M5: insights, split into four sub-milestones, each with its own spec, plan and branch.
 
 - 5.1 Context breakdown per call: complete. New `insights` crate (harness-neutral measuring, scaling to the reported total, advice), Claude Code rules in the adapter, `session_context` and `call_context` commands, bar on model-call boxes, Context section in the details panel, Context card in the session overview. Spec: `docs/superpowers/specs/2026-10-08-m5-1-context-breakdown-design.md`.
-- 5.1b Read the hidden context Claude Code records in transcripts (`prompt_snapshot`, `instructions`, `skill_listing`): next candidate, needs a trace schema decision with me first.
+- 5.1b Hidden context from transcripts: complete. New trace node kind `context_update` (keyed parts plus removals, applied per run), the adapter maps Claude Code `attachment` lines to it, the breakdown counts the parts, and the session overview lists the main agent's hidden context. Spec: `docs/superpowers/specs/2026-10-08-m5-1b-transcript-context-design.md`.
 - 5.2 Waste and problem flags, 5.3 compare two runs, 5.4 shareable report: planned; plan each with me before starting.
 
 Out of scope for now: capturing scratchpad files, token cost breakdowns, other harnesses, and the toy harness.

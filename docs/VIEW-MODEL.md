@@ -173,6 +173,8 @@ Two commands describe what fills each model call's context. They are built by th
 | `latest` | `ContextBreakdown` or null | The latest model call of the main agent, in full. |
 | `latest_trace_id` | string or null | That call's trace id (may be set while `latest` is null, when the call has no token counts yet). |
 
+| `hidden_context` | list | The main agent's hidden context as the transcript records it (5.1b): the final state of its `context_update` parts in first-set order, each `{ "trace_id", "key", "kind", "label", "chars" }`. `trace_id` is the `context_update` node that last set the part, so `node_detail` on it shows the full text and raw line. Subagent parts are left out. |
+
 `call_context(project, session_id, trace_id)` returns one call's `ContextBreakdown`, or null if the id is not a model call.
 
 `ContextBreakdown`:
@@ -185,7 +187,7 @@ Two commands describe what fills each model call's context. They are built by th
 | `slices` | list | In this order, empty ones left out: `system_prompt`, `tool_definitions`, `instructions`, `files_read`, `tool_results`, `conversation`, `not_captured`. Each has `kind`, `label` (display name), `tokens`, `share` (0 to 1) and `items`. The slice tokens add up exactly to `total_tokens`. |
 | `advice` | list | `{ "level": "warn" or "info", "slice", "text" }`, finished sentences, most important first. |
 
-An item is `{ "label", "tokens", "count", "largest_tokens" }`: for example one file read (`count` is how many times it is in context), one MCP server (`count` is its number of tools) or one reminder section. Items are sorted largest first. Item tokens are rounded separately and need not add up to the slice.
+An item is `{ "label", "tokens", "count", "largest_tokens", "from_transcript" }` (`from_transcript` is true when it comes from a transcript `context_update` part rather than the conversation or a capture): for example one file read (`count` is how many times it is in context), one MCP server (`count` is its number of tools) or one reminder section. Items are sorted largest first. Item tokens are rounded separately and need not add up to the slice.
 
 `ContextBar` is the same without labels, items or advice: `source`, `total_tokens`, `total_is_reported` and `slices` as `{ "kind", "tokens" }`.
 

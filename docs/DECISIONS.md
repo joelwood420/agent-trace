@@ -351,3 +351,11 @@ Advice is written in Rust as finished sentences, so the UI only shows it. Warnin
 ### 2026-10-08: Transcript context attachments deferred to 5.1b (chosen by the project owner)
 
 Recent Claude Code transcripts record much of the hidden context as `attachment` lines (see `HARNESS-NOTES.md`). Using them would shrink the "not captured" slice for sessions without the proxy, but it needs a trace schema addition, so it gets its own small step with its own schema design.
+
+### 2026-10-08: Hidden context becomes a `context_update` node (chosen by the project owner)
+
+Transcripts record much of the hidden input a call receives, and the owner's own harness will need to report the same thing. So the trace schema gains a harness-neutral node kind, `context_update`: keyed parts (system prompt, tool definitions, instructions, reminders) plus a list of removed keys, applied per run in tree order. The alternatives were metadata on a marker (which would make `insights` read Claude Code keys) and a field on every model call (which would repeat 30k to 50k characters per call). Context updates are not drawn as diagram boxes (also the owner's choice); they feed the breakdown, the session overview's Hidden context list and the details panel.
+
+### 2026-10-08: Claude Code reminders each get their own key
+
+In the real request each injected reminder stays in the conversation history, so reminders accumulate rather than replace each other. The adapter keys each one by its transcript line (`reminder:<uuid>`), keys the system prompt as `system` and each instruction file by path, and at a compaction emits a removal of the reminder keys it emitted earlier in that run. Compaction itself implies nothing in the schema; a harness that drops parts says so with `remove`.
