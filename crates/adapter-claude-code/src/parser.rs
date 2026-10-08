@@ -590,7 +590,9 @@ impl Parser {
             return;
         }
         let remove = std::mem::take(&mut self.reminder_keys);
-        self.context_update(line, Vec::new(), remove, Map::new(), out);
+        let mut metadata = Map::new();
+        metadata.insert("reason".into(), Value::String("compaction".to_string()));
+        self.context_update(line, Vec::new(), remove, metadata, out);
     }
 
     fn context_update(
@@ -602,7 +604,7 @@ impl Parser {
         out: &mut Vec<TraceEvent>,
     ) {
         let event = TraceEvent {
-            id: format!("context:{}", self.context_line_id(line)),
+            id: format!("context:{}", self.line_id(line)),
             parent_id: Some(self.turn_or_run()),
             node: Node::ContextUpdate(ContextUpdate { parts, remove }),
             started_at_ms: line.ts,
@@ -1027,7 +1029,7 @@ mod tests {
         assert!(skipped.is_empty(), "{skipped:#?}");
         let updates = context_updates(&events);
         let ids: Vec<&str> = updates.iter().map(|e| e.id.as_str()).collect();
-        assert_eq!(ids, ["context:a1", "context:a2", "context:line-3"]);
+        assert_eq!(ids, ["context:a1", "context:a2", "context:test.jsonl:3"]);
         assert_eq!(updates[0].parent_id.as_deref(), Some("run:s1"));
         assert_eq!(updates[0].raw.len(), 1);
         let Node::ContextUpdate(u) = &updates[2].node else {
@@ -1050,6 +1052,27 @@ mod tests {
         };
         assert_eq!(u.parts[0].label, "hook output");
         assert_eq!(u.parts[0].text, "Example hook.");
+    }
+
+    #[test]
+    fn uuidless_context_ids_differ_across_transcripts() {
+        let line = r#"{"type":"attachment","attachment":{"type":"date","date":"D"}}"#;
+        let mut main = Parser::for_session("main.jsonl", "s1");
+        let link = SubagentLink {
+            agent_id: "x".into(),
+            tool_node_id: "tool:t1".into(),
+        };
+        let mut sub = Parser::for_subagent("agent.jsonl", &link, None);
+        let a = main.push_line(3, line);
+        let b = sub.push_line(3, line);
+        let id = |events: &[TraceEvent]| {
+            events
+                .iter()
+                .find(|e| matches!(e.node, Node::ContextUpdate(_)))
+                .map(|e| e.id.clone())
+                .expect("context update")
+        };
+        assert_ne!(id(&a), id(&b));
     }
 
     fn removed_by(events: &[TraceEvent], id: &str) -> Vec<String> {
