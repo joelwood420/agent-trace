@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { afterFailedLoad, barSegments, barTooltip, fromTranscriptTag, hiddenContextRows, SLICE_NAMES, topSlices, totalNote } from './context.ts'
+import {
+  afterFailedLoad,
+  barSegments,
+  barTooltip,
+  focusParts,
+  fromTranscriptTag,
+  hiddenContextRows,
+  otherPartsLabel,
+  SLICE_NAMES,
+  topSlices,
+  totalNote,
+} from './context.ts'
 import type { ContextBar, ContextBreakdown, ContextItem, ContextSlice, HiddenPart } from './types.ts'
 
 function bar(slices: [ContextBar['slices'][number]['kind'], number][], total: number): ContextBar {
@@ -104,21 +115,66 @@ test('afterFailedLoad shows the error on a fresh load or when nothing is ready',
   })
 })
 
+function hidden(trace_id: string, key: string, kind: HiddenPart['kind'], label: string, chars: number, part_keys = [key]): HiddenPart {
+  return { trace_id, key, kind, label, chars, count: part_keys.length, part_keys }
+}
+
 test('hiddenContextRows names kinds and formats sizes', () => {
   const parts: HiddenPart[] = [
-    { trace_id: 'context:a', key: 'k1', kind: 'system_prompt', label: 'system prompt', chars: 27500 },
-    { trace_id: 'context:b', key: 'k2', kind: 'tool_definitions', label: 'tools', chars: 999 },
-    { trace_id: 'context:c', key: 'k3', kind: 'instructions', label: 'CLAUDE.md', chars: 1000 },
-    { trace_id: 'context:d', key: 'k4', kind: 'reminder', label: 'environment', chars: 0 },
-    { trace_id: 'context:e', key: 'k5', kind: { other: 'skill listing' }, label: 'skills', chars: 1234 },
+    hidden('context:a', 'k1', 'system_prompt', 'system prompt', 27500),
+    hidden('context:b', 'tools:built-in', 'tool_definitions', 'built-in', 999),
+    hidden('context:c', 'k3', 'instructions', 'CLAUDE.md', 1000),
+    hidden('context:d', 'k4', 'reminder', 'environment', 0),
+    hidden('context:e', 'k5', { other: 'skill listing' }, 'skills', 1234),
   ]
   assert.deepEqual(hiddenContextRows(parts), [
-    { traceId: 'context:a', kindName: 'System prompt', label: 'system prompt', size: '27.5k chars' },
-    { traceId: 'context:b', kindName: 'Tool definitions', label: 'tools', size: '999 chars' },
-    { traceId: 'context:c', kindName: 'Instructions', label: 'CLAUDE.md', size: '1.0k chars' },
-    { traceId: 'context:d', kindName: 'Reminder', label: 'environment', size: '0 chars' },
-    { traceId: 'context:e', kindName: 'skill listing', label: 'skills', size: '1.2k chars' },
+    { key: 'k1', traceId: 'context:a', label: 'system prompt', meta: 'System prompt - 27.5k chars', count: 1, partKeys: ['k1'] },
+    {
+      key: 'tools:built-in',
+      traceId: 'context:b',
+      label: 'built-in',
+      meta: 'Tool definitions - 999 chars',
+      count: 1,
+      partKeys: ['tools:built-in'],
+    },
+    { key: 'k3', traceId: 'context:c', label: 'CLAUDE.md', meta: 'Instructions - 1.0k chars', count: 1, partKeys: ['k3'] },
+    { key: 'k4', traceId: 'context:d', label: 'environment', meta: 'Reminder - 0 chars', count: 1, partKeys: ['k4'] },
+    { key: 'k5', traceId: 'context:e', label: 'skills', meta: 'skill listing - 1.2k chars', count: 1, partKeys: ['k5'] },
   ])
+})
+
+test('hiddenContextRows keys group rows by row key and counts their tools', () => {
+  const parts: HiddenPart[] = [
+    hidden('context:1', 'tools:MCP: docs', 'tool_definitions', 'MCP: docs', 12300, ['tool:mcp__docs__a', 'tool:mcp__docs__b']),
+    hidden('context:1', 'reminder:1', 'reminder', 'date', 20),
+  ]
+  const rows = hiddenContextRows(parts)
+  assert.deepEqual(
+    rows.map((r) => [r.key, r.traceId, r.meta, r.count, r.partKeys]),
+    [
+      ['tools:MCP: docs', 'context:1', 'Tool definitions - 12.3k chars (2 tools)', 2, ['tool:mcp__docs__a', 'tool:mcp__docs__b']],
+      ['reminder:1', 'context:1', 'Reminder - 20 chars', 1, ['reminder:1']],
+    ],
+  )
+  assert.notEqual(rows[0]?.key, rows[1]?.key, 'rows sharing a trace id keep distinct keys')
+})
+
+test('focusParts puts the focused parts first and the rest apart', () => {
+  const parts = [{ key: 'a' }, { key: 'b' }, { key: 'c' }, { key: 'd' }]
+  assert.deepEqual(focusParts(parts, ['c', 'a', 'gone']), {
+    focused: [{ key: 'a' }, { key: 'c' }],
+    others: [{ key: 'b' }, { key: 'd' }],
+  })
+})
+
+test('focusParts with no focus keys keeps every part as focused', () => {
+  const parts = [{ key: 'a' }, { key: 'b' }]
+  assert.deepEqual(focusParts(parts, []), { focused: parts, others: [] })
+})
+
+test('otherPartsLabel counts the other parts', () => {
+  assert.equal(otherPartsLabel(1), '1 other part in this update')
+  assert.equal(otherPartsLabel(5), '5 other parts in this update')
 })
 
 test('hiddenContextRows of nothing is empty', () => {

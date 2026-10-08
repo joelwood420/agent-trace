@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react'
 
 import { formatBytes, formatDuration, formatRelative, formatTokens, plural, shortId } from '../format.ts'
+import type { HiddenRow } from '../context.ts'
 import { groupSessions } from '../grouping.ts'
 import { statusMessage } from '../live.ts'
 import type {
@@ -117,8 +118,8 @@ interface SessionPanelProps {
   captureOverview: Loadable<CaptureOverview>
   sessionContext: Loadable<SessionContext>
   onSelectTrace: (traceId: string) => void
-  onSelectHidden: (traceId: string, label: string) => void
-  selectedHiddenId: string | null
+  onSelectHidden: (row: HiddenRow) => void
+  selectedHiddenKey: string | null
   captureStatus: Loadable<CaptureStatus>
   selectedCaptureId: string | null
   onSelectCapture: (captureId: string) => void
@@ -189,7 +190,7 @@ function SessionContents({
   sessionContext,
   onSelectTrace,
   onSelectHidden,
-  selectedHiddenId,
+  selectedHiddenKey,
   captureStatus,
   selectedCaptureId,
   onSelectCapture,
@@ -246,7 +247,7 @@ function SessionContents({
 
       <ContextCard context={sessionContext} onSelect={onSelectTrace}
         onSelectHidden={onSelectHidden}
-        selectedHiddenId={selectedHiddenId}
+        selectedHiddenKey={selectedHiddenKey}
         onRetry={onReloadCaptures} />
 
       <CaptureOverviewSection

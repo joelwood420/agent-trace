@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 
 import { errorMessage, type Api } from '../api.ts'
-import { fromTranscriptTag, hiddenContextRows, SLICE_NAMES, topSlices, totalNote } from '../context.ts'
+import { fromTranscriptTag, hiddenContextRows, SLICE_NAMES, topSlices, totalNote, type HiddenRow } from '../context.ts'
 import type { Advice, ContextBar as Bar, ContextBreakdown, HiddenPart, SessionContext } from '../types.ts'
 import ContextBar from './ContextBar.tsx'
 import type { Loadable } from './Sidebar.tsx'
@@ -145,14 +145,15 @@ export function CallContextSection({ api, project, sessionId, traceId, refreshKe
 interface CardProps {
   context: Loadable<SessionContext>
   onSelect: (traceId: string) => void
-  /** Opens the details of a hidden context part, which has no diagram box. */
-  onSelectHidden: (traceId: string, label: string) => void
-  selectedHiddenId: string | null
+  /** Opens the details of a hidden context row, which has no diagram box. */
+  onSelectHidden: (row: HiddenRow) => void
+  /** The key of the selected hidden context row. */
+  selectedHiddenKey: string | null
   onRetry: () => void
 }
 
 /** The session overview card: the latest call's context in short. */
-export function ContextCard({ context, onSelect, onSelectHidden, selectedHiddenId, onRetry }: CardProps) {
+export function ContextCard({ context, onSelect, onSelectHidden, selectedHiddenKey, onRetry }: CardProps) {
   return (
     <section className="context-card" aria-label="Context">
       <h3>Context</h3>
@@ -190,7 +191,7 @@ export function ContextCard({ context, onSelect, onSelectHidden, selectedHiddenI
       {context.status === 'ready' && (
         <HiddenContextList
           parts={context.value.hidden_context}
-          selectedId={selectedHiddenId}
+          selectedKey={selectedHiddenKey}
           onSelect={onSelectHidden}
         />
       )}
@@ -198,15 +199,15 @@ export function ContextCard({ context, onSelect, onSelectHidden, selectedHiddenI
   )
 }
 
-/** The hidden context Claude Code recorded, one row per part. */
+/** The hidden context Claude Code recorded: one row per part, one per tool group. */
 function HiddenContextList({
   parts,
-  selectedId,
+  selectedKey,
   onSelect,
 }: {
   parts: HiddenPart[]
-  selectedId: string | null
-  onSelect: (traceId: string, label: string) => void
+  selectedKey: string | null
+  onSelect: (row: HiddenRow) => void
 }) {
   const rows = hiddenContextRows(parts)
   if (rows.length === 0) return null
@@ -215,18 +216,16 @@ function HiddenContextList({
       <summary>Hidden context ({rows.length})</summary>
       <ul className="item-list">
         {rows.map((r) => (
-          <li key={r.traceId}>
+          <li key={r.key}>
             <button
               type="button"
-              className={`item item-compact${r.traceId === selectedId ? ' item-selected' : ''}`}
-              onClick={() => onSelect(r.traceId, r.label)}
+              className={`item item-compact${r.key === selectedKey ? ' item-selected' : ''}`}
+              onClick={() => onSelect(r)}
             >
               <span className="item-title" title={r.label}>
                 {r.label}
               </span>
-              <span className="item-meta">
-                {r.kindName} - {r.size}
-              </span>
+              <span className="item-meta">{r.meta}</span>
             </button>
           </li>
         ))}

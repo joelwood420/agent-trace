@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { errorMessage, getApi, insideTauri, mockMode, type Api } from './api.ts'
 import { captureState, sameLoad, throttleDelay } from './captureView.ts'
-import { afterFailedLoad } from './context.ts'
+import { afterFailedLoad, type HiddenRow } from './context.ts'
 import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
@@ -32,9 +32,10 @@ const NOT_IN_APP =
   'Start it with "cargo tauri dev". During development you can add ?mock to the URL to view the sample session instead.'
 
 /** A stand-in for a box, so the details panel can show a trace node that has none. */
-function hiddenNode(traceId: string, label: string): DiagramNode {
+function hiddenNode(row: HiddenRow): DiagramNode {
+  const { key, traceId, label } = row
   return {
-    id: `hidden:${traceId}`,
+    id: `hidden:${key}`,
     kind: 'marker',
     label,
     detail_label: null,
@@ -68,8 +69,9 @@ export default function App() {
   const [captureOverview, setCaptureOverview] = useState<Loadable<CaptureOverview>>({ status: 'loading' })
   // A captured call picked in the session overview, shown instead of a box.
   const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
-  // A hidden context part picked in the session overview. It has no diagram box.
-  const [selectedHidden, setSelectedHidden] = useState<{ traceId: string; label: string } | null>(null)
+  // A hidden context row picked in the session overview. It has no diagram box.
+  // Several rows can share one trace id, so the row (its key and part keys) is kept.
+  const [selectedHidden, setSelectedHidden] = useState<HiddenRow | null>(null)
   // What fills each model call's context: bars by trace id and the latest breakdown.
   const [sessionContext, setSessionContext] = useState<Loadable<SessionContext>>({ status: 'loading' })
   // Ignores capture overview responses overtaken by a newer request.
@@ -324,10 +326,10 @@ export default function App() {
     setSelected(node)
   }, [])
 
-  const selectHidden = (traceId: string, label: string) => {
+  const selectHidden = (row: HiddenRow) => {
     setSelectedCapture(null)
     setSelected(null)
-    setSelectedHidden({ traceId, label })
+    setSelectedHidden(row)
   }
 
   /** Selects the model call box with this trace id, as a click on it would. */
@@ -418,7 +420,7 @@ export default function App() {
             sessionContext={sessionContext}
             onSelectTrace={selectTrace}
             onSelectHidden={selectHidden}
-            selectedHiddenId={selectedHidden?.traceId ?? null}
+            selectedHiddenKey={selectedHidden?.key ?? null}
             captureStatus={captureStatus}
             selectedCaptureId={selectedCapture}
             onSelectCapture={selectCapture}
@@ -506,10 +508,12 @@ export default function App() {
           api={api}
           project={session.project}
           sessionId={session.session_id}
-          node={hiddenNode(selectedHidden.traceId, selectedHidden.label)}
+          key={selectedHidden.key}
+          node={hiddenNode(selectedHidden)}
           refreshKey={detailRefresh}
           capture={null}
           tagName="Hidden context"
+          focusPartKeys={selectedHidden.partKeys}
           onClose={() => setSelectedHidden(null)}
         />
       )}

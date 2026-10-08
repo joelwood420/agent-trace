@@ -80,20 +80,45 @@ function formatChars(chars: number): string {
 
 /** One row of the "Hidden context" list. */
 export interface HiddenRow {
+  /** Unique within the list: the part key, or `tools:<group>`. */
+  key: string
   traceId: string
-  kindName: string
   label: string
-  size: string
+  /** "Reminder - 1.2k chars", plus " (3 tools)" for a group. */
+  meta: string
+  count: number
+  partKeys: string[]
 }
 
 /** Rows for the hidden context list, in the order Rust gave them. */
 export function hiddenContextRows(parts: HiddenPart[]): HiddenRow[] {
   return parts.map((p) => ({
+    key: p.key,
     traceId: p.trace_id,
-    kindName: partKindName(p.kind),
     label: p.label,
-    size: formatChars(p.chars),
+    meta: `${partKindName(p.kind)} - ${formatChars(p.chars)}${p.count > 1 ? ` (${p.count} tools)` : ''}`,
+    count: p.count,
+    partKeys: p.part_keys,
   }))
+}
+
+/**
+ * Splits an update's parts into the ones a hidden context row points at
+ * (first, in the update's order) and the rest. With no focus keys every
+ * part counts as focused.
+ */
+export function focusParts<T extends { key: string }>(parts: T[], focusKeys: string[]): { focused: T[]; others: T[] } {
+  if (focusKeys.length === 0) return { focused: parts, others: [] }
+  const wanted = new Set(focusKeys)
+  return {
+    focused: parts.filter((p) => wanted.has(p.key)),
+    others: parts.filter((p) => !wanted.has(p.key)),
+  }
+}
+
+/** "5 other parts in this update". */
+export function otherPartsLabel(n: number): string {
+  return `${n} other ${n === 1 ? 'part' : 'parts'} in this update`
 }
 
 /** The small tag for an item measured from the transcript, else null. */

@@ -349,11 +349,17 @@ export interface ContextBar {
 
 /** One hidden context part listed in the session overview. */
 export interface HiddenPart {
+  /** The context_update node that last set the part (for a tool group, any of its tools). */
   trace_id: string
+  /** The part key, or `tools:<group>` for a group of tool definitions. */
   key: string
   kind: ContextPartKind
   label: string
   chars: number
+  /** 1, or the number of tools in a group. */
+  count: number
+  /** The keys of the parts in this row. */
+  part_keys: string[]
 }
 
 /** Bars for every model call of a session, plus the latest full breakdown. */

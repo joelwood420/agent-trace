@@ -6,7 +6,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { errorMessage, type Api } from '../api.ts'
 import type { CaptureState } from '../captureView.ts'
 import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
-import { partKindName } from '../context.ts'
+import { focusParts, otherPartsLabel, partKindName } from '../context.ts'
 import type { ContentBlock, ContextPart, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
 import { CaptureSections } from './CapturePanel.tsx'
 import { CallContextSection } from './ContextSection.tsx'
@@ -23,6 +23,8 @@ interface Props {
   capture: CaptureState | null
   /** Replaces the box kind name, for items that have no box (hidden context). */
   tagName?: string
+  /** For a hidden context row: the parts it stands for, shown first and open. */
+  focusPartKeys?: string[]
   onClose: () => void
 }
 
@@ -40,7 +42,17 @@ const KIND_NAMES: Record<DiagramNode['kind'], string> = {
   marker: 'Marker',
 }
 
-export default function DetailsPanel({ api, project, sessionId, node, refreshKey, capture, tagName, onClose }: Props) {
+export default function DetailsPanel({
+  api,
+  project,
+  sessionId,
+  node,
+  refreshKey,
+  capture,
+  tagName,
+  focusPartKeys = [],
+  onClose,
+}: Props) {
   const key = `${project}/${sessionId}/${node.id}`
   const [fetched, setFetched] = useState<Fetched | null>(null)
   // A live update hands over a new node object each time; keying the fetch on
@@ -69,7 +81,7 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
   const captureInDetail = current?.status === 'ready' && current.details.length === 1 && current.details[0] !== null
 
   return (
-    <aside className="details" aria-label="Details of the selected box">
+    <aside className="details" aria-label="Details">
       <div className="details-header">
         <div className="details-title">
           <span className="tag">{tagName ?? KIND_NAMES[node.kind]}</span>
@@ -109,7 +121,8 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
                 </p>
               )
             }
-            if (current.details.length === 1) return <Detail key={id} detail={detail} capture={captureView} />
+            if (current.details.length === 1)
+              return <Detail key={id} detail={detail} capture={captureView} focusPartKeys={focusPartKeys} />
             return (
               // Two items (a subagent's run and task) start open; longer
               // lists (groups, summaries) start closed so they stay scannable.
@@ -172,7 +185,15 @@ function CaptureView({
   }
 }
 
-function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: ReactNode }) {
+function Detail({
+  detail,
+  capture = null,
+  focusPartKeys = [],
+}: {
+  detail: NodeDetail
+  capture?: ReactNode
+  focusPartKeys?: string[]
+}) {
   const n = detail.node
   return (
     <div className="detail">
@@ -239,7 +260,7 @@ function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: Reac
 
       {n.type === 'context_update' && (
         <Section title="Parts">
-          <ContextParts parts={n.parts ?? []} remove={n.remove ?? []} />
+          <ContextParts parts={n.parts ?? []} remove={n.remove ?? []} focusKeys={focusPartKeys} />
         </Section>
       )}
 
@@ -262,18 +283,66 @@ function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: Reac
   )
 }
 
-function ContextParts({ parts, remove }: { parts: ContextPart[]; remove: string[] }) {
+/**
+ * A `<details>` that builds its content only once opened, so a very large
+ * text (a 300k-character tool list, a raw line) is not in the page until asked.
+ */
+function LazyDetails({
+  className,
+  summary,
+  summaryClassName,
+  defaultOpen = false,
+  children,
+}: {
+  className: string
+  summary: ReactNode
+  summaryClassName?: string
+  defaultOpen?: boolean
+  children: () => ReactNode
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <details className={className} open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary className={summaryClassName}>{summary}</summary>
+      {open && children()}
+    </details>
+  )
+}
+
+function ContextPart({ part, open }: { part: ContextPart; open: boolean }) {
+  return (
+    <LazyDetails
+      className="detail-item"
+      defaultOpen={open}
+      summary={
+        <>
+          {part.label} <span className="muted">({partKindName(part.kind)})</span>
+        </>
+      }
+    >
+      {() => <pre className="text-block">{part.text}</pre>}
+    </LazyDetails>
+  )
+}
+
+/**
+ * The parts of an update. With focus keys (a hidden context row was picked)
+ * those parts come first and open, and the rest sit in one closed group.
+ */
+function ContextParts({ parts, remove, focusKeys }: { parts: ContextPart[]; remove: string[]; focusKeys: string[] }) {
+  const { focused, others } = focusParts(parts, focusKeys)
+  const openFocused = focusKeys.length > 0
   return (
     <>
       {parts.length === 0 && <p className="muted">No parts added.</p>}
-      {parts.map((part) => (
-        <details key={part.key} className="detail-item">
-          <summary>
-            {part.label} <span className="muted">({partKindName(part.kind)})</span>
-          </summary>
-          <pre className="text-block">{part.text}</pre>
-        </details>
+      {focused.map((part) => (
+        <ContextPart key={part.key} part={part} open={openFocused} />
       ))}
+      {others.length > 0 && (
+        <LazyDetails className="detail-item other-parts" summary={otherPartsLabel(others.length)}>
+          {() => others.map((part) => <ContextPart key={part.key} part={part} open={false} />)}
+        </LazyDetails>
+      )}
       {remove.length > 0 && (
         <>
           <p className="muted small">Removed:</p>
@@ -387,12 +456,18 @@ function RawList({ raw }: { raw: RawSource[] }) {
         <input type="checkbox" name="format-json" checked={pretty} onChange={(e) => setPretty(e.target.checked)} /> Format JSON
       </label>
       {raw.map((r, i) => (
-        <details key={i} className="raw-item">
-          <summary className="mono">
-            {r.source}:{r.line}
-          </summary>
-          <pre className="code">{pretty ? prettyRaw(r.text) : r.text}</pre>
-        </details>
+        <LazyDetails
+          key={i}
+          className="raw-item"
+          summaryClassName="mono"
+          summary={
+            <>
+              {r.source}:{r.line}
+            </>
+          }
+        >
+          {() => <pre className="code">{pretty ? prettyRaw(r.text) : r.text}</pre>}
+        </LazyDetails>
       ))}
     </div>
   )
