@@ -473,15 +473,7 @@ mod tests {
             .nth(1)
             .and_then(|r| r.split('"').next())
             .expect("uuid");
-        append(
-            &main,
-            format!(
-                "{}
-",
-                line.replace(old, uuid)
-            )
-            .as_bytes(),
-        );
+        append(&main, format!("{}\n", line.replace(old, uuid)).as_bytes());
 
         let Some(LiveMessage::Updated {
             view,
