@@ -9,8 +9,8 @@ use trace_core::{ContextPart, ContextPartKind};
 
 /// Key of the system prompt part.
 pub(crate) const SYSTEM_KEY: &str = "system";
-/// Key of the tool definitions part.
-pub(crate) const TOOLS_KEY: &str = "tools";
+/// Prefix of the keys of tool definition parts, one part per tool.
+pub(crate) const TOOL_PREFIX: &str = "tool:";
 /// Prefix of the keys of reminder parts. Compaction removes these.
 pub(crate) const REMINDER_PREFIX: &str = "reminder:";
 
@@ -73,15 +73,30 @@ fn prompt_snapshot(attachment: &Value) -> Vec<ContextPart> {
             text,
         });
     }
-    if let Some(tools) = attachment.get("tools").filter(|t| t.is_array()) {
-        if let Some(text) = compact_json(tools) {
-            parts.push(ContextPart {
-                key: TOOLS_KEY.to_string(),
-                kind: ContextPartKind::ToolDefinitions,
-                label: "Tool definitions".to_string(),
-                text,
-            });
-        }
+    if let Some(tools) = attachment.get("tools").and_then(Value::as_array) {
+        parts.extend(tool_parts(tools));
+    }
+    parts
+}
+
+/// One part per tool definition. A tool without a string `name` is keyed and
+/// labelled by its index in the list.
+fn tool_parts(tools: &[Value]) -> Vec<ContextPart> {
+    let mut parts = Vec::new();
+    for (index, tool) in tools.iter().enumerate() {
+        let Some(text) = compact_json(tool) else {
+            continue;
+        };
+        let (key, label) = match string_at(tool, "name") {
+            Some(name) => (format!("{TOOL_PREFIX}{name}"), name),
+            None => (format!("{TOOL_PREFIX}#{index}"), format!("tool {index}")),
+        };
+        parts.push(ContextPart {
+            key,
+            kind: ContextPartKind::ToolDefinitions,
+            label,
+            text,
+        });
     }
     parts
 }
@@ -221,20 +236,56 @@ mod tests {
     }
 
     #[test]
-    fn prompt_snapshot_with_tools_gives_a_tools_part() {
+    fn prompt_snapshot_with_tools_gives_one_part_per_tool() {
         let parts = parts_for_attachment(
             "prompt_snapshot",
-            &json!({"systemPrompt": ["Example."], "tools": [{"name": "Example"}]}),
+            &json!({"systemPrompt": ["Example."], "tools": [
+                {"name": "Example", "description": "An example tool.", "schema": {"type": "object"}},
+                {"name": "mcp__docs__search", "description": "Searches."},
+            ]}),
             "u1",
         )
         .expect("mapped");
-        assert_eq!(parts.len(), 2);
+        assert_eq!(parts.len(), 3);
         check(
             &parts[1],
-            "tools",
+            "tool:Example",
             ContextPartKind::ToolDefinitions,
-            "Tool definitions",
-            r#"[{"name":"Example"}]"#,
+            "Example",
+            r#"{"name":"Example","description":"An example tool.","schema":{"type":"object"}}"#,
+        );
+        check(
+            &parts[2],
+            "tool:mcp__docs__search",
+            ContextPartKind::ToolDefinitions,
+            "mcp__docs__search",
+            r#"{"name":"mcp__docs__search","description":"Searches."}"#,
+        );
+    }
+
+    #[test]
+    fn a_tool_without_a_string_name_uses_its_index() {
+        let parts = parts_for_attachment(
+            "prompt_snapshot",
+            &json!({"tools": [{"name": "A"}, {"name": 5}, "odd"]}),
+            "u1",
+        )
+        .expect("mapped");
+        assert_eq!(parts.len(), 3);
+        assert_eq!(parts[0].key, "tool:A");
+        check(
+            &parts[1],
+            "tool:#1",
+            ContextPartKind::ToolDefinitions,
+            "tool 1",
+            r#"{"name":5}"#,
+        );
+        check(
+            &parts[2],
+            "tool:#2",
+            ContextPartKind::ToolDefinitions,
+            "tool 2",
+            r#""odd""#,
         );
     }
 

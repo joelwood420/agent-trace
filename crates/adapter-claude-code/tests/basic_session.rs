@@ -366,6 +366,6 @@ const COUNTS: [(&str, usize); 4] = [
     ("instructions", 6),
     ("reminder", 19),
     ("system_prompt", 4),
-    ("tool_definitions", 2),
+    ("tool_definitions", 6),
 ];
 const UPDATES: usize = 25;

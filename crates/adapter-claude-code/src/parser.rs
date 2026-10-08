@@ -12,7 +12,7 @@ use trace_core::{
     ToolResult, TraceEvent, Turn, Usage,
 };
 
-use crate::context_parts::{REMINDER_PREFIX, parts_for_attachment};
+use crate::context_parts::{REMINDER_PREFIX, TOOL_PREFIX, parts_for_attachment};
 use crate::time::parse_rfc3339_ms;
 
 /// Harness name written on every `Run`.
@@ -76,6 +76,9 @@ pub struct Parser {
     skipped: Vec<Skipped>,
     /// Keys of the reminder parts emitted in this run, for compaction.
     reminder_keys: Vec<String>,
+    /// Keys of the tool parts of this run's latest tool snapshot. A new
+    /// snapshot is the full tool set, so keys missing from it are removed.
+    tool_keys: Vec<String>,
     /// Attachment types already reported as unmapped.
     unmapped_logged: HashSet<String>,
 }
@@ -131,6 +134,7 @@ impl Parser {
             subagents: Vec::new(),
             skipped: Vec::new(),
             reminder_keys: Vec::new(),
+            tool_keys: Vec::new(),
             unmapped_logged: HashSet::new(),
         }
     }
@@ -571,7 +575,8 @@ impl Parser {
             }
             return;
         };
-        if parts.is_empty() {
+        let remove = self.track_tools(kind, attachment, &parts);
+        if parts.is_empty() && remove.is_empty() {
             return;
         }
         for part in &parts {
@@ -581,7 +586,35 @@ impl Parser {
         }
         let mut metadata = Map::new();
         metadata.insert("attachment_type".into(), Value::String(kind.to_string()));
-        self.context_update(line, parts, Vec::new(), metadata, out);
+        self.context_update(line, parts, remove, metadata, out);
+    }
+
+    /// For a `prompt_snapshot` that lists tools, records its tool keys and
+    /// returns the keys of the previous snapshot that it no longer has. Any
+    /// other attachment leaves the tools alone and removes nothing.
+    fn track_tools(
+        &mut self,
+        kind: &str,
+        attachment: &Value,
+        parts: &[trace_core::ContextPart],
+    ) -> Vec<String> {
+        let lists_tools = attachment.get("tools").is_some_and(Value::is_array);
+        if kind != "prompt_snapshot" || !lists_tools {
+            return Vec::new();
+        }
+        let keys: Vec<String> = parts
+            .iter()
+            .filter(|p| p.key.starts_with(TOOL_PREFIX))
+            .map(|p| p.key.clone())
+            .collect();
+        let old = std::mem::replace(&mut self.tool_keys, keys);
+        let mut remove = Vec::new();
+        for key in old {
+            if !self.tool_keys.contains(&key) && !remove.contains(&key) {
+                remove.push(key);
+            }
+        }
+        remove
     }
 
     /// At a compaction, removes every reminder part this run emitted.
@@ -1123,6 +1156,61 @@ mod tests {
             r#"{"type":"system","subtype":"compact_boundary","uuid":"sc1","compactMetadata":{"trigger":"auto"}}"#,
         );
         assert_eq!(removed_by(&sub_events, "context:sc1"), ["reminder:sa1"]);
+    }
+
+    fn update_of<'a>(events: &'a [TraceEvent], id: &str) -> &'a ContextUpdate {
+        let updates = context_updates(events);
+        let update = updates.iter().find(|e| e.id == id).expect("update");
+        let Node::ContextUpdate(u) = &update.node else {
+            panic!("not a context update")
+        };
+        u
+    }
+
+    #[test]
+    fn a_new_tool_snapshot_removes_tools_that_are_gone() {
+        let mut main = Parser::for_session("main.jsonl", "s1");
+        let link = SubagentLink {
+            agent_id: "x".into(),
+            tool_node_id: "tool:t1".into(),
+        };
+        let mut sub = Parser::for_subagent("agent.jsonl", &link, None);
+        let mut events = Vec::new();
+        let lines = [
+            r#"{"type":"attachment","uuid":"a1","attachment":{"type":"prompt_snapshot","tools":[{"name":"Read"},{"name":"mcp__docs__search"}]}}"#,
+            r#"{"type":"attachment","uuid":"a2","attachment":{"type":"prompt_snapshot","systemPrompt":["P"]}}"#,
+            r#"{"type":"attachment","uuid":"a3","attachment":{"type":"prompt_snapshot","tools":[{"name":"Read"},{"name":"Write"}]}}"#,
+            r#"{"type":"attachment","uuid":"a4","attachment":{"type":"prompt_snapshot","tools":[]}}"#,
+        ];
+        for (i, line) in lines.iter().enumerate() {
+            events.extend(main.push_line(i as u64 + 1, line));
+            if i == 0 {
+                sub.push_line(
+                    1,
+                    r#"{"type":"attachment","uuid":"sa1","attachment":{"type":"prompt_snapshot","tools":[{"name":"Grep"}]}}"#,
+                );
+            }
+        }
+        let first = update_of(&events, "context:a1");
+        let keys: Vec<&str> = first.parts.iter().map(|p| p.key.as_str()).collect();
+        assert_eq!(keys, ["tool:Read", "tool:mcp__docs__search"]);
+        assert!(first.remove.is_empty());
+        // A snapshot without tools leaves the tools alone.
+        assert!(update_of(&events, "context:a2").remove.is_empty());
+        let third = update_of(&events, "context:a3");
+        assert_eq!(third.parts.len(), 2);
+        assert_eq!(third.remove, ["tool:mcp__docs__search"]);
+        // An empty tool list is a full set with no tools.
+        let fourth = update_of(&events, "context:a4");
+        assert!(fourth.parts.is_empty());
+        assert_eq!(fourth.remove, ["tool:Read", "tool:Write"]);
+
+        // The subagent's snapshot is tracked on its own.
+        let sub_events = sub.push_line(
+            2,
+            r#"{"type":"attachment","uuid":"sa2","attachment":{"type":"prompt_snapshot","tools":[{"name":"Read"}]}}"#,
+        );
+        assert_eq!(update_of(&sub_events, "context:sa2").remove, ["tool:Grep"]);
     }
 
     #[test]

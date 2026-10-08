@@ -55,7 +55,7 @@ Each attachment line below becomes one `context_update` event, a child of the cu
 | Attachment | Part key | Kind | Label | Text |
 |---|---|---|---|---|
 | `prompt_snapshot` | `system` | system_prompt | `System prompt` | `systemPrompt` strings joined with a blank line |
-| `prompt_snapshot` with `tools` | `tools` | tool_definitions | `Tool definitions` | `tools` as compact JSON |
+| `prompt_snapshot` with `tools` | `tool:<name>` per tool (`tool:#<index>` without a string `name`) | tool_definitions | `<name>` (`tool <index>`) | that tool object as compact JSON |
 | `instructions` | `instructions:<path>` per file | instructions | `<file name>: <path>` (for example `CLAUDE.md: C:\x\CLAUDE.md`) | the file's `content` |
 | `skill_listing` | `reminder:<line uuid>` | reminder | `skills list` | `content` |
 | `mcp_instructions_delta` | `reminder:<line uuid>` | reminder | `MCP server instructions` | `addedBlocks` joined; removed names listed as one line |
@@ -67,7 +67,7 @@ Each attachment line below becomes one `context_update` event, a child of the cu
 | `model` | `reminder:<line uuid>` | reminder | `model` | `text` |
 | `session_context` | `reminder:<line uuid>` | reminder | `session context` | `context` as compact JSON |
 
-A line without a `uuid` uses `reminder:line-<line number>`. A `prompt_snapshot` without `tools` does not remove an earlier `tools` part.
+A line without a `uuid` uses `reminder:line-<line number>`. A `prompt_snapshot` with `tools` is the full tool set: its `context_update` also removes the `tool:` keys of the run's previous tool snapshot that are not in the new one (tracked per run). A `prompt_snapshot` without `tools` changes nothing about tools.
 
 Other attachment types (`total_tokens_reminder`, `deferred_tools_record`, `auto_mode`, `credential_org`, `remote_session_change`, ...) are skipped as now (logged once at debug level). `hook_*` markers are unchanged.
 

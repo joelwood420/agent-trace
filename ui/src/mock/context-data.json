@@ -830,10 +830,24 @@
       },
       {
         "trace_id": "context:00000000-0000-4000-8000-000000000035",
-        "key": "tools",
+        "key": "tool:Example text 1045.",
         "kind": "tool_definitions",
-        "label": "Tool definitions",
-        "chars": 7298
+        "label": "Example text 1045.",
+        "chars": 798
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000035",
+        "key": "tool:Example text 1063.",
+        "kind": "tool_definitions",
+        "label": "Example text 1063.",
+        "chars": 4698
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000035",
+        "key": "tool:Example text 1137.",
+        "kind": "tool_definitions",
+        "label": "Example text 1137.",
+        "chars": 1798
       },
       {
         "trace_id": "context:00000000-0000-4000-8000-000000000141",
