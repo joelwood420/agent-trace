@@ -82,7 +82,7 @@ At a `compact_boundary` (already a `compaction` marker), the adapter also emits 
   - other parts to Instructions (item = label).
 - A compaction marker clears the conversation measure only, never the context state.
 - Each measured item records whether it came from the transcript's context parts: `ContextMeasure` gains a flag per slice item or a separate marker set, so `Item` in the breakdown gets `from_transcript: bool` (serialised).
-- Advice rule 7 changes when a transcript call had any context parts: "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it." Without parts it stays as now.
+- Advice rule 7 (info, slice field kept as the not-captured kind) has three texts for a transcript call. If the call's measure counted a tool_definitions part: "This split comes from what the transcript records, not the raw request, so it is less exact. Run the session through the capture proxy to see the exact request." If it had context parts but no tool definitions: "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it." Without parts it stays as before.
 - Captured calls are unchanged (the capture wins).
 
 ## App and UI

@@ -194,11 +194,12 @@ pub fn advise(b: &ContextBreakdown) -> Vec<Advice> {
     }
 
     if b.source == ContextSource::Transcript {
-        let has_parts = b
-            .slices
-            .iter()
-            .any(|s| s.items.iter().any(|i| i.from_transcript));
-        let text = if has_parts {
+        let from_parts = |s: &crate::breakdown::Slice| s.items.iter().any(|i| i.from_transcript);
+        let has_parts = b.slices.iter().any(from_parts);
+        let has_tools = slice(SliceKind::ToolDefinitions).is_some_and(from_parts);
+        let text = if has_tools {
+            "This split comes from what the transcript records, not the raw request, so it is less exact. Run the session through the capture proxy to see the exact request."
+        } else if has_parts {
             "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
         } else {
             "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
@@ -457,6 +458,38 @@ mod tests {
             a[0].text,
             "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
         );
+    }
+
+    #[test]
+    fn rule7_with_transcript_tool_definitions() {
+        let mut b = bd(100_000, Vec::new());
+        b.source = ContextSource::Transcript;
+        let mut it = item("built-in", 10, 1, 10);
+        it.from_transcript = true;
+        b.slices
+            .push(slice(SliceKind::ToolDefinitions, 10, 100_000, vec![it]));
+        let a = advise(&b);
+        assert_eq!(a.len(), 1);
+        assert_eq!(a[0].level, AdviceLevel::Info);
+        assert_eq!(a[0].slice, SliceKind::NotCaptured);
+        assert_eq!(
+            a[0].text,
+            "This split comes from what the transcript records, not the raw request, so it is less exact. Run the session through the capture proxy to see the exact request."
+        );
+    }
+
+    #[test]
+    fn rule7_from_a_transcript_measure_with_tool_parts() {
+        let mut m = crate::measure::ContextMeasure::new(ContextSource::Transcript);
+        m.add_part(SliceKind::ToolDefinitions, "Tool definitions", 400);
+        m.add(SliceKind::Conversation, "your prompts", 400);
+        let b = crate::breakdown::breakdown(&m, Some(1000));
+        let a = b
+            .advice
+            .iter()
+            .find(|a| a.slice == SliceKind::NotCaptured)
+            .expect("rule 7");
+        assert!(a.text.starts_with("This split comes from"), "{}", a.text);
     }
 
     #[test]
