@@ -16,6 +16,6 @@ pub use breakdown::{
 pub use measure::{
     ContextMeasure, ContextSource, IMAGE_CHARS, MeasuredItem, SliceKind, json_chars, text_chars,
 };
-pub use request::measure_request;
+pub use request::{measure_request, tool_group};
 pub use rules::{ContextRules, FileReadRule, LabelRule};
 pub use transcript::{measure_transcript, measure_transcript_all};

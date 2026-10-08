@@ -172,8 +172,7 @@ Two commands describe what fills each model call's context. They are built by th
 | `bars` | object | Trace id of a model call to its `ContextBar`. A call with no reported token total and no capture has no entry. |
 | `latest` | `ContextBreakdown` or null | The latest model call of the main agent, in full. |
 | `latest_trace_id` | string or null | That call's trace id (may be set while `latest` is null, when the call has no token counts yet). |
-
-| `hidden_context` | list | The main agent's hidden context as the transcript records it (5.1b): the final state of its `context_update` parts in first-set order, each `{ "trace_id", "key", "kind", "label", "chars" }`. `trace_id` is the `context_update` node that last set the part, so `node_detail` on it shows the full text and raw line. Subagent parts are left out. |
+| `hidden_context` | list | The main agent's hidden context as the transcript records it (5.1b): the final state of its `context_update` parts in first-set order, each row `{ "trace_id", "key", "kind", "label", "chars", "count", "part_keys" }`. Tool definition parts are collapsed into one row per group, grouped like the breakdown (`built-in` or `MCP: <server>`): `key` is `tools:<group>`, `label` is the group, `chars` is the sum, `count` is the number of tools and `part_keys` lists the member part keys; the row sits where its first tool was set. Every other part is its own row with `count` 1 and `part_keys` holding just its key. `trace_id` is the `context_update` node that last set the part (for a group, the one that most recently set any of its tools), so `node_detail` on it shows the full text and raw line. Subagent parts are left out. |
 
 `call_context(project, session_id, trace_id)` returns one call's `ContextBreakdown`, or null if the id is not a model call.
 
