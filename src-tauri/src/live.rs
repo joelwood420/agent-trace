@@ -451,6 +451,58 @@ mod tests {
     }
 
     #[test]
+    fn a_context_update_arriving_later_adds_no_box() {
+        let (root, main) = temp_root("context-later");
+        append(&main, &fixture_main());
+        let mut live = LiveSession::open(&root, "basic", SESSION).expect("open");
+        let before = live.view();
+        let facts = crate::context::ContextFacts::of(live.trace());
+        let hidden_before =
+            crate::context::session_context(&facts, &Default::default()).hidden_context;
+        assert!(!hidden_before.is_empty());
+
+        // A copy of the skills listing line under a new uuid.
+        let text = String::from_utf8(fixture_main()).expect("utf8");
+        let line = text
+            .lines()
+            .find(|l| l.contains("\"type\":\"skill_listing\""))
+            .expect("a skill listing line");
+        let uuid = "00000000-0000-4000-8000-0000000000ff";
+        let old = line
+            .split("\"uuid\":\"")
+            .nth(1)
+            .and_then(|r| r.split('"').next())
+            .expect("uuid");
+        append(
+            &main,
+            format!(
+                "{}
+",
+                line.replace(old, uuid)
+            )
+            .as_bytes(),
+        );
+
+        let Some(LiveMessage::Updated {
+            view,
+            changed_trace_ids,
+            ..
+        }) = live.refresh().expect("refresh")
+        else {
+            panic!("expected an update");
+        };
+        assert_eq!(view.diagram.prompts, before.diagram.prompts, "no new box");
+        let new_id = format!("context:{uuid}");
+        assert!(changed_trace_ids.contains(&new_id));
+        let detail = live.node_detail(&new_id).expect("context update detail");
+        assert_eq!(detail.kind, "context_update");
+        let facts = crate::context::ContextFacts::of(live.trace());
+        let hidden = crate::context::session_context(&facts, &Default::default()).hidden_context;
+        assert_eq!(hidden.len(), hidden_before.len() + 1, "a new part");
+        assert!(hidden.iter().any(|p| p.trace_id == new_id));
+    }
+
+    #[test]
     fn rewritten_file_restarts_and_keeps_counting_versions() {
         let (root, main) = temp_root("rewrite");
         let pieces = parts(2);

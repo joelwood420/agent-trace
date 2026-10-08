@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, HashMap};
 use adapter_claude_code::context_rules;
 use insights::{ContextBar, ContextBreakdown, ContextMeasure, breakdown};
 use serde::Serialize;
-use trace_core::{Node, Trace};
+use trace_core::{ContextPartKind, ContextUpdate, Node, Trace};
 use trace_view::model_calls_by_run;
 
 use crate::captures::{SessionRecords, mapped_id};
@@ -25,6 +25,24 @@ pub struct SessionContext {
     pub latest: Option<ContextBreakdown>,
     /// Its trace id.
     pub latest_trace_id: Option<String>,
+    /// The hidden context in force at the end of the main run, in the order
+    /// the parts were first set. Lengths only, never the text.
+    pub hidden_context: Vec<HiddenPart>,
+}
+
+/// One part of the main agent's hidden context, without its text.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct HiddenPart {
+    /// The `context_update` node that last set this part.
+    pub trace_id: String,
+    /// Stable identifier of the part within the run.
+    pub key: String,
+    /// What sort of part this is.
+    pub kind: ContextPartKind,
+    /// Short name for people.
+    pub label: String,
+    /// Length of the text in characters.
+    pub chars: u64,
 }
 
 /// What the context views need from a trace, copied under the session lock.
@@ -37,12 +55,15 @@ pub struct ContextFacts {
     totals: HashMap<String, Option<u64>>,
     /// The last model call of the main run, if there is one.
     latest: Option<String>,
+    /// The main run's hidden context at its end.
+    hidden: Vec<HiddenPart>,
 }
 
 impl ContextFacts {
     /// Facts for every model call of `trace`, measured in one pass per run.
     pub fn of(trace: &Trace) -> Self {
         let runs = model_calls_by_run(trace);
+        let hidden = hidden_context(trace, runs.first().map(|(id, _)| id.as_str()));
         let latest = runs.first().and_then(|(_, calls)| calls.last().cloned());
         let totals = runs
             .into_iter()
@@ -56,6 +77,7 @@ impl ContextFacts {
             transcript: insights::measure_transcript_all(trace, &context_rules()),
             totals,
             latest,
+            hidden,
         }
     }
 
@@ -101,7 +123,48 @@ pub fn session_context(facts: &ContextFacts, captures: &SessionRecords) -> Sessi
         bars,
         latest,
         latest_trace_id: facts.latest.clone(),
+        hidden_context: facts.hidden.clone(),
     }
+}
+
+/// The hidden context in force at the end of the main run, which is the
+/// first run of `model_calls_by_run` (the first root run, even one without
+/// model calls). Nested runs are not entered.
+fn hidden_context(trace: &Trace, run_id: Option<&str>) -> Vec<HiddenPart> {
+    let mut parts = Vec::new();
+    if let Some(run_id) = run_id {
+        collect_hidden(trace, run_id, &mut parts);
+    }
+    parts
+}
+
+fn collect_hidden(trace: &Trace, id: &str, parts: &mut Vec<HiddenPart>) {
+    for child in trace.children(id) {
+        if matches!(child.node, Node::Run(_)) {
+            continue;
+        }
+        if let Node::ContextUpdate(update) = &child.node {
+            apply_hidden(parts, &child.id, update);
+        }
+        collect_hidden(trace, &child.id, parts);
+    }
+}
+
+fn apply_hidden(parts: &mut Vec<HiddenPart>, trace_id: &str, update: &ContextUpdate) {
+    for part in &update.parts {
+        let value = HiddenPart {
+            trace_id: trace_id.to_string(),
+            key: part.key.clone(),
+            kind: part.kind.clone(),
+            label: part.label.clone(),
+            chars: part.text.chars().count() as u64,
+        };
+        match parts.iter_mut().find(|p| p.key == part.key) {
+            Some(existing) => *existing = value,
+            None => parts.push(value),
+        }
+    }
+    parts.retain(|p| !update.remove.contains(&p.key));
 }
 
 /// The full breakdown of one model call, or `None` if it is not a model
@@ -342,5 +405,98 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn hidden_context_lists_the_main_runs_parts_without_text() {
+        let trace = fixture_trace();
+        let view = session_context(&ContextFacts::of(&trace), &SessionRecords::default());
+        assert!(!view.hidden_context.is_empty());
+        let kinds: Vec<&ContextPartKind> = view.hidden_context.iter().map(|p| &p.kind).collect();
+        assert!(kinds.contains(&&ContextPartKind::Reminder) || kinds.len() > 1);
+        for part in &view.hidden_context {
+            assert!(part.trace_id.starts_with("context:"), "{}", part.trace_id);
+            assert!(part.chars > 0, "{}", part.key);
+            let event = trace.get(&part.trace_id).expect("a node");
+            assert!(matches!(event.node, Node::ContextUpdate(_)));
+        }
+        let json = serde_json::to_string(&view.hidden_context).expect("json");
+        assert!(!json.contains("\"text\""));
+    }
+
+    #[test]
+    fn hidden_context_excludes_subagents_and_follows_removals() {
+        use trace_core::{ContextPart, Run};
+        fn add(trace: &mut Trace, id: &str, parent: Option<&str>, node: Node) {
+            trace
+                .apply(TraceEvent {
+                    id: id.into(),
+                    parent_id: parent.map(String::from),
+                    node,
+                    started_at_ms: None,
+                    ended_at_ms: None,
+                    raw: Vec::new(),
+                    metadata: Default::default(),
+                })
+                .expect("apply");
+        }
+        fn part(key: &str, text: &str) -> ContextPart {
+            ContextPart {
+                key: key.into(),
+                kind: ContextPartKind::Instructions,
+                label: key.into(),
+                text: text.into(),
+            }
+        }
+        let mut trace = Trace::new();
+        add(
+            &mut trace,
+            "run:a",
+            None,
+            Node::Run(Run {
+                harness: "test".into(),
+                title: None,
+            }),
+        );
+        let update = |parts, remove| Node::ContextUpdate(ContextUpdate { parts, remove });
+        add(
+            &mut trace,
+            "context:1",
+            Some("run:a"),
+            update(vec![part("a", "xx"), part("b", "y")], vec![]),
+        );
+        add(
+            &mut trace,
+            "run:sub",
+            Some("run:a"),
+            Node::Run(Run {
+                harness: "test".into(),
+                title: None,
+            }),
+        );
+        add(
+            &mut trace,
+            "context:sub",
+            Some("run:sub"),
+            update(vec![part("s", "zzz")], vec![]),
+        );
+        add(
+            &mut trace,
+            "context:2",
+            Some("run:a"),
+            update(vec![part("a", "xxxx")], vec![]),
+        );
+        add(
+            &mut trace,
+            "context:3",
+            Some("run:a"),
+            update(vec![], vec!["b".into()]),
+        );
+        let hidden = ContextFacts::of(&trace);
+        let view = session_context(&hidden, &SessionRecords::default());
+        assert_eq!(view.hidden_context.len(), 1);
+        let only = &view.hidden_context[0];
+        assert_eq!((only.key.as_str(), only.chars), ("a", 4));
+        assert_eq!(only.trace_id, "context:2");
     }
 }

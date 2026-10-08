@@ -735,7 +735,121 @@
         }
       ]
     },
-    "latest_trace_id": "model:msg_example000000000182"
+    "latest_trace_id": "model:msg_example000000000182",
+    "hidden_context": [
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000001",
+        "key": "reminder:00000000-0000-4000-8000-000000000001",
+        "kind": "reminder",
+        "label": "hook output",
+        "chars": 197
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000011",
+        "key": "reminder:00000000-0000-4000-8000-000000000011",
+        "kind": "reminder",
+        "label": "environment",
+        "chars": 258
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000012",
+        "key": "reminder:00000000-0000-4000-8000-000000000012",
+        "kind": "reminder",
+        "label": "model",
+        "chars": 16
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000013",
+        "key": "reminder:00000000-0000-4000-8000-000000000013",
+        "kind": "reminder",
+        "label": "deferred tools list",
+        "chars": 53
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000014",
+        "key": "reminder:00000000-0000-4000-8000-000000000014",
+        "kind": "reminder",
+        "label": "agent list",
+        "chars": 53
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000015",
+        "key": "reminder:00000000-0000-4000-8000-000000000015",
+        "kind": "reminder",
+        "label": "MCP server instructions",
+        "chars": 55
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000016",
+        "key": "reminder:00000000-0000-4000-8000-000000000016",
+        "kind": "reminder",
+        "label": "skills list",
+        "chars": 17
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000019",
+        "key": "instructions:C:\\work\\example\\file-599.txt",
+        "kind": "instructions",
+        "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+        "chars": 17
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000019",
+        "key": "instructions:C:\\work\\example\\file-601.txt",
+        "kind": "instructions",
+        "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+        "chars": 17
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000019",
+        "key": "instructions:C:\\work\\example\\file-603.txt",
+        "kind": "instructions",
+        "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+        "chars": 17
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000020",
+        "key": "reminder:00000000-0000-4000-8000-000000000020",
+        "kind": "reminder",
+        "label": "session context",
+        "chars": 65
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000021",
+        "key": "reminder:00000000-0000-4000-8000-000000000021",
+        "kind": "reminder",
+        "label": "date",
+        "chars": 17
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000035",
+        "key": "system",
+        "kind": "system_prompt",
+        "label": "System prompt",
+        "chars": 58
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000035",
+        "key": "tools",
+        "kind": "tool_definitions",
+        "label": "Tool definitions",
+        "chars": 7298
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000141",
+        "key": "reminder:00000000-0000-4000-8000-000000000141",
+        "kind": "reminder",
+        "label": "environment",
+        "chars": 350
+      },
+      {
+        "trace_id": "context:00000000-0000-4000-8000-000000000150",
+        "key": "reminder:00000000-0000-4000-8000-000000000150",
+        "kind": "reminder",
+        "label": "environment",
+        "chars": 350
+      }
+    ]
   },
   "calls": {
     "model:msg_example000000000027": {
