@@ -7,6 +7,7 @@ use trace_core::{ContentBlock, ContextPartKind, ContextUpdate, Node, ToolCall, T
 use crate::measure::{
     ContextMeasure, ContextSource, IMAGE_CHARS, SliceKind, json_chars, text_chars,
 };
+use crate::request::tool_group;
 use crate::rules::ContextRules;
 
 /// Measures every model call of the trace from the trace alone, one pass
@@ -81,7 +82,14 @@ impl RunState {
                 ContextPartKind::ToolDefinitions => SliceKind::ToolDefinitions,
                 _ => SliceKind::Instructions,
             };
-            let value = (kind, part.label.clone(), text_chars(&part.text));
+            // Tool definitions are grouped the way a captured request's are,
+            // so each item counts the tools of one MCP server or the built-ins.
+            let label = if kind == SliceKind::ToolDefinitions {
+                tool_group(&part.label)
+            } else {
+                part.label.clone()
+            };
+            let value = (kind, label, text_chars(&part.text));
             if self.parts.insert(part.key.clone(), value).is_none() {
                 self.order.push(part.key.clone());
             }
@@ -424,6 +432,66 @@ mod tests {
         assert_eq!(m.slice_chars(SliceKind::Conversation), 0);
         let single = measure_transcript(&t, "M1", &rules()).unwrap();
         assert_eq!(&single, m);
+    }
+
+    fn tools_trace(sizes: [usize; 3]) -> Trace {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let tools = vec![
+            part(
+                "tool:Bash",
+                ContextPartKind::ToolDefinitions,
+                "Bash",
+                sizes[0],
+            ),
+            part(
+                "tool:mcp__docs__search",
+                ContextPartKind::ToolDefinitions,
+                "mcp__docs__search",
+                sizes[1],
+            ),
+            part(
+                "tool:mcp__docs__fetch",
+                ContextPartKind::ToolDefinitions,
+                "mcp__docs__fetch",
+                sizes[2],
+            ),
+        ];
+        add(&mut t, "U1", Some("R"), update(tools, &[]));
+        add(&mut t, "M1", Some("R"), call(""));
+        t
+    }
+
+    #[test]
+    fn tool_parts_group_like_captured_requests() {
+        let all = measure_transcript_all(&tools_trace([10, 20, 30]), &rules());
+        let items = all["M1"].items(SliceKind::ToolDefinitions);
+        let got: Vec<(&str, u64, u32, bool)> = items
+            .iter()
+            .map(|i| (i.label.as_str(), i.chars, i.count, i.from_transcript))
+            .collect();
+        assert_eq!(
+            got,
+            vec![("built-in", 10, 1, true), ("MCP: docs", 50, 2, true)]
+        );
+    }
+
+    #[test]
+    fn rule2_fires_for_a_big_mcp_group_from_transcript_parts() {
+        let all = measure_transcript_all(&tools_trace([400, 6000, 6000]), &rules());
+        let b = crate::breakdown::breakdown(&all["M1"], Some(10_000));
+        let texts: Vec<&str> = b.advice.iter().map(|a| a.text.as_str()).collect();
+        assert!(
+            texts.contains(
+                &"MCP server `docs` adds about 3k tokens to every call (2 tools). Turn it off in projects that do not use it."
+            ),
+            "{texts:#?}"
+        );
+        assert!(
+            texts.iter().any(|t| t.starts_with("Tool definitions are")
+                && t.contains("3 tools, 2 from MCP servers")),
+            "{texts:#?}"
+        );
     }
 
     #[test]

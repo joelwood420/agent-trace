@@ -77,7 +77,7 @@ At a `compact_boundary` (already a `compaction` marker), the adapter also emits 
 
 - `measure_transcript_all` keeps a per-run context state (key to part) next to the running conversation measure. A `context_update` applies to the state; the state is added to each model call's measure when the call is reached:
   - system_prompt parts go to SystemPrompt (item = label),
-  - tool_definitions to ToolDefinitions (item = label),
+  - tool_definitions to ToolDefinitions, grouped the way a captured request's tools are: a label starting with `mcp__` goes to the item `MCP: <server>` (the text up to the next `__`), any other to `built-in`; each tool is one occurrence, so the item's count is its number of tools and advice rules 1 and 2 work as for captured calls,
   - instructions and reminder parts to Instructions (item = label),
   - other parts to Instructions (item = label).
 - A compaction marker clears the conversation measure only, never the context state.

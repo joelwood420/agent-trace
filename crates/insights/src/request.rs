@@ -59,15 +59,21 @@ fn measure_system(system: &Value, out: &mut ContextMeasure) {
 
 fn measure_tools(tools: &[Value], out: &mut ContextMeasure) {
     for tool in tools {
-        let name = str_field(tool, "name");
-        let label = match name.strip_prefix(MCP_PREFIX) {
-            Some(rest) => {
-                let server = rest.find("__").map_or(rest, |i| &rest[..i]);
-                format!("MCP: {server}")
-            }
-            None => "built-in".to_string(),
-        };
+        let label = tool_group(str_field(tool, "name"));
         out.add_many(SliceKind::ToolDefinitions, &label, json_chars(tool), 1);
+    }
+}
+
+/// The item a tool definition is counted under: `MCP: <server>` for a tool
+/// named `mcp__<server>__<tool>` (the whole rest of the name when there is no
+/// second `__`), else `built-in`.
+pub(crate) fn tool_group(name: &str) -> String {
+    match name.strip_prefix(MCP_PREFIX) {
+        Some(rest) => {
+            let server = rest.find("__").map_or(rest, |i| &rest[..i]);
+            format!("MCP: {server}")
+        }
+        None => "built-in".to_string(),
     }
 }
 
