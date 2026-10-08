@@ -1058,6 +1058,36 @@
         }
       ]
     },
+    "context:00000000-0000-4000-8000-000000000001": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000001",
+      "parent_id": "run:00000000-0000-4000-8000-000000000002",
+      "kind": "context_update",
+      "started_at_ms": 1767258000003,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000001",
+            "kind": "reminder",
+            "label": "hook output",
+            "text": "<EXTREMELY_IMPORTANT>Example text 19.<SUBAGENT-STOP>Example text 19.</SUBAGENT-STOP>Example text 19.<EXTREMELY-IMPORTANT>Example text 19.</EXTREMELY-IMPORTANT>Example text 19.</EXTREMELY_IMPORTANT>"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "hook_additional_context"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 5,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000004\",\"isSidechain\":false,\"attachment\":{\"type\":\"hook_additional_context\",\"content\":[\"<EXTREMELY_IMPORTANT>Example text 19.<SUBAGENT-STOP>Example text 19.</SUBAGENT-STOP>Example text 19.<EXTREMELY-IMPORTANT>Example text 19.</EXTREMELY-IMPORTANT>Example text 19.</EXTREMELY_IMPORTANT>\"],\"hookName\":\"Example text 20.\",\"toolUseID\":\"Example text 21.\",\"hookEvent\":\"SessionStart\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000001\",\"timestamp\":\"2026-01-01T09:00:00.003Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 16.<EXTREMELY_IMPORTANT>Example text 16.<SUBAGENT-STOP>Example text 16.</SUBAGENT-STOP>Example text 16.<EXTREMELY-IMPORTANT>Example text 16.</EXTREMELY-IMPORTANT>Example text 16.</EXTREMELY_IMPORTANT>Example text 16.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
     "marker:00000000-0000-4000-8000-000000000001": {
       "trace_id": "marker:00000000-0000-4000-8000-000000000001",
       "parent_id": "run:00000000-0000-4000-8000-000000000002",
@@ -1143,6 +1173,318 @@
           "source": "00000000-0000-4000-8000-000000000002.jsonl",
           "line": 51,
           "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000050\",\"isSidechain\":false,\"type\":\"system\",\"subtype\":\"turn_duration\",\"durationMs\":24292,\"messageCount\":34,\"timestamp\":\"2026-01-01T09:01:14.461Z\",\"uuid\":\"00000000-0000-4000-8000-000000000052\",\"isMeta\":false,\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000011": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000011",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050201,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000011",
+            "kind": "reminder",
+            "label": "environment",
+            "text": "{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 45.\"],\"platform\":\"Example text 46.\",\"shell\":\"Example text 47.\",\"osVersion\":\"Example text 48.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "environment"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 13,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000009\",\"isSidechain\":false,\"attachment\":{\"type\":\"environment\",\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 45.\"],\"platform\":\"Example text 46.\",\"shell\":\"Example text 47.\",\"osVersion\":\"Example text 48.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"}},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000011\",\"timestamp\":\"2026-01-01T09:00:50.201Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 41.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000012": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000012",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050201,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000012",
+            "kind": "reminder",
+            "label": "model",
+            "text": "Example text 60."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "model"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 14,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000011\",\"isSidechain\":false,\"attachment\":{\"type\":\"model\",\"identity\":{\"modelId\":\"Example text 57.\",\"marketingName\":\"Example text 58.\",\"knowledgeCutoff\":\"Example text 59.\"},\"text\":\"Example text 60.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000012\",\"timestamp\":\"2026-01-01T09:00:50.201Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 54.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000013": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000013",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050201,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000013",
+            "kind": "reminder",
+            "label": "deferred tools list",
+            "text": "Example text 432.\nExample text 433.\nExample text 434."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "deferred_tools_delta"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 15,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000012\",\"isSidechain\":false,\"attachment\":{\"type\":\"deferred_tools_delta\",\"addedNames\":[\"Example text 429.\",\"Example text 430.\",\"Example text 431.\"],\"addedLines\":[\"Example text 432.\",\"Example text 433.\",\"Example text 434.\"],\"removedNames\":[],\"wireHiddenNames\":[],\"readdedNames\":[],\"pendingMcpServers\":[],\"failedMcpServers\":[{\"name\":\"Example text 435.\",\"error\":\"Example text 436.\"}],\"surfacedNames\":[\"Example text 437.\",\"Example text 438.\",\"Example text 439.\"]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000013\",\"timestamp\":\"2026-01-01T09:00:50.201Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 426.<name>Example text 426.<name>Example text 426.<server>Example text 426.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000014": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000014",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050202,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000014",
+            "kind": "reminder",
+            "label": "agent list",
+            "text": "Example text 466.\nExample text 467.\nExample text 468."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "agent_listing_delta"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 16,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000013\",\"isSidechain\":false,\"attachment\":{\"type\":\"agent_listing_delta\",\"addedTypes\":[\"Example text 463.\",\"Example text 464.\",\"Example text 465.\"],\"addedLines\":[\"Example text 466.\",\"Example text 467.\",\"Example text 468.\"],\"builtInTypes\":[\"Example text 469.\",\"Example text 470.\",\"Example text 471.\"],\"removedTypes\":[],\"isInitial\":true,\"showConcurrencyNote\":false},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000014\",\"timestamp\":\"2026-01-01T09:00:50.202Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 460.<example>Example text 460.<commentary>Example text 460.</commentary>Example text 460.</example>Example text 460.<example>Example text 460.<commentary>Example text 460.</commentary>Example text 460.</example>Example text 460.<example>Example text 460.<commentary>Example text 460.</commentary>Example text 460.</example>Example text 460.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000015": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000015",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050202,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000015",
+            "kind": "reminder",
+            "label": "MCP server instructions",
+            "text": "Example text 490.\n\nExample text 491.\n\nExample text 492."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "mcp_instructions_delta"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 17,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000014\",\"isSidechain\":false,\"attachment\":{\"type\":\"mcp_instructions_delta\",\"addedNames\":[\"Example text 487.\",\"Example text 488.\",\"Example text 489.\"],\"addedBlocks\":[\"Example text 490.\",\"Example text 491.\",\"Example text 492.\"],\"removedNames\":[]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000015\",\"timestamp\":\"2026-01-01T09:00:50.202Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 484.<title>Example text 484.<today>Example text 484.<title>Example text 484.<?claude block asof?>Example text 484.<?claude block me?>Example text 484.<?claude block s1?>Example text 484.<?claude block s2?>Example text 484.<?claude block k?>Example text 484.<topic>Example text 484.<heading>Example text 484.<root id>Example text 484.<root id>Example text 484.<root id>Example text 484.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000016": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000016",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050202,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000016",
+            "kind": "reminder",
+            "label": "skills list",
+            "text": "Example text 576."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "skill_listing"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 18,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000015\",\"isSidechain\":false,\"attachment\":{\"type\":\"skill_listing\",\"content\":\"Example text 576.\",\"skillCount\":79,\"isInitial\":true,\"names\":[\"Example text 577.\",\"Example text 578.\",\"Example text 579.\"]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000016\",\"timestamp\":\"2026-01-01T09:00:50.202Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 573.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000019": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000019",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050227,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "instructions:C:\\work\\example\\file-599.txt",
+            "kind": "instructions",
+            "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+            "text": "Example text 600."
+          },
+          {
+            "key": "instructions:C:\\work\\example\\file-601.txt",
+            "kind": "instructions",
+            "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+            "text": "Example text 602."
+          },
+          {
+            "key": "instructions:C:\\work\\example\\file-603.txt",
+            "kind": "instructions",
+            "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+            "text": "Example text 604."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "instructions"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 21,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000018\",\"isSidechain\":false,\"attachment\":{\"type\":\"instructions\",\"files\":[{\"path\":\"C:\\\\work\\\\example\\\\file-599.txt\",\"type\":\"User\",\"content\":\"Example text 600.\"},{\"path\":\"C:\\\\work\\\\example\\\\file-601.txt\",\"type\":\"Project\",\"content\":\"Example text 602.\"},{\"path\":\"C:\\\\work\\\\example\\\\file-603.txt\",\"type\":\"AutoMem\",\"content\":\"Example text 604.\"}]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000019\",\"timestamp\":\"2026-01-01T09:00:50.227Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 596.<oid>Example text 596.<oid>Example text 596.<ts>Example text 596.<jobId>Example text 596.<jobId>Example text 596.<jobId>Example text 596.<n>Example text 596.<placeId>Example text 596.<placeId>Example text 596.<n>Example text 596.<oid>Example text 596.<hourBucket>Example text 596.<oid>Example text 596.<hourBucket>Example text 596.<n>Example text 596.<ts>Example text 596.<jobId>Example text 596.</system-reminder>\"}],\"renderedRole\":\"user\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000020": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000020",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050227,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000020",
+            "kind": "reminder",
+            "label": "session context",
+            "text": "{\"userEmail\":\"Example text 610.\",\"gitStatus\":\"Example text 611.\"}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "session_context"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 22,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000019\",\"isSidechain\":false,\"attachment\":{\"type\":\"session_context\",\"context\":{\"userEmail\":\"Example text 610.\",\"gitStatus\":\"Example text 611.\"}},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000020\",\"timestamp\":\"2026-01-01T09:00:50.227Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 607.</system-reminder>\"}],\"renderedRole\":\"user\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000021": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000021",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050227,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000021",
+            "kind": "reminder",
+            "label": "date",
+            "text": "Example text 616."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "date"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 23,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000020\",\"isSidechain\":false,\"attachment\":{\"type\":\"date\",\"date\":\"Example text 616.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000021\",\"timestamp\":\"2026-01-01T09:00:50.227Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 613.</system-reminder>\"}],\"renderedRole\":\"system\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000025": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000025",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258050233,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "system",
+            "kind": "system_prompt",
+            "label": "System prompt",
+            "text": "Example text 642.\n\nExample text 643.\n\nExample text 644."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "prompt_snapshot"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 26,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000024\",\"isSidechain\":false,\"attachment\":{\"type\":\"prompt_snapshot\",\"systemPrompt\":[\"Example text 642.\",\"Example text 643.\",\"Example text 644.\"],\"reminderFold\":false,\"echoWireToolInputs\":true,\"contextRendering\":\"Example text 645.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000025\",\"timestamp\":\"2026-01-01T09:00:50.233Z\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
         }
       ]
     },
@@ -1232,6 +1574,42 @@
           "source": "00000000-0000-4000-8000-000000000002.jsonl",
           "line": 36,
           "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000033\",\"isSidechain\":false,\"promptId\":\"00000000-0000-4000-8000-000000000010\",\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_example000000000032\",\"type\":\"tool_result\",\"content\":\"Example text 702.\",\"is_error\":false}]},\"uuid\":\"00000000-0000-4000-8000-000000000034\",\"timestamp\":\"2026-01-01T09:00:57.022Z\",\"toolUseResult\":{\"stdout\":\"Example text 703.\",\"stderr\":\"Example text 704.\",\"interrupted\":false,\"isImage\":false},\"serverClassifierContext\":{\"request\":\"00000000-0000-4000-8000-000000000028\",\"context\":{\"git_state\":{\"cwd\":\"C:\\\\work\\\\example\",\"root\":null,\"branch\":null,\"default_branch\":null,\"status\":null,\"visibility\":null,\"error\":\"Example text 706.\"},\"live_cwd\":\"C:\\\\work\\\\example\",\"platform\":\"Example text 708.\"}},\"sourceToolAssistantUUID\":\"00000000-0000-4000-8000-000000000033\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000035": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000035",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000009",
+      "kind": "context_update",
+      "started_at_ms": 1767258057024,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "system",
+            "kind": "system_prompt",
+            "label": "System prompt",
+            "text": "Example text 1042.\n\nExample text 1043.\n\nExample text 1044."
+          },
+          {
+            "key": "tools",
+            "kind": "tool_definitions",
+            "label": "Tool definitions",
+            "text": "[{\"name\":\"Example text 1045.\",\"description\":\"Example text 1046.\",\"schema\":{\"name\":\"Example text 1047.\",\"description\":\"Example text 1048.\",\"input_schema\":{\"$schema\":\"Example text 1049.\",\"type\":\"object\",\"properties\":{\"description\":{\"description\":\"Example text 1050.\",\"type\":\"string\"},\"prompt\":{\"description\":\"Example text 1051.\",\"type\":\"string\"},\"subagent_type\":{\"description\":\"Example text 1052.\",\"type\":\"string\"},\"model\":{\"description\":\"Example text 1053.\",\"type\":\"string\",\"enum\":[\"Example text 1054.\",\"Example text 1055.\",\"Example text 1056.\",\"Example text 1057.\"]},\"isolation\":{\"description\":\"Example text 1058.\",\"type\":\"string\",\"enum\":[\"Example text 1059.\",\"Example text 1060.\"]}},\"required\":[\"Example text 1061.\",\"Example text 1062.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 1063.\",\"description\":\"Example text 1064.\",\"schema\":{\"name\":\"Example text 1065.\",\"description\":\"Example text 1066.\",\"input_schema\":{\"$schema\":\"Example text 1067.\",\"type\":\"object\",\"properties\":{\"action\":{\"description\":\"Example text 1068.\",\"type\":\"string\",\"enum\":[\"Example text 1069.\",\"Example text 1070.\",\"Example text 1071.\",\"Example text 1072.\",\"Example text 1073.\",\"Example text 1074.\",\"Example text 1075.\",\"Example text 1076.\"]},\"file_path\":{\"description\":\"Example text 1077.\",\"type\":\"string\"},\"asset\":{\"description\":\"Example text 1078.\",\"type\":\"boolean\"},\"file_paths\":{\"description\":\"Example text 1079.\",\"minItems\":1,\"maxItems\":25,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1024,\"pattern\":\"Example text 1080.\"}},\"from_url\":{\"description\":\"Example text 1081.\",\"type\":\"string\",\"maxLength\":512},\"asset_ids\":{\"description\":\"Example text 1082.\",\"minItems\":1,\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"pattern\":\"Example text 1083.\"}},\"favicon\":{\"description\":\"Example text 1084.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":32},\"icon\":{\"description\":\"Example text 1085.\",\"type\":\"string\",\"maxLength\":40},\"files\":{\"description\":\"Example text 1086.\",\"anyOf\":[{\"maxItems\":255,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"path\":{\"description\":\"Example text 1087.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 1088.\",\"type\":\"string\"}},\"required\":[\"Example text 1089.\"],\"additionalProperties\":false}},{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"additionalProperties\":{\"anyOf\":[{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},{\"type\":\"object\",\"properties\":{\"from\":{\"description\":\"Example text 1090.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 1091.\",\"type\":\"string\"}},\"required\":[\"Example text 1092.\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"artifact\":{\"description\":\"Example text 1093.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"path\":{\"description\":\"Example text 1094.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"ver\":{\"description\":\"Example text 1095.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":64}},\"required\":[\"Example text 1096.\",\"Example text 1097.\"],\"additionalProperties\":false},{\"type\":\"null\"}]}}]},\"root\":{\"description\":\"Example text 1098.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":1024},\"pin\":{\"description\":\"Example text 1099.\",\"type\":\"boolean\"},\"limit\":{\"description\":\"Example text 1100.\",\"type\":\"integer\",\"minimum\":1,\"maximum\":50},\"scope\":{\"description\":\"Example text 1101.\",\"type\":\"string\",\"enum\":[\"Example text 1102.\",\"Example text 1103.\",\"Example text 1104.\",\"Example text 1105.\",\"Example text 1106.\",\"Example text 1107.\"]},\"type_query\":{\"description\":\"Example text 1108.\",\"type\":\"string\",\"maxLength\":200},\"type\":{\"description\":\"Example text 1109.\",\"type\":\"string\",\"maxLength\":200},\"intent\":{\"description\":\"Example text 1110.\",\"type\":\"string\",\"enum\":[\"Example text 1111.\",\"Example text 1112.\",\"Example text 1113.\",\"Example text 1114.\"]},\"design_systems\":{\"description\":\"Example text 1115.\",\"type\":\"boolean\"},\"title\":{\"description\":\"Example text 1116.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 1117.\",\"type\":\"string\",\"maxLength\":1000},\"label\":{\"description\":\"Example text 1118.\",\"type\":\"string\",\"maxLength\":60},\"overwrite_unread\":{\"description\":\"Example text 1119.\",\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512}},\"url\":{\"description\":\"Example text 1120.\",\"type\":\"string\"},\"type_url\":{\"description\":\"Example text 1121.\",\"type\":\"string\",\"maxLength\":2048},\"auto_open\":{\"description\":\"Example text 1122.\",\"type\":\"string\",\"enum\":[\"Example text 1123.\",\"Example text 1124.\"]},\"prompt\":{\"description\":\"Example text 1125.\",\"type\":\"string\"},\"force\":{\"description\":\"Example text 1126.\",\"type\":\"boolean\"},\"out_dir\":{\"description\":\"Example text 1127.\",\"type\":\"string\",\"maxLength\":4096},\"path\":{\"description\":\"Example text 1128.\",\"type\":\"string\",\"maxLength\":512},\"paths\":{\"description\":\"Example text 1129.\",\"minItems\":1,\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"maxLength\":512}},\"after\":{\"description\":\"Example text 1130.\",\"type\":\"string\",\"pattern\":\"Example text 1131.\"},\"page\":{\"description\":\"Example text 1132.\",\"type\":\"boolean\"},\"capabilities\":{\"description\":\"Example text 1133.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":64},\"additionalProperties\":{}},\"contract\":{\"description\":\"Example text 1134.\",\"anyOf\":[{\"type\":\"string\",\"const\":\"Example text 1135.\"},{\"type\":\"string\",\"pattern\":\"Example text 1136.\"}]}},\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 1137.\",\"description\":\"Example text 1138.\",\"schema\":{\"name\":\"Example text 1139.\",\"description\":\"Example text 1140.\",\"input_schema\":{\"$schema\":\"Example text 1141.\",\"type\":\"object\",\"properties\":{\"questions\":{\"description\":\"Example text 1142.\",\"minItems\":1,\"maxItems\":4,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"question\":{\"description\":\"Example text 1143.\",\"type\":\"string\"},\"header\":{\"description\":\"Example text 1144.\",\"type\":\"string\"},\"options\":{\"description\":\"Example text 1145.\",\"minItems\":2,\"maxItems\":4,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"label\":{\"description\":\"Example text 1146.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 1147.\",\"type\":\"string\"},\"preview\":{\"description\":\"Example text 1148.\",\"type\":\"string\"}},\"required\":[\"Example text 1149.\",\"Example text 1150.\"],\"additionalProperties\":false}},\"multiSelect\":{\"description\":\"Example text 1151.\",\"default\":false,\"type\":\"boolean\"}},\"required\":[\"Example text 1152.\",\"Example text 1153.\",\"Example text 1154.\",\"Example text 1155.\"],\"additionalProperties\":false}},\"answers\":{\"description\":\"Example text 1156.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\"},\"additionalProperties\":{\"type\":\"string\"}},\"annotations\":{\"description\":\"Example text 1157.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\"},\"additionalProperties\":{\"type\":\"object\",\"properties\":{\"preview\":{\"description\":\"Example text 1158.\",\"type\":\"string\"},\"notes\":{\"description\":\"Example text 1159.\",\"type\":\"string\"}},\"additionalProperties\":false}},\"metadata\":{\"description\":\"Example text 1160.\",\"type\":\"object\",\"properties\":{\"source\":{\"description\":\"Example text 1161.\",\"type\":\"string\"}},\"additionalProperties\":false}},\"required\":[\"Example text 1162.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}}]"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "prompt_snapshot"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 37,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000034\",\"isSidechain\":false,\"attachment\":{\"type\":\"prompt_snapshot\",\"systemPrompt\":[\"Example text 1042.\",\"Example text 1043.\",\"Example text 1044.\"],\"tools\":[{\"name\":\"Example text 1045.\",\"description\":\"Example text 1046.\",\"schema\":{\"name\":\"Example text 1047.\",\"description\":\"Example text 1048.\",\"input_schema\":{\"$schema\":\"Example text 1049.\",\"type\":\"object\",\"properties\":{\"description\":{\"description\":\"Example text 1050.\",\"type\":\"string\"},\"prompt\":{\"description\":\"Example text 1051.\",\"type\":\"string\"},\"subagent_type\":{\"description\":\"Example text 1052.\",\"type\":\"string\"},\"model\":{\"description\":\"Example text 1053.\",\"type\":\"string\",\"enum\":[\"Example text 1054.\",\"Example text 1055.\",\"Example text 1056.\",\"Example text 1057.\"]},\"isolation\":{\"description\":\"Example text 1058.\",\"type\":\"string\",\"enum\":[\"Example text 1059.\",\"Example text 1060.\"]}},\"required\":[\"Example text 1061.\",\"Example text 1062.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 1063.\",\"description\":\"Example text 1064.\",\"schema\":{\"name\":\"Example text 1065.\",\"description\":\"Example text 1066.\",\"input_schema\":{\"$schema\":\"Example text 1067.\",\"type\":\"object\",\"properties\":{\"action\":{\"description\":\"Example text 1068.\",\"type\":\"string\",\"enum\":[\"Example text 1069.\",\"Example text 1070.\",\"Example text 1071.\",\"Example text 1072.\",\"Example text 1073.\",\"Example text 1074.\",\"Example text 1075.\",\"Example text 1076.\"]},\"file_path\":{\"description\":\"Example text 1077.\",\"type\":\"string\"},\"asset\":{\"description\":\"Example text 1078.\",\"type\":\"boolean\"},\"file_paths\":{\"description\":\"Example text 1079.\",\"minItems\":1,\"maxItems\":25,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1024,\"pattern\":\"Example text 1080.\"}},\"from_url\":{\"description\":\"Example text 1081.\",\"type\":\"string\",\"maxLength\":512},\"asset_ids\":{\"description\":\"Example text 1082.\",\"minItems\":1,\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"pattern\":\"Example text 1083.\"}},\"favicon\":{\"description\":\"Example text 1084.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":32},\"icon\":{\"description\":\"Example text 1085.\",\"type\":\"string\",\"maxLength\":40},\"files\":{\"description\":\"Example text 1086.\",\"anyOf\":[{\"maxItems\":255,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"path\":{\"description\":\"Example text 1087.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 1088.\",\"type\":\"string\"}},\"required\":[\"Example text 1089.\"],\"additionalProperties\":false}},{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"additionalProperties\":{\"anyOf\":[{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},{\"type\":\"object\",\"properties\":{\"from\":{\"description\":\"Example text 1090.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 1091.\",\"type\":\"string\"}},\"required\":[\"Example text 1092.\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"artifact\":{\"description\":\"Example text 1093.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"path\":{\"description\":\"Example text 1094.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"ver\":{\"description\":\"Example text 1095.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":64}},\"required\":[\"Example text 1096.\",\"Example text 1097.\"],\"additionalProperties\":false},{\"type\":\"null\"}]}}]},\"root\":{\"description\":\"Example text 1098.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":1024},\"pin\":{\"description\":\"Example text 1099.\",\"type\":\"boolean\"},\"limit\":{\"description\":\"Example text 1100.\",\"type\":\"integer\",\"minimum\":1,\"maximum\":50},\"scope\":{\"description\":\"Example text 1101.\",\"type\":\"string\",\"enum\":[\"Example text 1102.\",\"Example text 1103.\",\"Example text 1104.\",\"Example text 1105.\",\"Example text 1106.\",\"Example text 1107.\"]},\"type_query\":{\"description\":\"Example text 1108.\",\"type\":\"string\",\"maxLength\":200},\"type\":{\"description\":\"Example text 1109.\",\"type\":\"string\",\"maxLength\":200},\"intent\":{\"description\":\"Example text 1110.\",\"type\":\"string\",\"enum\":[\"Example text 1111.\",\"Example text 1112.\",\"Example text 1113.\",\"Example text 1114.\"]},\"design_systems\":{\"description\":\"Example text 1115.\",\"type\":\"boolean\"},\"title\":{\"description\":\"Example text 1116.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 1117.\",\"type\":\"string\",\"maxLength\":1000},\"label\":{\"description\":\"Example text 1118.\",\"type\":\"string\",\"maxLength\":60},\"overwrite_unread\":{\"description\":\"Example text 1119.\",\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512}},\"url\":{\"description\":\"Example text 1120.\",\"type\":\"string\"},\"type_url\":{\"description\":\"Example text 1121.\",\"type\":\"string\",\"maxLength\":2048},\"auto_open\":{\"description\":\"Example text 1122.\",\"type\":\"string\",\"enum\":[\"Example text 1123.\",\"Example text 1124.\"]},\"prompt\":{\"description\":\"Example text 1125.\",\"type\":\"string\"},\"force\":{\"description\":\"Example text 1126.\",\"type\":\"boolean\"},\"out_dir\":{\"description\":\"Example text 1127.\",\"type\":\"string\",\"maxLength\":4096},\"path\":{\"description\":\"Example text 1128.\",\"type\":\"string\",\"maxLength\":512},\"paths\":{\"description\":\"Example text 1129.\",\"minItems\":1,\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"maxLength\":512}},\"after\":{\"description\":\"Example text 1130.\",\"type\":\"string\",\"pattern\":\"Example text 1131.\"},\"page\":{\"description\":\"Example text 1132.\",\"type\":\"boolean\"},\"capabilities\":{\"description\":\"Example text 1133.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":64},\"additionalProperties\":{}},\"contract\":{\"description\":\"Example text 1134.\",\"anyOf\":[{\"type\":\"string\",\"const\":\"Example text 1135.\"},{\"type\":\"string\",\"pattern\":\"Example text 1136.\"}]}},\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 1137.\",\"description\":\"Example text 1138.\",\"schema\":{\"name\":\"Example text 1139.\",\"description\":\"Example text 1140.\",\"input_schema\":{\"$schema\":\"Example text 1141.\",\"type\":\"object\",\"properties\":{\"questions\":{\"description\":\"Example text 1142.\",\"minItems\":1,\"maxItems\":4,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"question\":{\"description\":\"Example text 1143.\",\"type\":\"string\"},\"header\":{\"description\":\"Example text 1144.\",\"type\":\"string\"},\"options\":{\"description\":\"Example text 1145.\",\"minItems\":2,\"maxItems\":4,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"label\":{\"description\":\"Example text 1146.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 1147.\",\"type\":\"string\"},\"preview\":{\"description\":\"Example text 1148.\",\"type\":\"string\"}},\"required\":[\"Example text 1149.\",\"Example text 1150.\"],\"additionalProperties\":false}},\"multiSelect\":{\"description\":\"Example text 1151.\",\"default\":false,\"type\":\"boolean\"}},\"required\":[\"Example text 1152.\",\"Example text 1153.\",\"Example text 1154.\",\"Example text 1155.\"],\"additionalProperties\":false}},\"answers\":{\"description\":\"Example text 1156.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\"},\"additionalProperties\":{\"type\":\"string\"}},\"annotations\":{\"description\":\"Example text 1157.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\"},\"additionalProperties\":{\"type\":\"object\",\"properties\":{\"preview\":{\"description\":\"Example text 1158.\",\"type\":\"string\"},\"notes\":{\"description\":\"Example text 1159.\",\"type\":\"string\"}},\"additionalProperties\":false}},\"metadata\":{\"description\":\"Example text 1160.\",\"type\":\"object\",\"properties\":{\"source\":{\"description\":\"Example text 1161.\",\"type\":\"string\"}},\"additionalProperties\":false}},\"required\":[\"Example text 1162.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}}],\"cliPrefix\":\"Example text 1163.\",\"reminderFold\":false,\"systemTurns\":true,\"toolChangeHeader\":true,\"inlineTools\":false,\"keptReminders\":true,\"echoWireToolInputs\":true,\"contextRendering\":\"Example text 1164.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000035\",\"timestamp\":\"2026-01-01T09:00:57.024Z\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
         }
       ]
     },
@@ -2324,6 +2702,36 @@
         }
       ]
     },
+    "context:00000000-0000-4000-8000-000000000141": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000141",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000109",
+      "kind": "context_update",
+      "started_at_ms": 1767258511842,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000141",
+            "kind": "reminder",
+            "label": "environment",
+            "text": "{\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 1585.\"],\"platform\":\"Example text 1586.\",\"shell\":\"Example text 1587.\",\"osVersion\":\"Example text 1588.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"},\"changes\":[{\"field\":\"Example text 1590.\",\"from\":\"Example text 1591.\"}]}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "environment"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 118,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000140\",\"isSidechain\":false,\"attachment\":{\"type\":\"environment\",\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 1585.\"],\"platform\":\"Example text 1586.\",\"shell\":\"Example text 1587.\",\"osVersion\":\"Example text 1588.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"},\"changes\":[{\"field\":\"Example text 1590.\",\"from\":\"Example text 1591.\"}]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000141\",\"timestamp\":\"2026-01-01T09:08:31.842Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 1581.</system-reminder>\"}],\"renderedRole\":\"system\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
     "model:msg_example000000000143": {
       "trace_id": "model:msg_example000000000143",
       "parent_id": "turn:00000000-0000-4000-8000-000000000109",
@@ -2417,6 +2825,36 @@
           "source": "00000000-0000-4000-8000-000000000002.jsonl",
           "line": 122,
           "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000147\",\"isSidechain\":false,\"attachment\":{\"type\":\"hook_non_blocking_error\",\"hookName\":\"Example text 1611.\",\"toolUseID\":\"toolu_example000000000144\",\"hookEvent\":\"PreToolUse\",\"stderr\":\"Example text 1612.\",\"stdout\":\"Example text 1613.\",\"exitCode\":49,\"command\":\"echo example-1614\",\"durationMs\":226},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000148\",\"timestamp\":\"2026-01-01T09:08:37.598Z\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000150": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000150",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000109",
+      "kind": "context_update",
+      "started_at_ms": 1767258531023,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000150",
+            "kind": "reminder",
+            "label": "environment",
+            "text": "{\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 1651.\"],\"platform\":\"Example text 1652.\",\"shell\":\"Example text 1653.\",\"osVersion\":\"Example text 1654.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"},\"changes\":[{\"field\":\"Example text 1656.\",\"from\":\"Example text 1657.\"}]}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "environment"
+      },
+      "raw": [
+        {
+          "source": "00000000-0000-4000-8000-000000000002.jsonl",
+          "line": 124,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000149\",\"isSidechain\":false,\"attachment\":{\"type\":\"environment\",\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 1651.\"],\"platform\":\"Example text 1652.\",\"shell\":\"Example text 1653.\",\"osVersion\":\"Example text 1654.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"},\"changes\":[{\"field\":\"Example text 1656.\",\"from\":\"Example text 1657.\"}]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000150\",\"timestamp\":\"2026-01-01T09:08:51.023Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 1647.</system-reminder>\"}],\"renderedRole\":\"system\",\"session_id\":\"00000000-0000-4000-8000-000000000002\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
         }
       ]
     },
@@ -2545,6 +2983,258 @@
         }
       ]
     },
+    "context:00000000-0000-4000-8000-000000000192": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000192",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532695,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000192",
+            "kind": "reminder",
+            "label": "deferred tools list",
+            "text": "Example text 2122.\nExample text 2123.\nExample text 2124."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "deferred_tools_delta"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 2,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000191\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"deferred_tools_delta\",\"addedNames\":[\"Example text 2119.\",\"Example text 2120.\",\"Example text 2121.\"],\"addedLines\":[\"Example text 2122.\",\"Example text 2123.\",\"Example text 2124.\"],\"removedNames\":[],\"wireHiddenNames\":[],\"readdedNames\":[],\"surfacedNames\":[\"Example text 2125.\",\"Example text 2126.\",\"Example text 2127.\"]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000192\",\"timestamp\":\"2026-01-01T09:08:52.695Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2116.<name>Example text 2116.<name>Example text 2116.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000193": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000193",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532696,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000193",
+            "kind": "reminder",
+            "label": "environment",
+            "text": "{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 2138.\"],\"platform\":\"Example text 2139.\",\"shell\":\"Example text 2140.\",\"osVersion\":\"Example text 2141.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "environment"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 3,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000192\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"environment\",\"snapshot\":{\"workingDirectory\":\"C:\\\\work\\\\example\",\"isWorktree\":false,\"isGitRepo\":true,\"additionalWorkingDirectories\":[\"Example text 2138.\"],\"platform\":\"Example text 2139.\",\"shell\":\"Example text 2140.\",\"osVersion\":\"Example text 2141.\",\"scratchpadDirectory\":\"C:\\\\work\\\\example\"}},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000193\",\"timestamp\":\"2026-01-01T09:08:52.696Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2134.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000194": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000194",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532696,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000194",
+            "kind": "reminder",
+            "label": "model",
+            "text": "Example text 2153."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "model"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 4,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000193\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"model\",\"identity\":{\"modelId\":\"Example text 2150.\",\"marketingName\":\"Example text 2151.\",\"knowledgeCutoff\":\"Example text 2152.\"},\"text\":\"Example text 2153.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000194\",\"timestamp\":\"2026-01-01T09:08:52.696Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2147.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000195": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000195",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532697,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000195",
+            "kind": "reminder",
+            "label": "skills list",
+            "text": "Example text 2237."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "skill_listing"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 5,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000194\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"skill_listing\",\"content\":\"Example text 2237.\",\"skillCount\":79,\"isInitial\":true,\"names\":[\"Example text 2238.\",\"Example text 2239.\",\"Example text 2240.\"]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000195\",\"timestamp\":\"2026-01-01T09:08:52.697Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2234.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000196": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000196",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532764,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "instructions:C:\\work\\example\\file-2250.txt",
+            "kind": "instructions",
+            "label": "file-2250.txt: C:\\work\\example\\file-2250.txt",
+            "text": "Example text 2251."
+          },
+          {
+            "key": "instructions:C:\\work\\example\\file-2252.txt",
+            "kind": "instructions",
+            "label": "file-2252.txt: C:\\work\\example\\file-2252.txt",
+            "text": "Example text 2253."
+          },
+          {
+            "key": "instructions:C:\\work\\example\\file-2254.txt",
+            "kind": "instructions",
+            "label": "file-2254.txt: C:\\work\\example\\file-2254.txt",
+            "text": "Example text 2255."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "instructions"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 6,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000195\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"instructions\",\"files\":[{\"path\":\"C:\\\\work\\\\example\\\\file-2250.txt\",\"type\":\"User\",\"content\":\"Example text 2251.\"},{\"path\":\"C:\\\\work\\\\example\\\\file-2252.txt\",\"type\":\"Project\",\"content\":\"Example text 2253.\"},{\"path\":\"C:\\\\work\\\\example\\\\file-2254.txt\",\"type\":\"AutoMem\",\"content\":\"Example text 2255.\"}]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000196\",\"timestamp\":\"2026-01-01T09:08:52.764Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2247.<oid>Example text 2247.<oid>Example text 2247.<ts>Example text 2247.<jobId>Example text 2247.<jobId>Example text 2247.<jobId>Example text 2247.<n>Example text 2247.<placeId>Example text 2247.<placeId>Example text 2247.<n>Example text 2247.<oid>Example text 2247.<hourBucket>Example text 2247.<oid>Example text 2247.<hourBucket>Example text 2247.<n>Example text 2247.<ts>Example text 2247.<jobId>Example text 2247.</system-reminder>\"}],\"renderedRole\":\"user\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000197": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000197",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532764,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000197",
+            "kind": "reminder",
+            "label": "session context",
+            "text": "{\"userEmail\":\"Example text 2261.\",\"gitStatus\":\"Example text 2262.\"}"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "session_context"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 7,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000196\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"session_context\",\"context\":{\"userEmail\":\"Example text 2261.\",\"gitStatus\":\"Example text 2262.\"}},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000197\",\"timestamp\":\"2026-01-01T09:08:52.764Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2258.</system-reminder>\"}],\"renderedRole\":\"user\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000198": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000198",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532765,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000198",
+            "kind": "reminder",
+            "label": "date",
+            "text": "Example text 2267."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "date"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 8,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000197\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"date\",\"date\":\"Example text 2267.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000198\",\"timestamp\":\"2026-01-01T09:08:52.765Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2264.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000201": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000201",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258532771,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "system",
+            "kind": "system_prompt",
+            "label": "System prompt",
+            "text": "Example text 2284.\n\nExample text 2285.\n\nExample text 2286."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "prompt_snapshot"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 11,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000200\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"prompt_snapshot\",\"systemPrompt\":[\"Example text 2284.\",\"Example text 2285.\",\"Example text 2286.\"],\"reminderFold\":false,\"echoWireToolInputs\":true,\"contextRendering\":\"Example text 2287.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000201\",\"timestamp\":\"2026-01-01T09:08:52.771Z\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
     "model:msg_example000000000203": {
       "trace_id": "model:msg_example000000000203",
       "parent_id": "turn:00000000-0000-4000-8000-000000000191",
@@ -2637,6 +3327,102 @@
           "source": "subagents/agent-a0000000000000159.jsonl",
           "line": 14,
           "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000207\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"hook_non_blocking_error\",\"hookName\":\"Example text 2342.\",\"toolUseID\":\"toolu_example000000000204\",\"hookEvent\":\"PreToolUse\",\"stderr\":\"Example text 2343.\",\"stdout\":\"Example text 2344.\",\"exitCode\":49,\"command\":\"echo example-2345\",\"durationMs\":195},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000208\",\"timestamp\":\"2026-01-01T09:08:55.390Z\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000210": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000210",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258537983,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "system",
+            "kind": "system_prompt",
+            "label": "System prompt",
+            "text": "Example text 2575.\n\nExample text 2576.\n\nExample text 2577."
+          },
+          {
+            "key": "tools",
+            "kind": "tool_definitions",
+            "label": "Tool definitions",
+            "text": "[{\"name\":\"Example text 2578.\",\"description\":\"Example text 2579.\",\"schema\":{\"name\":\"Example text 2580.\",\"description\":\"Example text 2581.\",\"input_schema\":{\"$schema\":\"Example text 2582.\",\"type\":\"object\",\"properties\":{\"description\":{\"description\":\"Example text 2583.\",\"type\":\"string\"},\"prompt\":{\"description\":\"Example text 2584.\",\"type\":\"string\"},\"subagent_type\":{\"description\":\"Example text 2585.\",\"type\":\"string\"},\"model\":{\"description\":\"Example text 2586.\",\"type\":\"string\",\"enum\":[\"Example text 2587.\",\"Example text 2588.\",\"Example text 2589.\",\"Example text 2590.\"]},\"isolation\":{\"description\":\"Example text 2591.\",\"type\":\"string\",\"enum\":[\"Example text 2592.\",\"Example text 2593.\"]}},\"required\":[\"Example text 2594.\",\"Example text 2595.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 2596.\",\"description\":\"Example text 2597.\",\"schema\":{\"name\":\"Example text 2598.\",\"description\":\"Example text 2599.\",\"input_schema\":{\"$schema\":\"Example text 2600.\",\"type\":\"object\",\"properties\":{\"action\":{\"description\":\"Example text 2601.\",\"type\":\"string\",\"enum\":[\"Example text 2602.\",\"Example text 2603.\",\"Example text 2604.\",\"Example text 2605.\",\"Example text 2606.\",\"Example text 2607.\",\"Example text 2608.\",\"Example text 2609.\"]},\"file_path\":{\"description\":\"Example text 2610.\",\"type\":\"string\"},\"asset\":{\"description\":\"Example text 2611.\",\"type\":\"boolean\"},\"file_paths\":{\"description\":\"Example text 2612.\",\"minItems\":1,\"maxItems\":25,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1024,\"pattern\":\"Example text 2613.\"}},\"from_url\":{\"description\":\"Example text 2614.\",\"type\":\"string\",\"maxLength\":512},\"asset_ids\":{\"description\":\"Example text 2615.\",\"minItems\":1,\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"pattern\":\"Example text 2616.\"}},\"favicon\":{\"description\":\"Example text 2617.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":32},\"icon\":{\"description\":\"Example text 2618.\",\"type\":\"string\",\"maxLength\":40},\"files\":{\"description\":\"Example text 2619.\",\"anyOf\":[{\"maxItems\":255,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"path\":{\"description\":\"Example text 2620.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 2621.\",\"type\":\"string\"}},\"required\":[\"Example text 2622.\"],\"additionalProperties\":false}},{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"additionalProperties\":{\"anyOf\":[{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},{\"type\":\"object\",\"properties\":{\"from\":{\"description\":\"Example text 2623.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 2624.\",\"type\":\"string\"}},\"required\":[\"Example text 2625.\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"artifact\":{\"description\":\"Example text 2626.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"path\":{\"description\":\"Example text 2627.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"ver\":{\"description\":\"Example text 2628.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":64}},\"required\":[\"Example text 2629.\",\"Example text 2630.\"],\"additionalProperties\":false},{\"type\":\"null\"}]}}]},\"root\":{\"description\":\"Example text 2631.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":1024},\"pin\":{\"description\":\"Example text 2632.\",\"type\":\"boolean\"},\"limit\":{\"description\":\"Example text 2633.\",\"type\":\"integer\",\"minimum\":1,\"maximum\":50},\"scope\":{\"description\":\"Example text 2634.\",\"type\":\"string\",\"enum\":[\"Example text 2635.\",\"Example text 2636.\",\"Example text 2637.\",\"Example text 2638.\",\"Example text 2639.\",\"Example text 2640.\"]},\"type_query\":{\"description\":\"Example text 2641.\",\"type\":\"string\",\"maxLength\":200},\"type\":{\"description\":\"Example text 2642.\",\"type\":\"string\",\"maxLength\":200},\"intent\":{\"description\":\"Example text 2643.\",\"type\":\"string\",\"enum\":[\"Example text 2644.\",\"Example text 2645.\",\"Example text 2646.\",\"Example text 2647.\"]},\"design_systems\":{\"description\":\"Example text 2648.\",\"type\":\"boolean\"},\"title\":{\"description\":\"Example text 2649.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 2650.\",\"type\":\"string\",\"maxLength\":1000},\"label\":{\"description\":\"Example text 2651.\",\"type\":\"string\",\"maxLength\":60},\"overwrite_unread\":{\"description\":\"Example text 2652.\",\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512}},\"url\":{\"description\":\"Example text 2653.\",\"type\":\"string\"},\"type_url\":{\"description\":\"Example text 2654.\",\"type\":\"string\",\"maxLength\":2048},\"auto_open\":{\"description\":\"Example text 2655.\",\"type\":\"string\",\"enum\":[\"Example text 2656.\",\"Example text 2657.\"]},\"prompt\":{\"description\":\"Example text 2658.\",\"type\":\"string\"},\"force\":{\"description\":\"Example text 2659.\",\"type\":\"boolean\"},\"out_dir\":{\"description\":\"Example text 2660.\",\"type\":\"string\",\"maxLength\":4096},\"path\":{\"description\":\"Example text 2661.\",\"type\":\"string\",\"maxLength\":512},\"paths\":{\"description\":\"Example text 2662.\",\"minItems\":1,\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"maxLength\":512}},\"after\":{\"description\":\"Example text 2663.\",\"type\":\"string\",\"pattern\":\"Example text 2664.\"},\"page\":{\"description\":\"Example text 2665.\",\"type\":\"boolean\"},\"capabilities\":{\"description\":\"Example text 2666.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":64},\"additionalProperties\":{}},\"contract\":{\"description\":\"Example text 2667.\",\"anyOf\":[{\"type\":\"string\",\"const\":\"Example text 2668.\"},{\"type\":\"string\",\"pattern\":\"Example text 2669.\"}]}},\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 2670.\",\"description\":\"Example text 2671.\",\"schema\":{\"name\":\"Example text 2672.\",\"description\":\"Example text 2673.\",\"input_schema\":{\"$schema\":\"Example text 2674.\",\"type\":\"object\",\"properties\":{\"command\":{\"description\":\"Example text 2675.\",\"type\":\"string\"},\"timeout\":{\"description\":\"Example text 2676.\",\"type\":\"number\"},\"description\":{\"description\":\"Example text 2677.\",\"type\":\"string\"},\"run_in_background\":{\"description\":\"Example text 2678.\",\"type\":\"boolean\"},\"dangerouslyDisableSandbox\":{\"description\":\"Example text 2679.\",\"type\":\"boolean\"}},\"required\":[\"Example text 2680.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}}]"
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "prompt_snapshot"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 16,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000209\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"prompt_snapshot\",\"systemPrompt\":[\"Example text 2575.\",\"Example text 2576.\",\"Example text 2577.\"],\"tools\":[{\"name\":\"Example text 2578.\",\"description\":\"Example text 2579.\",\"schema\":{\"name\":\"Example text 2580.\",\"description\":\"Example text 2581.\",\"input_schema\":{\"$schema\":\"Example text 2582.\",\"type\":\"object\",\"properties\":{\"description\":{\"description\":\"Example text 2583.\",\"type\":\"string\"},\"prompt\":{\"description\":\"Example text 2584.\",\"type\":\"string\"},\"subagent_type\":{\"description\":\"Example text 2585.\",\"type\":\"string\"},\"model\":{\"description\":\"Example text 2586.\",\"type\":\"string\",\"enum\":[\"Example text 2587.\",\"Example text 2588.\",\"Example text 2589.\",\"Example text 2590.\"]},\"isolation\":{\"description\":\"Example text 2591.\",\"type\":\"string\",\"enum\":[\"Example text 2592.\",\"Example text 2593.\"]}},\"required\":[\"Example text 2594.\",\"Example text 2595.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 2596.\",\"description\":\"Example text 2597.\",\"schema\":{\"name\":\"Example text 2598.\",\"description\":\"Example text 2599.\",\"input_schema\":{\"$schema\":\"Example text 2600.\",\"type\":\"object\",\"properties\":{\"action\":{\"description\":\"Example text 2601.\",\"type\":\"string\",\"enum\":[\"Example text 2602.\",\"Example text 2603.\",\"Example text 2604.\",\"Example text 2605.\",\"Example text 2606.\",\"Example text 2607.\",\"Example text 2608.\",\"Example text 2609.\"]},\"file_path\":{\"description\":\"Example text 2610.\",\"type\":\"string\"},\"asset\":{\"description\":\"Example text 2611.\",\"type\":\"boolean\"},\"file_paths\":{\"description\":\"Example text 2612.\",\"minItems\":1,\"maxItems\":25,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1024,\"pattern\":\"Example text 2613.\"}},\"from_url\":{\"description\":\"Example text 2614.\",\"type\":\"string\",\"maxLength\":512},\"asset_ids\":{\"description\":\"Example text 2615.\",\"minItems\":1,\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"pattern\":\"Example text 2616.\"}},\"favicon\":{\"description\":\"Example text 2617.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":32},\"icon\":{\"description\":\"Example text 2618.\",\"type\":\"string\",\"maxLength\":40},\"files\":{\"description\":\"Example text 2619.\",\"anyOf\":[{\"maxItems\":255,\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"path\":{\"description\":\"Example text 2620.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 2621.\",\"type\":\"string\"}},\"required\":[\"Example text 2622.\"],\"additionalProperties\":false}},{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"additionalProperties\":{\"anyOf\":[{\"type\":\"string\",\"minLength\":1,\"maxLength\":512},{\"type\":\"object\",\"properties\":{\"from\":{\"description\":\"Example text 2623.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"contentType\":{\"description\":\"Example text 2624.\",\"type\":\"string\"}},\"required\":[\"Example text 2625.\"],\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"artifact\":{\"description\":\"Example text 2626.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"path\":{\"description\":\"Example text 2627.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":512},\"ver\":{\"description\":\"Example text 2628.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":64}},\"required\":[\"Example text 2629.\",\"Example text 2630.\"],\"additionalProperties\":false},{\"type\":\"null\"}]}}]},\"root\":{\"description\":\"Example text 2631.\",\"type\":\"string\",\"minLength\":1,\"maxLength\":1024},\"pin\":{\"description\":\"Example text 2632.\",\"type\":\"boolean\"},\"limit\":{\"description\":\"Example text 2633.\",\"type\":\"integer\",\"minimum\":1,\"maximum\":50},\"scope\":{\"description\":\"Example text 2634.\",\"type\":\"string\",\"enum\":[\"Example text 2635.\",\"Example text 2636.\",\"Example text 2637.\",\"Example text 2638.\",\"Example text 2639.\",\"Example text 2640.\"]},\"type_query\":{\"description\":\"Example text 2641.\",\"type\":\"string\",\"maxLength\":200},\"type\":{\"description\":\"Example text 2642.\",\"type\":\"string\",\"maxLength\":200},\"intent\":{\"description\":\"Example text 2643.\",\"type\":\"string\",\"enum\":[\"Example text 2644.\",\"Example text 2645.\",\"Example text 2646.\",\"Example text 2647.\"]},\"design_systems\":{\"description\":\"Example text 2648.\",\"type\":\"boolean\"},\"title\":{\"description\":\"Example text 2649.\",\"type\":\"string\"},\"description\":{\"description\":\"Example text 2650.\",\"type\":\"string\",\"maxLength\":1000},\"label\":{\"description\":\"Example text 2651.\",\"type\":\"string\",\"maxLength\":60},\"overwrite_unread\":{\"description\":\"Example text 2652.\",\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":512}},\"url\":{\"description\":\"Example text 2653.\",\"type\":\"string\"},\"type_url\":{\"description\":\"Example text 2654.\",\"type\":\"string\",\"maxLength\":2048},\"auto_open\":{\"description\":\"Example text 2655.\",\"type\":\"string\",\"enum\":[\"Example text 2656.\",\"Example text 2657.\"]},\"prompt\":{\"description\":\"Example text 2658.\",\"type\":\"string\"},\"force\":{\"description\":\"Example text 2659.\",\"type\":\"boolean\"},\"out_dir\":{\"description\":\"Example text 2660.\",\"type\":\"string\",\"maxLength\":4096},\"path\":{\"description\":\"Example text 2661.\",\"type\":\"string\",\"maxLength\":512},\"paths\":{\"description\":\"Example text 2662.\",\"minItems\":1,\"maxItems\":256,\"type\":\"array\",\"items\":{\"type\":\"string\",\"maxLength\":512}},\"after\":{\"description\":\"Example text 2663.\",\"type\":\"string\",\"pattern\":\"Example text 2664.\"},\"page\":{\"description\":\"Example text 2665.\",\"type\":\"boolean\"},\"capabilities\":{\"description\":\"Example text 2666.\",\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":64},\"additionalProperties\":{}},\"contract\":{\"description\":\"Example text 2667.\",\"anyOf\":[{\"type\":\"string\",\"const\":\"Example text 2668.\"},{\"type\":\"string\",\"pattern\":\"Example text 2669.\"}]}},\"additionalProperties\":false},\"eager_input_streaming\":true}},{\"name\":\"Example text 2670.\",\"description\":\"Example text 2671.\",\"schema\":{\"name\":\"Example text 2672.\",\"description\":\"Example text 2673.\",\"input_schema\":{\"$schema\":\"Example text 2674.\",\"type\":\"object\",\"properties\":{\"command\":{\"description\":\"Example text 2675.\",\"type\":\"string\"},\"timeout\":{\"description\":\"Example text 2676.\",\"type\":\"number\"},\"description\":{\"description\":\"Example text 2677.\",\"type\":\"string\"},\"run_in_background\":{\"description\":\"Example text 2678.\",\"type\":\"boolean\"},\"dangerouslyDisableSandbox\":{\"description\":\"Example text 2679.\",\"type\":\"boolean\"}},\"required\":[\"Example text 2680.\"],\"additionalProperties\":false},\"eager_input_streaming\":true}}],\"cliPrefix\":\"Example text 2681.\",\"reminderFold\":false,\"systemTurns\":true,\"toolChangeHeader\":true,\"inlineTools\":false,\"keptReminders\":true,\"echoWireToolInputs\":true,\"contextRendering\":\"Example text 2682.\"},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000210\",\"timestamp\":\"2026-01-01T09:08:57.983Z\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000212": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000212",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258537989,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000212",
+            "kind": "reminder",
+            "label": "agent list",
+            "text": "Example text 2716.\nExample text 2717.\nExample text 2718."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "agent_listing_delta"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 18,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000211\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"agent_listing_delta\",\"addedTypes\":[\"Example text 2713.\",\"Example text 2714.\",\"Example text 2715.\"],\"addedLines\":[\"Example text 2716.\",\"Example text 2717.\",\"Example text 2718.\"],\"builtInTypes\":[\"Example text 2719.\",\"Example text 2720.\",\"Example text 2721.\"],\"removedTypes\":[],\"isInitial\":true,\"showConcurrencyNote\":false},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000212\",\"timestamp\":\"2026-01-01T09:08:57.989Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2710.<example>Example text 2710.<commentary>Example text 2710.</commentary>Example text 2710.</example>Example text 2710.<example>Example text 2710.<commentary>Example text 2710.</commentary>Example text 2710.</example>Example text 2710.<example>Example text 2710.<commentary>Example text 2710.</commentary>Example text 2710.</example>Example text 2710.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
+        }
+      ]
+    },
+    "context:00000000-0000-4000-8000-000000000213": {
+      "trace_id": "context:00000000-0000-4000-8000-000000000213",
+      "parent_id": "turn:00000000-0000-4000-8000-000000000191",
+      "kind": "context_update",
+      "started_at_ms": 1767258537990,
+      "ended_at_ms": null,
+      "duration_ms": null,
+      "context_tokens": null,
+      "node": {
+        "type": "context_update",
+        "parts": [
+          {
+            "key": "reminder:00000000-0000-4000-8000-000000000213",
+            "kind": "reminder",
+            "label": "MCP server instructions",
+            "text": "Example text 2740.\n\nExample text 2741.\n\nExample text 2742."
+          }
+        ]
+      },
+      "metadata": {
+        "attachment_type": "mcp_instructions_delta"
+      },
+      "raw": [
+        {
+          "source": "subagents/agent-a0000000000000159.jsonl",
+          "line": 19,
+          "text": "{\"parentUuid\":\"00000000-0000-4000-8000-000000000212\",\"isSidechain\":true,\"agentId\":\"a0000000000000159\",\"attachment\":{\"type\":\"mcp_instructions_delta\",\"addedNames\":[\"Example text 2737.\",\"Example text 2738.\",\"Example text 2739.\"],\"addedBlocks\":[\"Example text 2740.\",\"Example text 2741.\",\"Example text 2742.\"],\"removedNames\":[]},\"type\":\"attachment\",\"uuid\":\"00000000-0000-4000-8000-000000000213\",\"timestamp\":\"2026-01-01T09:08:57.990Z\",\"rendered\":[{\"content\":\"<system-reminder>Example text 2734.<title>Example text 2734.<today>Example text 2734.<title>Example text 2734.<?claude block asof?>Example text 2734.<?claude block me?>Example text 2734.<?claude block s1?>Example text 2734.<?claude block s2?>Example text 2734.<?claude block k?>Example text 2734.<topic>Example text 2734.<heading>Example text 2734.<root id>Example text 2734.<root id>Example text 2734.<root id>Example text 2734.</system-reminder>\"}],\"renderedRole\":\"system\",\"userType\":\"external\",\"entrypoint\":\"cli\",\"cwd\":\"C:\\\\work\\\\example\",\"sessionId\":\"00000000-0000-4000-8000-000000000002\",\"version\":\"2.1.285\",\"gitBranch\":\"main\"}"
         }
       ]
     },

@@ -4,14 +4,15 @@
 //! events that line produced. A node that changes (for example a tool call
 //! whose result arrives) is sent again with the same id, as the schema allows.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use serde_json::{Map, Value};
 use trace_core::{
-    ContentBlock, Marker, ModelCall, Node, RawSource, Run, StopReason, ToolCall, ToolResult,
-    TraceEvent, Turn, Usage,
+    ContentBlock, ContextUpdate, Marker, ModelCall, Node, RawSource, Run, StopReason, ToolCall,
+    ToolResult, TraceEvent, Turn, Usage,
 };
 
+use crate::context_parts::{REMINDER_PREFIX, parts_for_attachment};
 use crate::time::parse_rfc3339_ms;
 
 /// Harness name written on every `Run`.
@@ -73,6 +74,10 @@ pub struct Parser {
     last_timestamp: Option<i64>,
     subagents: Vec<SubagentLink>,
     skipped: Vec<Skipped>,
+    /// Keys of the reminder parts emitted in this run, for compaction.
+    reminder_keys: Vec<String>,
+    /// Attachment types already reported as unmapped.
+    unmapped_logged: HashSet<String>,
 }
 
 impl Parser {
@@ -125,6 +130,8 @@ impl Parser {
             last_timestamp: None,
             subagents: Vec::new(),
             skipped: Vec::new(),
+            reminder_keys: Vec::new(),
+            unmapped_logged: HashSet::new(),
         }
     }
 
@@ -511,6 +518,7 @@ impl Parser {
                     metadata.insert("compact_metadata".into(), meta.clone());
                 }
                 self.marker(line, "compaction", summary, metadata, out);
+                self.drop_reminders(line, out);
             }
             // A recap shown to the user on returning to a session, not a step.
             Some("away_summary") => {}
@@ -524,8 +532,9 @@ impl Parser {
             return;
         };
         let kind = str_at(attachment, "type").unwrap_or("");
-        // Most attachments are context injected into the prompt and are not
-        // steps in the run. Hook results are steps, so they become markers.
+        self.context_from_attachment(line, kind, attachment, out);
+        // Hook results are steps, so they become markers. Other attachments
+        // are context injected into the prompt, handled above.
         if !kind.starts_with("hook_") {
             return;
         }
@@ -544,6 +553,72 @@ impl Parser {
             metadata,
             out,
         );
+    }
+
+    /// Emits a `context_update` for an attachment that carries hidden
+    /// context. Unmapped attachment types are noted once at debug level.
+    fn context_from_attachment(
+        &mut self,
+        line: &Line,
+        kind: &str,
+        attachment: &Value,
+        out: &mut Vec<TraceEvent>,
+    ) {
+        let line_id = self.context_line_id(line);
+        let Some(parts) = parts_for_attachment(kind, attachment, &line_id) else {
+            if !kind.starts_with("hook_") && self.unmapped_logged.insert(kind.to_string()) {
+                tracing::debug!(source = %self.source, kind, "attachment type carries no hidden context");
+            }
+            return;
+        };
+        if parts.is_empty() {
+            return;
+        }
+        for part in &parts {
+            if part.key.starts_with(REMINDER_PREFIX) && !self.reminder_keys.contains(&part.key) {
+                self.reminder_keys.push(part.key.clone());
+            }
+        }
+        let mut metadata = Map::new();
+        metadata.insert("attachment_type".into(), Value::String(kind.to_string()));
+        self.context_update(line, parts, Vec::new(), metadata, out);
+    }
+
+    /// At a compaction, removes every reminder part this run emitted.
+    fn drop_reminders(&mut self, line: &Line, out: &mut Vec<TraceEvent>) {
+        if self.reminder_keys.is_empty() {
+            return;
+        }
+        let remove = std::mem::take(&mut self.reminder_keys);
+        self.context_update(line, Vec::new(), remove, Map::new(), out);
+    }
+
+    fn context_update(
+        &mut self,
+        line: &Line,
+        parts: Vec<trace_core::ContextPart>,
+        remove: Vec<String>,
+        metadata: Map<String, Value>,
+        out: &mut Vec<TraceEvent>,
+    ) {
+        let event = TraceEvent {
+            id: format!("context:{}", self.context_line_id(line)),
+            parent_id: Some(self.turn_or_run()),
+            node: Node::ContextUpdate(ContextUpdate { parts, remove }),
+            started_at_ms: line.ts,
+            ended_at_ms: None,
+            raw: vec![line.raw.clone()],
+            metadata: metadata.into_iter().collect(),
+        };
+        self.emit(event, out);
+    }
+
+    /// The line's uuid, or `line-<n>` when it has none.
+    fn context_line_id(&self, line: &Line) -> String {
+        match str_field(line.obj, "uuid") {
+            Some(uuid) => uuid.to_string(),
+            None => format!("line-{}", line.raw.line),
+        }
     }
 
     /// Copies a session-level string field onto the Run's metadata.
@@ -927,6 +1002,104 @@ mod tests {
             .collect();
         let summary = "Summary: a story was written.".chars().count() as u64;
         assert_eq!(labels, vec![("your prompts", summary)]);
+    }
+
+    fn context_updates(events: &[TraceEvent]) -> Vec<&TraceEvent> {
+        let mut latest: Vec<&TraceEvent> = Vec::new();
+        for e in events {
+            if matches!(e.node, Node::ContextUpdate(_)) {
+                latest.retain(|x| x.id != e.id);
+                latest.push(e);
+            }
+        }
+        latest
+    }
+
+    #[test]
+    fn attachment_lines_become_context_updates() {
+        let (events, skipped) = run_lines(&[
+            r#"{"type":"attachment","uuid":"a1","attachment":{"type":"prompt_snapshot","systemPrompt":["Example prompt."]}}"#,
+            r#"{"type":"attachment","uuid":"a2","attachment":{"type":"skill_listing","content":"Example skills."}}"#,
+            r#"{"type":"attachment","attachment":{"type":"date","date":"Example date."}}"#,
+            r#"{"type":"attachment","uuid":"a4","attachment":{"type":"total_tokens_reminder","text":"x"}}"#,
+            r#"{"type":"attachment","uuid":"a5","attachment":{"type":"skill_listing","content":5}}"#,
+        ]);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let updates = context_updates(&events);
+        let ids: Vec<&str> = updates.iter().map(|e| e.id.as_str()).collect();
+        assert_eq!(ids, ["context:a1", "context:a2", "context:line-3"]);
+        assert_eq!(updates[0].parent_id.as_deref(), Some("run:s1"));
+        assert_eq!(updates[0].raw.len(), 1);
+        let Node::ContextUpdate(u) = &updates[2].node else {
+            panic!("not a context update")
+        };
+        assert_eq!(u.parts[0].key, "reminder:line-3");
+        assert!(u.remove.is_empty());
+    }
+
+    #[test]
+    fn hook_additional_context_keeps_its_marker_and_adds_a_reminder() {
+        let (events, _) = run_lines(&[
+            r#"{"type":"attachment","uuid":"h1","attachment":{"type":"hook_additional_context","hookEvent":"SessionStart","content":["Example hook."]}}"#,
+        ]);
+        assert!(events.iter().any(|e| e.id == "marker:h1"));
+        let updates = context_updates(&events);
+        assert_eq!(updates.len(), 1);
+        let Node::ContextUpdate(u) = &updates[0].node else {
+            panic!("not a context update")
+        };
+        assert_eq!(u.parts[0].label, "hook output");
+        assert_eq!(u.parts[0].text, "Example hook.");
+    }
+
+    fn removed_by(events: &[TraceEvent], id: &str) -> Vec<String> {
+        let updates = context_updates(events);
+        let update = updates.iter().find(|e| e.id == id).expect("update");
+        let Node::ContextUpdate(u) = &update.node else {
+            panic!("not a context update")
+        };
+        u.remove.clone()
+    }
+
+    #[test]
+    fn compaction_removes_only_this_runs_reminder_keys() {
+        let mut main = Parser::for_session("main.jsonl", "s1");
+        let link = SubagentLink {
+            agent_id: "x".into(),
+            tool_node_id: "tool:t1".into(),
+        };
+        let mut sub = Parser::for_subagent("agent.jsonl", &link, None);
+        let mut main_events = Vec::new();
+        let lines = [
+            r#"{"type":"attachment","uuid":"a1","attachment":{"type":"prompt_snapshot","systemPrompt":["P"]}}"#,
+            r#"{"type":"attachment","uuid":"a2","attachment":{"type":"instructions","files":[{"path":"C:\x\CLAUDE.md","content":"I"}]}}"#,
+            r#"{"type":"attachment","uuid":"a3","attachment":{"type":"skill_listing","content":"S"}}"#,
+            r#"{"type":"attachment","uuid":"a4","attachment":{"type":"date","date":"D"}}"#,
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"auto"}}"#,
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c2","compactMetadata":{"trigger":"auto"}}"#,
+        ];
+        for (i, line) in lines.iter().enumerate() {
+            main_events.extend(main.push_line(i as u64 + 1, line));
+            if i == 2 {
+                sub.push_line(
+                    1,
+                    r#"{"type":"attachment","uuid":"sa1","attachment":{"type":"model","text":"M"}}"#,
+                );
+            }
+        }
+        assert_eq!(
+            removed_by(&main_events, "context:c1"),
+            ["reminder:a3", "reminder:a4"]
+        );
+        // The second compaction has nothing left to remove, so no event.
+        assert!(!main_events.iter().any(|e| e.id == "context:c2"));
+
+        // The subagent's own compaction removes only its own reminder.
+        let sub_events = sub.push_line(
+            2,
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"sc1","compactMetadata":{"trigger":"auto"}}"#,
+        );
+        assert_eq!(removed_by(&sub_events, "context:sc1"), ["reminder:sa1"]);
     }
 
     #[test]

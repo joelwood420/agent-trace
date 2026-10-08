@@ -4,6 +4,7 @@
 
 mod capture;
 mod context;
+mod context_parts;
 mod follow;
 mod parser;
 mod tail;

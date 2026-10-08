@@ -39,8 +39,15 @@ fn load() -> (Trace, Vec<TraceEvent>) {
     (trace, session.events)
 }
 
+/// Children that are steps; hidden-context updates are checked separately.
+fn steps<'a>(trace: &'a Trace, id: &str) -> impl Iterator<Item = &'a TraceEvent> {
+    trace
+        .children(id)
+        .filter(|e| !matches!(e.node, Node::ContextUpdate(_)))
+}
+
 fn kinds(trace: &Trace, id: &str) -> Vec<&'static str> {
-    trace.children(id).map(|e| e.node.kind_name()).collect()
+    steps(trace, id).map(|e| e.node.kind_name()).collect()
 }
 
 fn turns(trace: &Trace, run_id: &str) -> Vec<TraceEvent> {
@@ -150,7 +157,7 @@ fn turns_have_the_expected_prompts_and_children() {
 fn model_calls_group_lines_by_message_and_keep_usage() {
     let (trace, _) = load();
     let turns = turns(&trace, &format!("run:{SESSION}"));
-    let first: Vec<_> = trace.children(&turns[0].id).collect();
+    let first: Vec<_> = steps(&trace, &turns[0].id).collect();
     let Node::ModelCall(call) = &first[0].node else {
         panic!("first child should be a model call")
     };
@@ -169,8 +176,7 @@ fn model_calls_group_lines_by_message_and_keep_usage() {
     assert!(call.model.is_some());
     assert!(first[0].metadata.contains_key("request_id"));
 
-    let last = trace
-        .children(&turns[0].id)
+    let last = steps(&trace, &turns[0].id)
         .nth(2)
         .expect("third model call");
     let Node::ModelCall(call) = &last.node else {
@@ -185,7 +191,7 @@ fn parallel_tool_calls_share_a_model_call_even_when_interleaved() {
     let turns = turns(&trace, &format!("run:{SESSION}"));
     // Turn 2, second model call: lines 59, 60 and 62, with a tool result
     // (line 61) in between.
-    let call = trace.children(&turns[1].id).nth(1).expect("model call");
+    let call = steps(&trace, &turns[1].id).nth(1).expect("model call");
     assert_eq!(
         call.raw.iter().map(|r| r.line).collect::<Vec<_>>(),
         [59, 60, 62]
@@ -263,7 +269,7 @@ fn forked_skill_subagent_is_nested_under_its_tool_call() {
         kinds(&trace, &sub_turns[0].id),
         ["model_call", "marker", "model_call"]
     );
-    let first = trace.children(&sub_turns[0].id).next().expect("model call");
+    let first = steps(&trace, &sub_turns[0].id).next().expect("model call");
     assert!(first.raw[0].source.starts_with("subagents/agent-"));
 }
 
@@ -317,3 +323,49 @@ fn model_call_start_skips_attachment_lines() {
         );
     }
 }
+
+#[test]
+fn attachment_lines_become_context_updates_by_kind() {
+    use std::collections::BTreeMap;
+    use trace_core::ContextPartKind;
+
+    let (_, events) = load();
+    // Events can be sent more than once; count each node's last version.
+    let mut last: BTreeMap<&str, &TraceEvent> = BTreeMap::new();
+    for event in &events {
+        if matches!(event.node, Node::ContextUpdate(_)) {
+            last.insert(event.id.as_str(), event);
+        }
+    }
+    let mut by_kind: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut removals = 0;
+    for event in last.values() {
+        let Node::ContextUpdate(update) = &event.node else {
+            continue;
+        };
+        assert_eq!(event.raw.len(), 1, "{} keeps its raw line", event.id);
+        removals += update.remove.len();
+        for part in &update.parts {
+            let name = match &part.kind {
+                ContextPartKind::SystemPrompt => "system_prompt",
+                ContextPartKind::ToolDefinitions => "tool_definitions",
+                ContextPartKind::Instructions => "instructions",
+                ContextPartKind::Reminder => "reminder",
+                ContextPartKind::Other(_) => "other",
+            };
+            *by_kind.entry(name).or_default() += 1;
+        }
+    }
+    assert_eq!(removals, 0, "the fixture has no compaction");
+    assert_eq!(by_kind, COUNTS.iter().copied().collect());
+    assert_eq!(last.len(), UPDATES);
+}
+
+/// Expected parts by kind and number of `context_update` nodes in the fixture.
+const COUNTS: [(&str, usize); 4] = [
+    ("instructions", 6),
+    ("reminder", 19),
+    ("system_prompt", 4),
+    ("tool_definitions", 2),
+];
+const UPDATES: usize = 25;
