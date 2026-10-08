@@ -495,6 +495,25 @@ mod tests {
     }
 
     #[test]
+    fn reminders_with_one_label_merge_into_one_item() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let parts = vec![
+            part("reminder:1", ContextPartKind::Reminder, "date", 3),
+            part("reminder:2", ContextPartKind::Reminder, "date", 5),
+        ];
+        add(&mut t, "U1", Some("R"), update(parts, &[]));
+        add(&mut t, "M1", Some("R"), call(""));
+        let all = measure_transcript_all(&t, &rules());
+        let items = all["M1"].items(SliceKind::Instructions);
+        let got: Vec<(&str, u64, u32)> = items
+            .iter()
+            .map(|i| (i.label.as_str(), i.chars, i.count))
+            .collect();
+        assert_eq!(got, vec![("date", 8, 2)]);
+    }
+
+    #[test]
     fn conversation_items_are_not_from_transcript() {
         let m = measure_transcript(&sample(), "M2", &rules()).unwrap();
         assert!(!m.has_parts());
