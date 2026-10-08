@@ -194,11 +194,16 @@ pub fn advise(b: &ContextBreakdown) -> Vec<Advice> {
     }
 
     if b.source == ContextSource::Transcript {
-        push(
-            AdviceLevel::Info,
-            SliceKind::NotCaptured,
-            "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it.".to_string(),
-        );
+        let has_parts = b
+            .slices
+            .iter()
+            .any(|s| s.items.iter().any(|i| i.from_transcript));
+        let text = if has_parts {
+            "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
+        } else {
+            "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
+        };
+        push(AdviceLevel::Info, SliceKind::NotCaptured, text.to_string());
     }
 
     out
@@ -215,6 +220,7 @@ mod tests {
             tokens,
             count,
             largest_tokens: largest,
+            from_transcript: false,
         }
     }
 
@@ -434,6 +440,22 @@ mod tests {
         assert_eq!(
             a[0].text,
             "The system prompt, tool definitions and instructions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
+        );
+    }
+
+    #[test]
+    fn rule7_with_transcript_parts() {
+        let mut b = bd(1000, Vec::new());
+        b.source = ContextSource::Transcript;
+        let mut it = item("system prompt", 10, 1, 10);
+        it.from_transcript = true;
+        b.slices
+            .push(slice(SliceKind::SystemPrompt, 10, 1000, vec![it]));
+        let a = advise(&b);
+        assert_eq!(a.len(), 1);
+        assert_eq!(
+            a[0].text,
+            "Tool definitions are not visible for this call. The grey part is everything in the reported total that the transcript does not show. Run the session through the capture proxy to see it."
         );
     }
 

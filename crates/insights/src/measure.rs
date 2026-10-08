@@ -71,6 +71,8 @@ pub struct MeasuredItem {
     pub count: u32,
     /// Characters of the biggest single occurrence.
     pub largest_chars: u64,
+    /// True when the item comes from a context part the transcript recorded.
+    pub from_transcript: bool,
 }
 
 /// A call's context measured in characters, slice by slice.
@@ -100,18 +102,35 @@ impl ContextMeasure {
     /// Like `add` but adds `count` occurrences at once (for tool sets:
     /// one item per MCP server whose count is its number of tools).
     pub fn add_many(&mut self, kind: SliceKind, label: &str, chars: u64, count: u32) {
+        self.add_item(kind, label, chars, count, false);
+    }
+
+    /// Adds one occurrence of a context part the transcript recorded. The
+    /// item is marked `from_transcript`.
+    pub fn add_part(&mut self, kind: SliceKind, label: &str, chars: u64) {
+        self.add_item(kind, label, chars, 1, true);
+    }
+
+    /// True when any item came from a transcript context part.
+    pub fn has_parts(&self) -> bool {
+        self.slices.values().flatten().any(|i| i.from_transcript)
+    }
+
+    fn add_item(&mut self, kind: SliceKind, label: &str, chars: u64, count: u32, part: bool) {
         let items = self.slices.entry(kind).or_default();
         match items.iter_mut().find(|i| i.label == label) {
             Some(item) => {
                 item.chars += chars;
                 item.count += count;
                 item.largest_chars = item.largest_chars.max(chars);
+                item.from_transcript |= part;
             }
             None => items.push(MeasuredItem {
                 label: label.to_string(),
                 chars,
                 count,
                 largest_chars: chars,
+                from_transcript: part,
             }),
         }
     }
@@ -171,7 +190,8 @@ mod tests {
                 label: "a.rs".into(),
                 chars: 400,
                 count: 2,
-                largest_chars: 300
+                largest_chars: 300,
+                from_transcript: false
             }
         );
         assert_eq!(m.slice_chars(SliceKind::FilesRead), 450);
@@ -183,6 +203,17 @@ mod tests {
         let mut m = ContextMeasure::new(ContextSource::Captured);
         m.add_many(SliceKind::ToolDefinitions, "MCP: docs", 900, 3);
         assert_eq!(m.items(SliceKind::ToolDefinitions)[0].count, 3);
+    }
+
+    #[test]
+    fn add_part_marks_items_and_has_parts() {
+        let mut m = ContextMeasure::new(ContextSource::Transcript);
+        m.add(SliceKind::Conversation, "your prompts", 10);
+        assert!(!m.has_parts());
+        m.add_part(SliceKind::SystemPrompt, "system prompt", 30);
+        assert!(m.has_parts());
+        assert!(m.items(SliceKind::SystemPrompt)[0].from_transcript);
+        assert!(!m.items(SliceKind::Conversation)[0].from_transcript);
     }
 
     #[test]

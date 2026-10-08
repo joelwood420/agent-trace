@@ -566,19 +566,22 @@
               "label": "block 2",
               "tokens": 1543,
               "count": 1,
-              "largest_tokens": 1543
+              "largest_tokens": 1543,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1062,
               "count": 1,
-              "largest_tokens": 1062
+              "largest_tokens": 1062,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 481,
               "count": 1,
-              "largest_tokens": 481
+              "largest_tokens": 481,
+              "from_transcript": false
             }
           ]
         },
@@ -592,13 +595,15 @@
               "label": "MCP: docs",
               "tokens": 29615,
               "count": 2,
-              "largest_tokens": 14975
+              "largest_tokens": 14975,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11472,
               "count": 6,
-              "largest_tokens": 2414
+              "largest_tokens": 2414,
+              "from_transcript": false
             }
           ]
         },
@@ -612,19 +617,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 19450,
               "count": 1,
-              "largest_tokens": 19450
+              "largest_tokens": 19450,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 880,
               "count": 1,
-              "largest_tokens": 880
+              "largest_tokens": 880,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 309,
               "count": 1,
-              "largest_tokens": 309
+              "largest_tokens": 309,
+              "from_transcript": false
             }
           ]
         },
@@ -638,7 +646,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 163,
               "count": 1,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         },
@@ -652,25 +661,29 @@
               "label": "Bash",
               "tokens": 817,
               "count": 5,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 653,
               "count": 4,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 318,
               "count": 2,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "Skill",
               "tokens": 163,
               "count": 1,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         },
@@ -684,19 +697,22 @@
               "label": "tool inputs",
               "tokens": 9575,
               "count": 13,
-              "largest_tokens": 1098
+              "largest_tokens": 1098,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 7116,
               "count": 5,
-              "largest_tokens": 5627
+              "largest_tokens": 5627,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1461,
               "count": 9,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         }
@@ -737,19 +753,22 @@
               "label": "block 2",
               "tokens": 1719,
               "count": 1,
-              "largest_tokens": 1719
+              "largest_tokens": 1719,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1183,
               "count": 1,
-              "largest_tokens": 1183
+              "largest_tokens": 1183,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 536,
               "count": 1,
-              "largest_tokens": 536
+              "largest_tokens": 536,
+              "from_transcript": false
             }
           ]
         },
@@ -763,13 +782,15 @@
               "label": "MCP: docs",
               "tokens": 32989,
               "count": 2,
-              "largest_tokens": 16681
+              "largest_tokens": 16681,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 10868,
               "count": 5,
-              "largest_tokens": 2689
+              "largest_tokens": 2689,
+              "from_transcript": false
             }
           ]
         },
@@ -783,19 +804,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 21666,
               "count": 1,
-              "largest_tokens": 21666
+              "largest_tokens": 21666,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 981,
               "count": 1,
-              "largest_tokens": 981
+              "largest_tokens": 981,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 344,
               "count": 1,
-              "largest_tokens": 344
+              "largest_tokens": 344,
+              "from_transcript": false
             }
           ]
         },
@@ -809,7 +833,8 @@
               "label": "your prompts",
               "tokens": 435,
               "count": 1,
-              "largest_tokens": 435
+              "largest_tokens": 435,
+              "from_transcript": false
             }
           ]
         }
@@ -847,19 +872,22 @@
               "label": "block 2",
               "tokens": 1709,
               "count": 1,
-              "largest_tokens": 1709
+              "largest_tokens": 1709,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1176,
               "count": 1,
-              "largest_tokens": 1176
+              "largest_tokens": 1176,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 533,
               "count": 1,
-              "largest_tokens": 533
+              "largest_tokens": 533,
+              "from_transcript": false
             }
           ]
         },
@@ -873,13 +901,15 @@
               "label": "MCP: docs",
               "tokens": 32801,
               "count": 2,
-              "largest_tokens": 16587
+              "largest_tokens": 16587,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 10806,
               "count": 5,
-              "largest_tokens": 2674
+              "largest_tokens": 2674,
+              "from_transcript": false
             }
           ]
         },
@@ -893,19 +923,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 21542,
               "count": 1,
-              "largest_tokens": 21542
+              "largest_tokens": 21542,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 975,
               "count": 1,
-              "largest_tokens": 975
+              "largest_tokens": 975,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 342,
               "count": 1,
-              "largest_tokens": 342
+              "largest_tokens": 342,
+              "from_transcript": false
             }
           ]
         },
@@ -919,7 +952,8 @@
               "label": "PowerShell",
               "tokens": 171,
               "count": 1,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             }
           ]
         },
@@ -933,19 +967,22 @@
               "label": "tool inputs",
               "tokens": 643,
               "count": 1,
-              "largest_tokens": 643
+              "largest_tokens": 643,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 432,
               "count": 1,
-              "largest_tokens": 432
+              "largest_tokens": 432,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 171,
               "count": 1,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             }
           ]
         }
@@ -983,19 +1020,22 @@
               "label": "block 2",
               "tokens": 1697,
               "count": 1,
-              "largest_tokens": 1697
+              "largest_tokens": 1697,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1168,
               "count": 1,
-              "largest_tokens": 1168
+              "largest_tokens": 1168,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 529,
               "count": 1,
-              "largest_tokens": 529
+              "largest_tokens": 529,
+              "from_transcript": false
             }
           ]
         },
@@ -1009,13 +1049,15 @@
               "label": "MCP: docs",
               "tokens": 32566,
               "count": 2,
-              "largest_tokens": 16467
+              "largest_tokens": 16467,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 10729,
               "count": 5,
-              "largest_tokens": 2655
+              "largest_tokens": 2655,
+              "from_transcript": false
             }
           ]
         },
@@ -1029,19 +1071,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 21388,
               "count": 1,
-              "largest_tokens": 21388
+              "largest_tokens": 21388,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 968,
               "count": 1,
-              "largest_tokens": 968
+              "largest_tokens": 968,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 339,
               "count": 1,
-              "largest_tokens": 339
+              "largest_tokens": 339,
+              "from_transcript": false
             }
           ]
         },
@@ -1055,7 +1100,8 @@
               "label": "PowerShell",
               "tokens": 349,
               "count": 2,
-              "largest_tokens": 180
+              "largest_tokens": 180,
+              "from_transcript": false
             }
           ]
         },
@@ -1069,19 +1115,22 @@
               "label": "tool inputs",
               "tokens": 1297,
               "count": 2,
-              "largest_tokens": 659
+              "largest_tokens": 659,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 429,
               "count": 1,
-              "largest_tokens": 429
+              "largest_tokens": 429,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 349,
               "count": 2,
-              "largest_tokens": 180
+              "largest_tokens": 180,
+              "from_transcript": false
             }
           ]
         }
@@ -1119,19 +1168,22 @@
               "label": "block 2",
               "tokens": 1646,
               "count": 1,
-              "largest_tokens": 1646
+              "largest_tokens": 1646,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1133,
               "count": 1,
-              "largest_tokens": 1133
+              "largest_tokens": 1133,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 513,
               "count": 1,
-              "largest_tokens": 513
+              "largest_tokens": 513,
+              "from_transcript": false
             }
           ]
         },
@@ -1145,13 +1197,15 @@
               "label": "MCP: docs",
               "tokens": 31587,
               "count": 2,
-              "largest_tokens": 15973
+              "largest_tokens": 15973,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12236,
               "count": 6,
-              "largest_tokens": 2575
+              "largest_tokens": 2575,
+              "from_transcript": false
             }
           ]
         },
@@ -1165,19 +1219,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20745,
               "count": 1,
-              "largest_tokens": 20745
+              "largest_tokens": 20745,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 939,
               "count": 1,
-              "largest_tokens": 939
+              "largest_tokens": 939,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 329,
               "count": 1,
-              "largest_tokens": 329
+              "largest_tokens": 329,
+              "from_transcript": false
             }
           ]
         },
@@ -1191,7 +1248,8 @@
               "label": "PowerShell",
               "tokens": 339,
               "count": 2,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         },
@@ -1205,19 +1263,22 @@
               "label": "tool inputs",
               "tokens": 1258,
               "count": 2,
-              "largest_tokens": 639
+              "largest_tokens": 639,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 842,
               "count": 2,
-              "largest_tokens": 426
+              "largest_tokens": 426,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 513,
               "count": 3,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         }
@@ -1255,19 +1316,22 @@
               "label": "block 2",
               "tokens": 1643,
               "count": 1,
-              "largest_tokens": 1643
+              "largest_tokens": 1643,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1130,
               "count": 1,
-              "largest_tokens": 1130
+              "largest_tokens": 1130,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 512,
               "count": 1,
-              "largest_tokens": 512
+              "largest_tokens": 512,
+              "from_transcript": false
             }
           ]
         },
@@ -1281,13 +1345,15 @@
               "label": "MCP: docs",
               "tokens": 31528,
               "count": 2,
-              "largest_tokens": 15943
+              "largest_tokens": 15943,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12213,
               "count": 6,
-              "largest_tokens": 2570
+              "largest_tokens": 2570,
+              "from_transcript": false
             }
           ]
         },
@@ -1301,19 +1367,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20706,
               "count": 1,
-              "largest_tokens": 20706
+              "largest_tokens": 20706,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 937,
               "count": 1,
-              "largest_tokens": 937
+              "largest_tokens": 937,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 329,
               "count": 1,
-              "largest_tokens": 329
+              "largest_tokens": 329,
+              "from_transcript": false
             }
           ]
         },
@@ -1327,13 +1396,15 @@
               "label": "PowerShell",
               "tokens": 338,
               "count": 2,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 174,
               "count": 1,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         },
@@ -1347,19 +1418,22 @@
               "label": "tool inputs",
               "tokens": 2213,
               "count": 3,
-              "largest_tokens": 957
+              "largest_tokens": 957,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 841,
               "count": 2,
-              "largest_tokens": 425
+              "largest_tokens": 425,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 512,
               "count": 3,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         }
@@ -1397,19 +1471,22 @@
               "label": "block 2",
               "tokens": 1606,
               "count": 1,
-              "largest_tokens": 1606
+              "largest_tokens": 1606,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1105,
               "count": 1,
-              "largest_tokens": 1105
+              "largest_tokens": 1105,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 501,
               "count": 1,
-              "largest_tokens": 501
+              "largest_tokens": 501,
+              "from_transcript": false
             }
           ]
         },
@@ -1423,13 +1500,15 @@
               "label": "MCP: docs",
               "tokens": 30822,
               "count": 2,
-              "largest_tokens": 15586
+              "largest_tokens": 15586,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11939,
               "count": 6,
-              "largest_tokens": 2513
+              "largest_tokens": 2513,
+              "from_transcript": false
             }
           ]
         },
@@ -1443,19 +1522,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20242,
               "count": 1,
-              "largest_tokens": 20242
+              "largest_tokens": 20242,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 916,
               "count": 1,
-              "largest_tokens": 916
+              "largest_tokens": 916,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 321,
               "count": 1,
-              "largest_tokens": 321
+              "largest_tokens": 321,
+              "from_transcript": false
             }
           ]
         },
@@ -1469,13 +1551,15 @@
               "label": "Grep",
               "tokens": 510,
               "count": 3,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 331,
               "count": 2,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1489,19 +1573,22 @@
               "label": "tool inputs",
               "tokens": 4166,
               "count": 5,
-              "largest_tokens": 1077
+              "largest_tokens": 1077,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 822,
               "count": 2,
-              "largest_tokens": 416
+              "largest_tokens": 416,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 501,
               "count": 3,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         }
@@ -1539,19 +1626,22 @@
               "label": "block 2",
               "tokens": 1603,
               "count": 1,
-              "largest_tokens": 1603
+              "largest_tokens": 1603,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1103,
               "count": 1,
-              "largest_tokens": 1103
+              "largest_tokens": 1103,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 500,
               "count": 1,
-              "largest_tokens": 500
+              "largest_tokens": 500,
+              "from_transcript": false
             }
           ]
         },
@@ -1565,13 +1655,15 @@
               "label": "MCP: docs",
               "tokens": 30774,
               "count": 2,
-              "largest_tokens": 15562
+              "largest_tokens": 15562,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11921,
               "count": 6,
-              "largest_tokens": 2509
+              "largest_tokens": 2509,
+              "from_transcript": false
             }
           ]
         },
@@ -1585,19 +1677,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20211,
               "count": 1,
-              "largest_tokens": 20211
+              "largest_tokens": 20211,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 915,
               "count": 1,
-              "largest_tokens": 915
+              "largest_tokens": 915,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 321,
               "count": 1,
-              "largest_tokens": 321
+              "largest_tokens": 321,
+              "from_transcript": false
             }
           ]
         },
@@ -1611,7 +1706,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 170,
               "count": 1,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1625,13 +1721,15 @@
               "label": "Grep",
               "tokens": 509,
               "count": 3,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 330,
               "count": 2,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1645,19 +1743,22 @@
               "label": "tool inputs",
               "tokens": 4829,
               "count": 6,
-              "largest_tokens": 1075
+              "largest_tokens": 1075,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 821,
               "count": 2,
-              "largest_tokens": 415
+              "largest_tokens": 415,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 500,
               "count": 3,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         }
@@ -1695,19 +1796,22 @@
               "label": "block 2",
               "tokens": 1608,
               "count": 1,
-              "largest_tokens": 1608
+              "largest_tokens": 1608,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1107,
               "count": 1,
-              "largest_tokens": 1107
+              "largest_tokens": 1107,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 501,
               "count": 1,
-              "largest_tokens": 501
+              "largest_tokens": 501,
+              "from_transcript": false
             }
           ]
         },
@@ -1721,13 +1825,15 @@
               "label": "MCP: docs",
               "tokens": 30861,
               "count": 2,
-              "largest_tokens": 15605
+              "largest_tokens": 15605,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11955,
               "count": 6,
-              "largest_tokens": 2516
+              "largest_tokens": 2516,
+              "from_transcript": false
             }
           ]
         },
@@ -1741,19 +1847,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20268,
               "count": 1,
-              "largest_tokens": 20268
+              "largest_tokens": 20268,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 917,
               "count": 1,
-              "largest_tokens": 917
+              "largest_tokens": 917,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 322,
               "count": 1,
-              "largest_tokens": 322
+              "largest_tokens": 322,
+              "from_transcript": false
             }
           ]
         },
@@ -1767,7 +1876,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 170,
               "count": 1,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1781,13 +1891,15 @@
               "label": "Grep",
               "tokens": 511,
               "count": 3,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 331,
               "count": 2,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1801,19 +1913,22 @@
               "label": "tool inputs",
               "tokens": 4842,
               "count": 6,
-              "largest_tokens": 1078
+              "largest_tokens": 1078,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1211,
               "count": 3,
-              "largest_tokens": 416
+              "largest_tokens": 416,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 671,
               "count": 4,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         }
@@ -1851,19 +1966,22 @@
               "label": "block 2",
               "tokens": 1609,
               "count": 1,
-              "largest_tokens": 1609
+              "largest_tokens": 1609,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1107,
               "count": 1,
-              "largest_tokens": 1107
+              "largest_tokens": 1107,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 502,
               "count": 1,
-              "largest_tokens": 502
+              "largest_tokens": 502,
+              "from_transcript": false
             }
           ]
         },
@@ -1877,13 +1995,15 @@
               "label": "MCP: docs",
               "tokens": 30886,
               "count": 2,
-              "largest_tokens": 15618
+              "largest_tokens": 15618,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11964,
               "count": 6,
-              "largest_tokens": 2518
+              "largest_tokens": 2518,
+              "from_transcript": false
             }
           ]
         },
@@ -1897,19 +2017,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20284,
               "count": 1,
-              "largest_tokens": 20284
+              "largest_tokens": 20284,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 918,
               "count": 1,
-              "largest_tokens": 918
+              "largest_tokens": 918,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 322,
               "count": 1,
-              "largest_tokens": 322
+              "largest_tokens": 322,
+              "from_transcript": false
             }
           ]
         },
@@ -1923,7 +2046,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 170,
               "count": 1,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1937,13 +2061,15 @@
               "label": "Grep",
               "tokens": 682,
               "count": 4,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 331,
               "count": 2,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         },
@@ -1957,19 +2083,22 @@
               "label": "tool inputs",
               "tokens": 5992,
               "count": 7,
-              "largest_tokens": 1145
+              "largest_tokens": 1145,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1212,
               "count": 3,
-              "largest_tokens": 416
+              "largest_tokens": 416,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 672,
               "count": 4,
-              "largest_tokens": 170
+              "largest_tokens": 170,
+              "from_transcript": false
             }
           ]
         }
@@ -2007,19 +2136,22 @@
               "label": "block 2",
               "tokens": 1613,
               "count": 1,
-              "largest_tokens": 1613
+              "largest_tokens": 1613,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1110,
               "count": 1,
-              "largest_tokens": 1110
+              "largest_tokens": 1110,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 503,
               "count": 1,
-              "largest_tokens": 503
+              "largest_tokens": 503,
+              "from_transcript": false
             }
           ]
         },
@@ -2033,13 +2165,15 @@
               "label": "MCP: docs",
               "tokens": 30966,
               "count": 2,
-              "largest_tokens": 15658
+              "largest_tokens": 15658,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11995,
               "count": 6,
-              "largest_tokens": 2524
+              "largest_tokens": 2524,
+              "from_transcript": false
             }
           ]
         },
@@ -2053,19 +2187,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20337,
               "count": 1,
-              "largest_tokens": 20337
+              "largest_tokens": 20337,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 921,
               "count": 1,
-              "largest_tokens": 921
+              "largest_tokens": 921,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 323,
               "count": 1,
-              "largest_tokens": 323
+              "largest_tokens": 323,
+              "from_transcript": false
             }
           ]
         },
@@ -2079,7 +2216,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 171,
               "count": 1,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             }
           ]
         },
@@ -2093,13 +2231,15 @@
               "label": "Grep",
               "tokens": 683,
               "count": 4,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 332,
               "count": 2,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             }
           ]
         },
@@ -2113,19 +2253,22 @@
               "label": "tool inputs",
               "tokens": 6007,
               "count": 7,
-              "largest_tokens": 1148
+              "largest_tokens": 1148,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1556,
               "count": 4,
-              "largest_tokens": 418
+              "largest_tokens": 418,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 845,
               "count": 5,
-              "largest_tokens": 171
+              "largest_tokens": 171,
+              "from_transcript": false
             }
           ]
         }
@@ -2163,19 +2306,22 @@
               "label": "block 2",
               "tokens": 1627,
               "count": 1,
-              "largest_tokens": 1627
+              "largest_tokens": 1627,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1120,
               "count": 1,
-              "largest_tokens": 1120
+              "largest_tokens": 1120,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 507,
               "count": 1,
-              "largest_tokens": 507
+              "largest_tokens": 507,
+              "from_transcript": false
             }
           ]
         },
@@ -2189,13 +2335,15 @@
               "label": "MCP: docs",
               "tokens": 31222,
               "count": 2,
-              "largest_tokens": 15788
+              "largest_tokens": 15788,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12095,
               "count": 6,
-              "largest_tokens": 2545
+              "largest_tokens": 2545,
+              "from_transcript": false
             }
           ]
         },
@@ -2209,19 +2357,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20505,
               "count": 1,
-              "largest_tokens": 20505
+              "largest_tokens": 20505,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 928,
               "count": 1,
-              "largest_tokens": 928
+              "largest_tokens": 928,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 325,
               "count": 1,
-              "largest_tokens": 325
+              "largest_tokens": 325,
+              "from_transcript": false
             }
           ]
         },
@@ -2235,7 +2386,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 172,
               "count": 1,
-              "largest_tokens": 172
+              "largest_tokens": 172,
+              "from_transcript": false
             }
           ]
         },
@@ -2249,19 +2401,22 @@
               "label": "Grep",
               "tokens": 689,
               "count": 4,
-              "largest_tokens": 172
+              "largest_tokens": 172,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 335,
               "count": 2,
-              "largest_tokens": 172
+              "largest_tokens": 172,
+              "from_transcript": false
             },
             {
               "label": "Bash",
               "tokens": 172,
               "count": 1,
-              "largest_tokens": 172
+              "largest_tokens": 172,
+              "from_transcript": false
             }
           ]
         },
@@ -2275,19 +2430,22 @@
               "label": "tool inputs",
               "tokens": 6688,
               "count": 8,
-              "largest_tokens": 1158
+              "largest_tokens": 1158,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1569,
               "count": 4,
-              "largest_tokens": 421
+              "largest_tokens": 421,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 852,
               "count": 5,
-              "largest_tokens": 172
+              "largest_tokens": 172,
+              "from_transcript": false
             }
           ]
         }
@@ -2325,19 +2483,22 @@
               "label": "block 2",
               "tokens": 1664,
               "count": 1,
-              "largest_tokens": 1664
+              "largest_tokens": 1664,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1145,
               "count": 1,
-              "largest_tokens": 1145
+              "largest_tokens": 1145,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 519,
               "count": 1,
-              "largest_tokens": 519
+              "largest_tokens": 519,
+              "from_transcript": false
             }
           ]
         },
@@ -2351,13 +2512,15 @@
               "label": "MCP: docs",
               "tokens": 31933,
               "count": 2,
-              "largest_tokens": 16148
+              "largest_tokens": 16148,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12370,
               "count": 6,
-              "largest_tokens": 2603
+              "largest_tokens": 2603,
+              "from_transcript": false
             }
           ]
         },
@@ -2371,19 +2534,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20972,
               "count": 1,
-              "largest_tokens": 20972
+              "largest_tokens": 20972,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 949,
               "count": 1,
-              "largest_tokens": 949
+              "largest_tokens": 949,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 333,
               "count": 1,
-              "largest_tokens": 333
+              "largest_tokens": 333,
+              "from_transcript": false
             }
           ]
         },
@@ -2397,7 +2563,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 176,
               "count": 1,
-              "largest_tokens": 176
+              "largest_tokens": 176,
+              "from_transcript": false
             }
           ]
         },
@@ -2411,19 +2578,22 @@
               "label": "Grep",
               "tokens": 705,
               "count": 4,
-              "largest_tokens": 176
+              "largest_tokens": 176,
+              "from_transcript": false
             },
             {
               "label": "Bash",
               "tokens": 352,
               "count": 2,
-              "largest_tokens": 176
+              "largest_tokens": 176,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 343,
               "count": 2,
-              "largest_tokens": 176
+              "largest_tokens": 176,
+              "from_transcript": false
             }
           ]
         },
@@ -2437,19 +2607,22 @@
               "label": "tool inputs",
               "tokens": 7487,
               "count": 9,
-              "largest_tokens": 1184
+              "largest_tokens": 1184,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1605,
               "count": 4,
-              "largest_tokens": 431
+              "largest_tokens": 431,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 871,
               "count": 5,
-              "largest_tokens": 176
+              "largest_tokens": 176,
+              "from_transcript": false
             }
           ]
         }
@@ -2487,19 +2660,22 @@
               "label": "block 2",
               "tokens": 1649,
               "count": 1,
-              "largest_tokens": 1649
+              "largest_tokens": 1649,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1135,
               "count": 1,
-              "largest_tokens": 1135
+              "largest_tokens": 1135,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 514,
               "count": 1,
-              "largest_tokens": 514
+              "largest_tokens": 514,
+              "from_transcript": false
             }
           ]
         },
@@ -2513,13 +2689,15 @@
               "label": "MCP: docs",
               "tokens": 31645,
               "count": 2,
-              "largest_tokens": 16002
+              "largest_tokens": 16002,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12259,
               "count": 6,
-              "largest_tokens": 2580
+              "largest_tokens": 2580,
+              "from_transcript": false
             }
           ]
         },
@@ -2533,19 +2711,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20783,
               "count": 1,
-              "largest_tokens": 20783
+              "largest_tokens": 20783,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 941,
               "count": 1,
-              "largest_tokens": 941
+              "largest_tokens": 941,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 330,
               "count": 1,
-              "largest_tokens": 330
+              "largest_tokens": 330,
+              "from_transcript": false
             }
           ]
         },
@@ -2559,7 +2740,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 175,
               "count": 1,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         },
@@ -2573,19 +2755,22 @@
               "label": "Grep",
               "tokens": 698,
               "count": 4,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             },
             {
               "label": "Bash",
               "tokens": 524,
               "count": 3,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 339,
               "count": 2,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         },
@@ -2599,19 +2784,22 @@
               "label": "tool inputs",
               "tokens": 8224,
               "count": 10,
-              "largest_tokens": 1173
+              "largest_tokens": 1173,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1591,
               "count": 4,
-              "largest_tokens": 427
+              "largest_tokens": 427,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1038,
               "count": 6,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         }
@@ -2649,19 +2837,22 @@
               "label": "block 2",
               "tokens": 1657,
               "count": 1,
-              "largest_tokens": 1657
+              "largest_tokens": 1657,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1140,
               "count": 1,
-              "largest_tokens": 1140
+              "largest_tokens": 1140,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 517,
               "count": 1,
-              "largest_tokens": 517
+              "largest_tokens": 517,
+              "from_transcript": false
             }
           ]
         },
@@ -2675,13 +2866,15 @@
               "label": "MCP: docs",
               "tokens": 31806,
               "count": 2,
-              "largest_tokens": 16083
+              "largest_tokens": 16083,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12321,
               "count": 6,
-              "largest_tokens": 2593
+              "largest_tokens": 2593,
+              "from_transcript": false
             }
           ]
         },
@@ -2695,19 +2888,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20889,
               "count": 1,
-              "largest_tokens": 20889
+              "largest_tokens": 20889,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 946,
               "count": 1,
-              "largest_tokens": 946
+              "largest_tokens": 946,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 331,
               "count": 1,
-              "largest_tokens": 331
+              "largest_tokens": 331,
+              "from_transcript": false
             }
           ]
         },
@@ -2721,7 +2917,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 175,
               "count": 1,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         },
@@ -2735,19 +2932,22 @@
               "label": "Bash",
               "tokens": 702,
               "count": 4,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 702,
               "count": 4,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 341,
               "count": 2,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         },
@@ -2761,19 +2961,22 @@
               "label": "tool inputs",
               "tokens": 8909,
               "count": 11,
-              "largest_tokens": 1179
+              "largest_tokens": 1179,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1599,
               "count": 4,
-              "largest_tokens": 429
+              "largest_tokens": 429,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1043,
               "count": 6,
-              "largest_tokens": 175
+              "largest_tokens": 175,
+              "from_transcript": false
             }
           ]
         }
@@ -2811,19 +3014,22 @@
               "label": "block 2",
               "tokens": 1642,
               "count": 1,
-              "largest_tokens": 1642
+              "largest_tokens": 1642,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1130,
               "count": 1,
-              "largest_tokens": 1130
+              "largest_tokens": 1130,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 512,
               "count": 1,
-              "largest_tokens": 512
+              "largest_tokens": 512,
+              "from_transcript": false
             }
           ]
         },
@@ -2837,13 +3043,15 @@
               "label": "MCP: docs",
               "tokens": 31519,
               "count": 2,
-              "largest_tokens": 15938
+              "largest_tokens": 15938,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12209,
               "count": 6,
-              "largest_tokens": 2569
+              "largest_tokens": 2569,
+              "from_transcript": false
             }
           ]
         },
@@ -2857,19 +3065,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 20700,
               "count": 1,
-              "largest_tokens": 20700
+              "largest_tokens": 20700,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 937,
               "count": 1,
-              "largest_tokens": 937
+              "largest_tokens": 937,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 328,
               "count": 1,
-              "largest_tokens": 328
+              "largest_tokens": 328,
+              "from_transcript": false
             }
           ]
         },
@@ -2883,7 +3094,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 174,
               "count": 1,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         },
@@ -2897,25 +3109,29 @@
               "label": "Bash",
               "tokens": 695,
               "count": 4,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 695,
               "count": 4,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 338,
               "count": 2,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             },
             {
               "label": "Skill",
               "tokens": 174,
               "count": 1,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         },
@@ -2929,19 +3145,22 @@
               "label": "tool inputs",
               "tokens": 9389,
               "count": 12,
-              "largest_tokens": 1169
+              "largest_tokens": 1169,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 1584,
               "count": 4,
-              "largest_tokens": 425
+              "largest_tokens": 425,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1207,
               "count": 7,
-              "largest_tokens": 174
+              "largest_tokens": 174,
+              "from_transcript": false
             }
           ]
         }
@@ -2979,19 +3198,22 @@
               "label": "block 2",
               "tokens": 1546,
               "count": 1,
-              "largest_tokens": 1546
+              "largest_tokens": 1546,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1064,
               "count": 1,
-              "largest_tokens": 1064
+              "largest_tokens": 1064,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 482,
               "count": 1,
-              "largest_tokens": 482
+              "largest_tokens": 482,
+              "from_transcript": false
             }
           ]
         },
@@ -3005,13 +3227,15 @@
               "label": "MCP: docs",
               "tokens": 29671,
               "count": 2,
-              "largest_tokens": 15004
+              "largest_tokens": 15004,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11494,
               "count": 6,
-              "largest_tokens": 2419
+              "largest_tokens": 2419,
+              "from_transcript": false
             }
           ]
         },
@@ -3025,19 +3249,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 19487,
               "count": 1,
-              "largest_tokens": 19487
+              "largest_tokens": 19487,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 882,
               "count": 1,
-              "largest_tokens": 882
+              "largest_tokens": 882,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 309,
               "count": 1,
-              "largest_tokens": 309
+              "largest_tokens": 309,
+              "from_transcript": false
             }
           ]
         },
@@ -3051,7 +3278,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 164,
               "count": 1,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             }
           ]
         },
@@ -3065,25 +3293,29 @@
               "label": "Bash",
               "tokens": 655,
               "count": 4,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 655,
               "count": 4,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 318,
               "count": 2,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             },
             {
               "label": "Skill",
               "tokens": 164,
               "count": 1,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             }
           ]
         },
@@ -3097,19 +3329,22 @@
               "label": "tool inputs",
               "tokens": 8839,
               "count": 12,
-              "largest_tokens": 1100
+              "largest_tokens": 1100,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 7129,
               "count": 5,
-              "largest_tokens": 5638
+              "largest_tokens": 5638,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1300,
               "count": 8,
-              "largest_tokens": 164
+              "largest_tokens": 164,
+              "from_transcript": false
             }
           ]
         }
@@ -3147,19 +3382,22 @@
               "label": "block 2",
               "tokens": 1543,
               "count": 1,
-              "largest_tokens": 1543
+              "largest_tokens": 1543,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1062,
               "count": 1,
-              "largest_tokens": 1062
+              "largest_tokens": 1062,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 481,
               "count": 1,
-              "largest_tokens": 481
+              "largest_tokens": 481,
+              "from_transcript": false
             }
           ]
         },
@@ -3173,13 +3411,15 @@
               "label": "MCP: docs",
               "tokens": 29615,
               "count": 2,
-              "largest_tokens": 14975
+              "largest_tokens": 14975,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 11472,
               "count": 6,
-              "largest_tokens": 2414
+              "largest_tokens": 2414,
+              "from_transcript": false
             }
           ]
         },
@@ -3193,19 +3433,22 @@
               "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "tokens": 19450,
               "count": 1,
-              "largest_tokens": 19450
+              "largest_tokens": 19450,
+              "from_transcript": false
             },
             {
               "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "tokens": 880,
               "count": 1,
-              "largest_tokens": 880
+              "largest_tokens": 880,
+              "from_transcript": false
             },
             {
               "label": "other reminders",
               "tokens": 309,
               "count": 1,
-              "largest_tokens": 309
+              "largest_tokens": 309,
+              "from_transcript": false
             }
           ]
         },
@@ -3219,7 +3462,8 @@
               "label": "C:\\work\\example\\file-1285.txt",
               "tokens": 163,
               "count": 1,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         },
@@ -3233,25 +3477,29 @@
               "label": "Bash",
               "tokens": 817,
               "count": 5,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "Grep",
               "tokens": 653,
               "count": 4,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "PowerShell",
               "tokens": 318,
               "count": 2,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             },
             {
               "label": "Skill",
               "tokens": 163,
               "count": 1,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         },
@@ -3265,19 +3513,22 @@
               "label": "tool inputs",
               "tokens": 9575,
               "count": 13,
-              "largest_tokens": 1098
+              "largest_tokens": 1098,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 7116,
               "count": 5,
-              "largest_tokens": 5627
+              "largest_tokens": 5627,
+              "from_transcript": false
             },
             {
               "label": "model replies",
               "tokens": 1461,
               "count": 9,
-              "largest_tokens": 163
+              "largest_tokens": 163,
+              "from_transcript": false
             }
           ]
         }
@@ -3315,19 +3566,22 @@
               "label": "block 2",
               "tokens": 1471,
               "count": 1,
-              "largest_tokens": 1471
+              "largest_tokens": 1471,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1051,
               "count": 1,
-              "largest_tokens": 1051
+              "largest_tokens": 1051,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 619,
               "count": 1,
-              "largest_tokens": 619
+              "largest_tokens": 619,
+              "from_transcript": false
             }
           ]
         },
@@ -3341,13 +3595,15 @@
               "label": "MCP: docs",
               "tokens": 38107,
               "count": 2,
-              "largest_tokens": 19269
+              "largest_tokens": 19269,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 12554,
               "count": 5,
-              "largest_tokens": 3106
+              "largest_tokens": 3106,
+              "from_transcript": false
             }
           ]
         },
@@ -3361,7 +3617,8 @@
               "label": "skills list",
               "tokens": 853,
               "count": 1,
-              "largest_tokens": 853
+              "largest_tokens": 853,
+              "from_transcript": false
             }
           ]
         },
@@ -3375,7 +3632,8 @@
               "label": "your prompts",
               "tokens": 210,
               "count": 1,
-              "largest_tokens": 210
+              "largest_tokens": 210,
+              "from_transcript": false
             }
           ]
         }
@@ -3408,19 +3666,22 @@
               "label": "block 2",
               "tokens": 1738,
               "count": 1,
-              "largest_tokens": 1738
+              "largest_tokens": 1738,
+              "from_transcript": false
             },
             {
               "label": "block 3",
               "tokens": 1241,
               "count": 1,
-              "largest_tokens": 1241
+              "largest_tokens": 1241,
+              "from_transcript": false
             },
             {
               "label": "block 1",
               "tokens": 731,
               "count": 1,
-              "largest_tokens": 731
+              "largest_tokens": 731,
+              "from_transcript": false
             }
           ]
         },
@@ -3434,13 +3695,15 @@
               "label": "MCP: docs",
               "tokens": 45004,
               "count": 2,
-              "largest_tokens": 22757
+              "largest_tokens": 22757,
+              "from_transcript": false
             },
             {
               "label": "built-in",
               "tokens": 14827,
               "count": 5,
-              "largest_tokens": 3669
+              "largest_tokens": 3669,
+              "from_transcript": false
             }
           ]
         },
@@ -3454,7 +3717,8 @@
               "label": "skills list",
               "tokens": 1007,
               "count": 1,
-              "largest_tokens": 1007
+              "largest_tokens": 1007,
+              "from_transcript": false
             }
           ]
         },
@@ -3468,7 +3732,8 @@
               "label": "Bash",
               "tokens": 248,
               "count": 1,
-              "largest_tokens": 248
+              "largest_tokens": 248,
+              "from_transcript": false
             }
           ]
         },
@@ -3482,13 +3747,15 @@
               "label": "tool inputs",
               "tokens": 910,
               "count": 1,
-              "largest_tokens": 910
+              "largest_tokens": 910,
+              "from_transcript": false
             },
             {
               "label": "your prompts",
               "tokens": 248,
               "count": 1,
-              "largest_tokens": 248
+              "largest_tokens": 248,
+              "from_transcript": false
             }
           ]
         }

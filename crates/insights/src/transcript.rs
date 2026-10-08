@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use trace_core::{ContentBlock, Node, ToolCall, Trace};
+use trace_core::{ContentBlock, ContextPartKind, ContextUpdate, Node, ToolCall, Trace};
 
 use crate::measure::{
     ContextMeasure, ContextSource, IMAGE_CHARS, SliceKind, json_chars, text_chars,
@@ -24,8 +24,8 @@ pub fn measure_transcript_all(
     pending.reverse();
     while let Some(run_id) = pending.pop() {
         let mut nested = Vec::new();
-        let mut running = ContextMeasure::new(ContextSource::Transcript);
-        visit(trace, &run_id, rules, &mut running, &mut out, &mut nested);
+        let mut state = RunState::new();
+        visit(trace, &run_id, rules, &mut state, &mut out, &mut nested);
         pending.extend(nested.into_iter().rev());
     }
     out
@@ -50,25 +50,68 @@ pub fn measure_transcript(
         current = parent;
     };
     let mut out = HashMap::new();
-    let mut running = ContextMeasure::new(ContextSource::Transcript);
-    visit(
-        trace,
-        &run_id,
-        rules,
-        &mut running,
-        &mut out,
-        &mut Vec::new(),
-    );
+    let mut state = RunState::new();
+    visit(trace, &run_id, rules, &mut state, &mut out, &mut Vec::new());
     out.remove(model_call_id)
 }
 
-/// Walks the children of `id` depth first, growing `running` and storing a
-/// clone of it at each model call. Nested runs are collected, not entered.
+/// The state of one run: the conversation so far, and the hidden context
+/// parts currently in force. Parts keep only their length, so a call copies
+/// no text.
+struct RunState {
+    running: ContextMeasure,
+    /// Part keys in first-set order.
+    order: Vec<String>,
+    parts: HashMap<String, (SliceKind, String, u64)>,
+}
+
+impl RunState {
+    fn new() -> Self {
+        Self {
+            running: ContextMeasure::new(ContextSource::Transcript),
+            order: Vec::new(),
+            parts: HashMap::new(),
+        }
+    }
+
+    fn apply(&mut self, update: &ContextUpdate) {
+        for part in &update.parts {
+            let kind = match part.kind {
+                ContextPartKind::SystemPrompt => SliceKind::SystemPrompt,
+                ContextPartKind::ToolDefinitions => SliceKind::ToolDefinitions,
+                _ => SliceKind::Instructions,
+            };
+            let value = (kind, part.label.clone(), text_chars(&part.text));
+            if self.parts.insert(part.key.clone(), value).is_none() {
+                self.order.push(part.key.clone());
+            }
+        }
+        for key in &update.remove {
+            if self.parts.remove(key).is_some() {
+                self.order.retain(|k| k != key);
+            }
+        }
+    }
+
+    /// The conversation so far plus every part in force.
+    fn snapshot(&self) -> ContextMeasure {
+        let mut m = self.running.clone();
+        for key in &self.order {
+            if let Some((kind, label, chars)) = self.parts.get(key) {
+                m.add_part(*kind, label, *chars);
+            }
+        }
+        m
+    }
+}
+
+/// Walks the children of `id` depth first, growing the run's conversation and
+/// storing a snapshot at each model call. Nested runs are collected, not entered.
 fn visit(
     trace: &Trace,
     id: &str,
     rules: &ContextRules,
-    running: &mut ContextMeasure,
+    state: &mut RunState,
     out: &mut HashMap<String, ContextMeasure>,
     nested: &mut Vec<String>,
 ) {
@@ -83,32 +126,37 @@ fn visit(
                 for block in &turn.prompt {
                     match block {
                         ContentBlock::Image { .. } => {
-                            running.add(SliceKind::Conversation, "images", IMAGE_CHARS)
+                            state
+                                .running
+                                .add(SliceKind::Conversation, "images", IMAGE_CHARS)
                         }
                         other => chars += block_chars(other),
                     }
                 }
                 if chars > 0 {
-                    running.add(SliceKind::Conversation, "your prompts", chars);
+                    state
+                        .running
+                        .add(SliceKind::Conversation, "your prompts", chars);
                 }
             }
             Node::ModelCall(call) => {
-                out.insert(child.id.clone(), running.clone());
+                out.insert(child.id.clone(), state.snapshot());
                 let chars: u64 = call.output.iter().map(block_chars).sum();
                 if chars > 0 {
-                    running.add(SliceKind::Conversation, "model replies", chars);
+                    state
+                        .running
+                        .add(SliceKind::Conversation, "model replies", chars);
                 }
             }
-            Node::ToolCall(tool) => add_tool(running, tool, rules),
+            Node::ToolCall(tool) => add_tool(&mut state.running, tool, rules),
             Node::Marker(marker) => {
                 if marker.kind == "compaction" {
-                    running.clear();
+                    state.running.clear();
                 }
             }
-            // Applied in a later task.
-            Node::ContextUpdate(_) => {}
+            Node::ContextUpdate(update) => state.apply(update),
         }
-        visit(trace, &child.id, rules, running, out, nested);
+        visit(trace, &child.id, rules, state, out, nested);
     }
 }
 
@@ -147,7 +195,7 @@ mod tests {
     use super::*;
     use crate::rules::FileReadRule;
     use serde_json::json;
-    use trace_core::{Marker, ModelCall, Run, ToolResult, TraceEvent, Turn};
+    use trace_core::{ContextPart, Marker, ModelCall, Run, ToolResult, TraceEvent, Turn};
 
     fn add(trace: &mut Trace, id: &str, parent: Option<&str>, node: Node) {
         let event = TraceEvent {
@@ -271,5 +319,116 @@ mod tests {
     fn not_a_model_call_is_none() {
         assert!(measure_transcript(&sample(), "T1", &rules()).is_none());
         assert!(measure_transcript(&sample(), "nope", &rules()).is_none());
+    }
+
+    fn part(key: &str, kind: ContextPartKind, label: &str, n: usize) -> ContextPart {
+        ContextPart {
+            key: key.into(),
+            kind,
+            label: label.into(),
+            text: "p".repeat(n),
+        }
+    }
+
+    fn update(parts: Vec<ContextPart>, remove: &[&str]) -> Node {
+        Node::ContextUpdate(ContextUpdate {
+            parts,
+            remove: remove.iter().map(|s| s.to_string()).collect(),
+        })
+    }
+
+    #[test]
+    fn call_before_any_update_has_no_parts() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        add(&mut t, "M1", Some("R"), call(""));
+        let sys = part("sys", ContextPartKind::SystemPrompt, "system prompt", 9);
+        add(&mut t, "U", Some("R"), update(vec![sys], &[]));
+        add(&mut t, "M2", Some("R"), call(""));
+        let all = measure_transcript_all(&t, &rules());
+        assert!(!all["M1"].has_parts());
+        assert!(all["M2"].has_parts());
+    }
+
+    #[test]
+    fn same_key_replaces_and_marks_items() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let a = part("sys", ContextPartKind::SystemPrompt, "system prompt", 10);
+        add(&mut t, "U1", Some("R"), update(vec![a], &[]));
+        let b = part("sys", ContextPartKind::SystemPrompt, "system prompt", 25);
+        add(&mut t, "U2", Some("R"), update(vec![b], &[]));
+        add(&mut t, "M1", Some("R"), call(""));
+        let m = &measure_transcript_all(&t, &rules())["M1"];
+        let items = m.items(SliceKind::SystemPrompt);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].chars, 25);
+        assert_eq!(items[0].count, 1);
+        assert!(items[0].from_transcript);
+    }
+
+    #[test]
+    fn remove_drops_a_part_and_kinds_map() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let parts = vec![
+            part("tools", ContextPartKind::ToolDefinitions, "tools", 7),
+            part("r1", ContextPartKind::Reminder, "date", 3),
+            part("i1", ContextPartKind::Instructions, "CLAUDE.md", 4),
+            part("o1", ContextPartKind::Other("x".into()), "odd", 2),
+        ];
+        add(&mut t, "U1", Some("R"), update(parts, &[]));
+        add(&mut t, "M1", Some("R"), call(""));
+        add(&mut t, "U2", Some("R"), update(Vec::new(), &["r1", "nope"]));
+        add(&mut t, "M2", Some("R"), call(""));
+        let all = measure_transcript_all(&t, &rules());
+        assert_eq!(all["M1"].slice_chars(SliceKind::ToolDefinitions), 7);
+        assert_eq!(all["M1"].slice_chars(SliceKind::Instructions), 9);
+        assert_eq!(all["M2"].slice_chars(SliceKind::Instructions), 6);
+    }
+
+    #[test]
+    fn parts_do_not_cross_runs() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let a = part("sys", ContextPartKind::SystemPrompt, "system prompt", 10);
+        add(&mut t, "U1", Some("R"), update(vec![a], &[]));
+        add(&mut t, "S", Some("R"), run());
+        let b = part("sys", ContextPartKind::SystemPrompt, "system prompt", 99);
+        add(&mut t, "U2", Some("S"), update(vec![b], &[]));
+        add(&mut t, "S1", Some("S"), call(""));
+        add(&mut t, "M1", Some("R"), call(""));
+        let all = measure_transcript_all(&t, &rules());
+        assert_eq!(all["S1"].slice_chars(SliceKind::SystemPrompt), 99);
+        assert_eq!(all["M1"].slice_chars(SliceKind::SystemPrompt), 10);
+    }
+
+    #[test]
+    fn compaction_keeps_parts_and_clears_conversation() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let a = part("sys", ContextPartKind::SystemPrompt, "system prompt", 10);
+        add(&mut t, "U1", Some("R"), update(vec![a], &[]));
+        let turn = Node::Turn(Turn {
+            prompt: vec![text("hello")],
+        });
+        add(&mut t, "T1", Some("R"), turn);
+        let marker = Node::Marker(Marker {
+            kind: "compaction".into(),
+            summary: String::new(),
+        });
+        add(&mut t, "C", Some("T1"), marker);
+        add(&mut t, "M1", Some("T1"), call(""));
+        let m = &measure_transcript_all(&t, &rules())["M1"];
+        assert_eq!(m.slice_chars(SliceKind::SystemPrompt), 10);
+        assert_eq!(m.slice_chars(SliceKind::Conversation), 0);
+        let single = measure_transcript(&t, "M1", &rules()).unwrap();
+        assert_eq!(&single, m);
+    }
+
+    #[test]
+    fn conversation_items_are_not_from_transcript() {
+        let m = measure_transcript(&sample(), "M2", &rules()).unwrap();
+        assert!(!m.has_parts());
     }
 }

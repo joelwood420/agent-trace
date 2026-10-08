@@ -49,6 +49,8 @@ pub struct Item {
     pub count: u32,
     /// Tokens of the biggest single occurrence.
     pub largest_tokens: u64,
+    /// True when the item comes from a context part the transcript recorded.
+    pub from_transcript: bool,
 }
 
 /// A breakdown reduced to what a bar needs.
@@ -120,6 +122,7 @@ pub fn breakdown(measure: &ContextMeasure, reported_total: Option<u64>) -> Conte
                 tokens: to_tokens(i.chars, ratio),
                 count: i.count,
                 largest_tokens: to_tokens(i.largest_chars, ratio),
+                from_transcript: i.from_transcript,
             })
             .collect();
         items.sort_by(|a, b| b.tokens.cmp(&a.tokens).then_with(|| a.label.cmp(&b.label)));
