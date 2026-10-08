@@ -31,12 +31,6 @@
   font-size: 18px;
 }
 
-.tagline {
-  margin: 0;
-  font-style: italic;
-  color: var(--muted);
-}
-
 .mock-badge {
   margin-left: auto;
   padding: 2px 8px;

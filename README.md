@@ -1,7 +1,5 @@
 # Snitchcraft
 
-*Snitches get traces.*
-
 A local desktop app that watches Claude Code sessions and draws a diagram of what the agent did for each prompt: model calls, tool calls, results, context growth, and stop reasons.
 
 It is a learning and debugging tool for understanding how an agent harness behaves. The trace format is harness-agnostic, so other harnesses can emit it too.

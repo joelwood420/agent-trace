@@ -359,7 +359,6 @@ export default function App() {
     <div className={`app${selected || selectedCapture ? ' app-with-details' : ''}`}>
       <header className="app-header">
         <h1>Snitchcraft</h1>
-        <p className="tagline">snitches get traces</p>
         {mockMode() && <span className="mock-badge">Mock data from the sample fixture</span>}
       </header>
 

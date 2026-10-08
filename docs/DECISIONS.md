@@ -173,7 +173,7 @@ Updated in M3: while a session runs, the session list is refreshed every few sec
 
 ### 2026-10-04: The app is called Snitchcraft
 
-The working name `looptrace` is replaced by Snitchcraft, with the tagline "snitches get traces". The app crate, UI package, window title, bundle identifier (`dev.snitchcraft.app`) and snapshot env var (`SNITCHCRAFT_UPDATE_SNAPSHOTS`) use the new name. The library crates keep their descriptive names (`trace-core`, `trace-view`, `adapter-claude-code`) because they name what each crate does, not the brand.
+The working name `looptrace` is replaced by Snitchcraft. The app crate, UI package, window title, bundle identifier (`dev.snitchcraft.app`) and snapshot env var (`SNITCHCRAFT_UPDATE_SNAPSHOTS`) use the new name. The library crates keep their descriptive names (`trace-core`, `trace-view`, `adapter-claude-code`) because they name what each crate does, not the brand. The tagline was dropped on 2026-10-08 (owner's choice).
 
 ### 2026-10-04: load_session returns the diagram model, and node_detail is a third command
 
