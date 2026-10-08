@@ -359,3 +359,7 @@ Transcripts record much of the hidden input a call receives, and the owner's own
 ### 2026-10-08: Claude Code reminders each get their own key
 
 In the real request each injected reminder stays in the conversation history, so reminders accumulate rather than replace each other. The adapter keys each one by its transcript line (`reminder:<uuid>`), keys the system prompt as `system` and each instruction file by path, and at a compaction emits a removal of the reminder keys it emitted earlier in that run. Compaction itself implies nothing in the schema; a harness that drops parts says so with `remove`.
+
+### 2026-10-08: One context part per tool definition
+
+Real transcripts carry the full tool list in the session's second `prompt_snapshot`. As one part it showed up as a single item ("1 tool") and lost the per MCP server advice. So the adapter emits one `tool_definitions` part per tool (`tool:<name>`), and because each snapshot is the full set, it removes the tools the previous snapshot of that run had and this one lacks. `insights` groups these parts with the same helper as captured requests (`MCP: <server>` or `built-in`, one occurrence per tool), so a transcript call gets the same tool items and advice as a captured one. Grouping by the part's label keeps `insights` free of Claude Code keys; `mcp__<server>__<tool>` is an MCP naming convention, not a Claude Code one.

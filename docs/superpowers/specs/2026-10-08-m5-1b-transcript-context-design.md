@@ -2,7 +2,7 @@
 
 ## Goal
 
-Shrink the grey "not captured" slice for sessions that were not run through the proxy. Recent Claude Code transcripts already record most of the hidden context a model call receives (system prompt, instruction files, skills list, MCP and agent lists, hook output, environment). Carry it into the trace as a new harness-neutral node kind and use it in the context breakdown. What stays grey is mainly tool definitions, which transcripts do not record.
+Shrink the grey "not captured" slice for sessions that were not run through the proxy. Recent Claude Code transcripts already record most of the hidden context a model call receives (system prompt, tool definitions, instruction files, skills list, MCP and agent lists, hook output, environment). Carry it into the trace as a new harness-neutral node kind and use it in the context breakdown. What stays grey is whatever the reported total holds beyond what the transcript records.
 
 ## Decisions made while designing (chosen by the project owner)
 
@@ -21,7 +21,9 @@ At session start, before the first model call, a burst of `attachment` lines: `h
 
 Sizes in a captured session matched the real request closely: `prompt_snapshot.systemPrompt` about 27.5k characters (the request's system prompt), `skill_listing.content` 8,138 against an 8,056-character skills reminder, `mcp_instructions_delta` 3,813 against 3,846, `agent_listing_delta` 3,274 against 3,246, `hook_additional_context` 3,509 against 3,445.
 
-Some `prompt_snapshot` lines (seen in the sanitised fixture) also carry a `tools` array of tool definitions; current real transcripts do not.
+The second `prompt_snapshot` of a session (after the first call) also carries `tools`: an array of `{name, description, schema}` objects, the same set the real request sent (123 tools in one checked session, 89 of them named `mcp__<server>__<tool>`). The first snapshot has only the system prompt. (An earlier check missed this and read the tools as missing; corrected after the real-app check.)
+
+In one call checked against its capture, the transcript-only split was within about 10 to 35% of the captured split per slice (system prompt 5.6k against 7.8k tokens, tools 69k against 64k, instructions 4.2k against 6.2k, files read 2.5k against 3.5k, same total), because the 4-characters-per-token estimate overshot the reported total and every slice was scaled down by the same ratio.
 
 ## Schema: `context_update`
 
@@ -114,4 +116,4 @@ At a `compact_boundary` (already a `compaction` marker), the adapter also emits 
 
 ## Out of scope
 
-Tool definition sizes when transcripts do not record them (a later idea: estimate from the most recent capture), cost figures, and drawing context updates in the diagram.
+Tool definition sizes for sessions whose transcripts do not record them (a later idea: estimate from the most recent capture), cost figures, and drawing context updates in the diagram.
