@@ -50,6 +50,9 @@ pub enum Node {
     /// Something notable that is not a model or tool call, such as context
     /// compaction, a hook running, an interrupt, or an API error.
     Marker(Marker),
+    /// A change to the hidden input the harness sends besides the
+    /// conversation (system prompt, tool definitions, injected instructions).
+    ContextUpdate(ContextUpdate),
 }
 
 impl Node {
@@ -61,6 +64,7 @@ impl Node {
             Node::ModelCall(_) => "model_call",
             Node::ToolCall(_) => "tool_call",
             Node::Marker(_) => "marker",
+            Node::ContextUpdate(_) => "context_update",
         }
     }
 }
@@ -135,6 +139,92 @@ pub struct Marker {
     pub kind: String,
     /// One-line human-readable description.
     pub summary: String,
+}
+
+/// Parts of the hidden input a harness sends besides the conversation
+/// (system prompt, tool definitions, injected instructions), as a change
+/// to the run's current set. See docs/SCHEMA.md.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct ContextUpdate {
+    /// Parts added or replaced from this point on. A part replaces an earlier
+    /// part of the same run with the same `key`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub parts: Vec<ContextPart>,
+    /// Keys of parts that are no longer sent.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub remove: Vec<String>,
+}
+
+/// One piece of hidden input, such as the system prompt or one instructions file.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ContextPart {
+    /// Stable identifier within the run. A later part with the same key
+    /// replaces this one.
+    pub key: String,
+    /// What sort of part this is.
+    pub kind: ContextPartKind,
+    /// Short name for people, for example `"skills list"`.
+    pub label: String,
+    /// The text as sent to the model, or the harness's best rendering of it
+    /// (tool definitions as JSON).
+    pub text: String,
+}
+
+/// What sort of hidden input a context part is.
+///
+/// Serialised as a plain string for the known kinds and as
+/// `{"other": "<name>"}` for any other. On reading, an unknown plain string
+/// also becomes `Other`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ContextPartKind {
+    /// The system prompt.
+    SystemPrompt,
+    /// Tool definitions sent to the model.
+    ToolDefinitions,
+    /// Instruction files the user wrote (for example project instructions).
+    Instructions,
+    /// Other text the harness injected.
+    Reminder,
+    /// Any other kind, with the harness's own name for it.
+    Other(String),
+}
+
+impl Serialize for ContextPartKind {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        match self {
+            ContextPartKind::SystemPrompt => serializer.serialize_str("system_prompt"),
+            ContextPartKind::ToolDefinitions => serializer.serialize_str("tool_definitions"),
+            ContextPartKind::Instructions => serializer.serialize_str("instructions"),
+            ContextPartKind::Reminder => serializer.serialize_str("reminder"),
+            ContextPartKind::Other(name) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("other", name)?;
+                map.end()
+            }
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for ContextPartKind {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum Repr {
+            Name(String),
+            Other { other: String },
+        }
+        Ok(match Repr::deserialize(deserializer)? {
+            Repr::Name(name) => match name.as_str() {
+                "system_prompt" => ContextPartKind::SystemPrompt,
+                "tool_definitions" => ContextPartKind::ToolDefinitions,
+                "instructions" => ContextPartKind::Instructions,
+                "reminder" => ContextPartKind::Reminder,
+                _ => ContextPartKind::Other(name),
+            },
+            Repr::Other { other } => ContextPartKind::Other(other),
+        })
+    }
 }
 
 /// A piece of content in a prompt, model output, or tool result.
@@ -223,4 +313,67 @@ pub struct RawSource {
     pub line: u64,
     /// The record exactly as read.
     pub text: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample() -> TraceEvent {
+        TraceEvent {
+            id: "cu-1".into(),
+            parent_id: Some("run-1".into()),
+            node: Node::ContextUpdate(ContextUpdate {
+                parts: vec![
+                    ContextPart {
+                        key: "system".into(),
+                        kind: ContextPartKind::SystemPrompt,
+                        label: "system prompt".into(),
+                        text: "You are an example agent.".into(),
+                    },
+                    ContextPart {
+                        key: "x".into(),
+                        kind: ContextPartKind::Other("custom".into()),
+                        label: "custom".into(),
+                        text: "hi".into(),
+                    },
+                ],
+                remove: vec!["reminder:old".into()],
+            }),
+            started_at_ms: None,
+            ended_at_ms: None,
+            raw: Vec::new(),
+            metadata: BTreeMap::new(),
+        }
+    }
+
+    #[test]
+    fn context_update_round_trips() {
+        let event = sample();
+        let json = serde_json::to_string(&event).unwrap();
+        assert!(json.contains(r#""type":"context_update""#));
+        assert!(json.contains(r#""kind":"system_prompt""#));
+        assert!(json.contains(r#""kind":{"other":"custom"}"#));
+        let back: TraceEvent = serde_json::from_str(&json).unwrap();
+        assert_eq!(back, event);
+        assert_eq!(back.node.kind_name(), "context_update");
+    }
+
+    #[test]
+    fn unknown_part_kind_becomes_other() {
+        let k: ContextPartKind = serde_json::from_str(r#""made_up""#).unwrap();
+        assert_eq!(k, ContextPartKind::Other("made_up".into()));
+        let k: ContextPartKind = serde_json::from_str(r#"{"other":"x"}"#).unwrap();
+        assert_eq!(k, ContextPartKind::Other("x".into()));
+        let k: ContextPartKind = serde_json::from_str(r#""reminder""#).unwrap();
+        assert_eq!(k, ContextPartKind::Reminder);
+    }
+
+    #[test]
+    fn empty_parts_and_remove_are_omitted() {
+        let json = serde_json::to_string(&Node::ContextUpdate(ContextUpdate::default())).unwrap();
+        assert_eq!(json, r#"{"type":"context_update"}"#);
+        let back: Node = serde_json::from_str(&json).unwrap();
+        assert_eq!(back, Node::ContextUpdate(ContextUpdate::default()));
+    }
 }

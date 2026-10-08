@@ -7,7 +7,7 @@ mod event;
 mod trace;
 
 pub use event::{
-    ContentBlock, Marker, ModelCall, Node, RawSource, Run, StopReason, ToolCall, ToolResult,
-    TraceEvent, Turn, Usage,
+    ContentBlock, ContextPart, ContextPartKind, ContextUpdate, Marker, ModelCall, Node, RawSource,
+    Run, StopReason, ToolCall, ToolResult, TraceEvent, Turn, Usage,
 };
 pub use trace::{Trace, TraceError};

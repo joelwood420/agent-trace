@@ -5,7 +5,7 @@
 mod common;
 
 use common::{TraceBuilder, assert_ids_unique, ids, kinds};
-use trace_core::Trace;
+use trace_core::{ContextUpdate, Node, Trace};
 use trace_view::{NodeKind, SUMMARY_MIN_CALLS, Status, build_session};
 
 const OK: Option<bool> = Some(false);
@@ -198,4 +198,55 @@ fn a_trace_without_a_run_gives_an_empty_session() {
     assert!(diagram.run_id.is_none());
     assert!(diagram.prompts.is_empty());
     assert!(diagram.markers.is_empty());
+}
+
+#[test]
+fn context_updates_are_not_drawn_or_counted() {
+    let mut plain = TraceBuilder::new();
+    plain.model_call("mc0", "turn", &[("Read", OK)]);
+    plain.marker("m0", "run");
+
+    let mut with_updates = TraceBuilder::new();
+    with_updates.add(
+        "cu-run",
+        Some("run"),
+        Node::ContextUpdate(ContextUpdate::default()),
+        None,
+    );
+    with_updates.add(
+        "cu-turn",
+        Some("turn"),
+        Node::ContextUpdate(ContextUpdate::default()),
+        None,
+    );
+    with_updates.model_call("mc0", "turn", &[("Read", OK)]);
+    with_updates.marker("m0", "run");
+
+    let expected = build_session(&plain.trace);
+    let actual = build_session(&with_updates.trace);
+    assert_eq!(actual.markers.len(), 1);
+    assert_eq!(actual.prompts[0].totals, expected.prompts[0].totals);
+    assert_eq!(
+        actual.prompts[0].root.status,
+        expected.prompts[0].root.status
+    );
+    assert_eq!(
+        kinds(&actual.prompts[0].root.children),
+        kinds(&expected.prompts[0].root.children)
+    );
+    assert_eq!(
+        ids(&actual.prompts[0].root.children),
+        ids(&expected.prompts[0].root.children)
+    );
+    assert!(
+        !all_ids(&actual).iter().any(|id| id.contains("cu-")),
+        "no box may refer to a context update"
+    );
+}
+
+fn all_ids(diagram: &trace_view::SessionDiagram) -> Vec<String> {
+    common::all_nodes(diagram)
+        .iter()
+        .flat_map(|n| n.trace_ids.clone())
+        .collect()
 }

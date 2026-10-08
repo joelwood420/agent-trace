@@ -125,6 +125,11 @@ fn label(trace: &Trace, event: &TraceEvent) -> String {
             format!("{}({}) {status}", call.name, input_summary(&call.input))
         }
         Node::Marker(marker) => format!("[{}] {}", marker.kind, short(&marker.summary, 70)),
+        Node::ContextUpdate(update) => format!(
+            "context update: {} parts, {} removed",
+            update.parts.len(),
+            update.remove.len()
+        ),
     }
 }
 

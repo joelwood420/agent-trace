@@ -16,6 +16,7 @@ Run                      a whole session
         Run              (only if the tool started a subagent)
           Turn ...
     Marker               something notable that is not a call
+    ContextUpdate        a change to the hidden input sent with the conversation
 ```
 
 - A `Run`'s children are its turns, plus markers for anything that happened outside a turn (for example a hook that ran when the session started).
@@ -79,6 +80,34 @@ For things that are not model or tool calls: context compaction, hooks, interrup
 |---|---|---|---|
 | `kind` | string | yes | Short label such as `"compaction"`, `"hook"`, `"interrupt"`, `"api_error"`. You can define your own. |
 | `summary` | string | yes | One line for humans. |
+
+### `context_update`
+
+For the hidden input a harness sends to the model besides the conversation: the system prompt, tool definitions, and injected instructions. Each `context_update` is a change to the run's current set of parts.
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `parts` | list of context parts | no (default empty) | Parts added or replaced from this point on. |
+| `remove` | list of strings | no (default empty) | Keys of parts that are no longer sent. |
+
+Context part:
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `key` | string | yes | Stable identifier within the run. A later part with the same key replaces this one. |
+| `kind` | context part kind | yes | What sort of part it is. See below. |
+| `label` | string | yes | Short name for people, for example `"skills list"`. |
+| `text` | string | yes | The text as sent to the model, or the harness's best rendering of it (tool definitions as JSON). |
+
+Context part kind: one of `"system_prompt"`, `"tool_definitions"`, `"instructions"` (files the user wrote, such as project instructions), `"reminder"` (other injected text), or `{ "other": "<name>" }`. A reader that meets an unknown plain string treats it as `{ "other": "<that string>" }`.
+
+Rules:
+
+- A `context_update` belongs to the nearest enclosing `run`. It applies to every model call that comes after it in that run, in tree order, and not to nested runs.
+- The hidden context of a call is the result of applying every earlier `context_update` of its run in order: set or replace each part by key, then drop each key in `remove`.
+- Applying is independent of compaction markers. A harness whose compaction drops parts sends a `context_update` with `remove`.
+- A `context_update` has no children.
+- It is not drawn as a box in the diagram.
 
 ## Shared types
 

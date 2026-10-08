@@ -510,7 +510,7 @@ fn add_totals(trace: &Trace, id: &str, in_subagent: bool, totals: &mut PromptTot
                 }
             }
             Node::Run(_) => nested = true,
-            Node::Turn(_) | Node::Marker(_) => {}
+            Node::Turn(_) | Node::Marker(_) | Node::ContextUpdate(_) => {}
         }
         add_totals(trace, &child.id, nested, totals);
     }

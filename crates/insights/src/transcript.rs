@@ -105,6 +105,8 @@ fn visit(
                     running.clear();
                 }
             }
+            // Applied in a later task.
+            Node::ContextUpdate(_) => {}
         }
         visit(trace, &child.id, rules, running, out, nested);
     }
