@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react'
 
 import { errorMessage, type Api } from '../api.ts'
-import { SLICE_NAMES, topSlices, totalNote } from '../context.ts'
-import type { Advice, ContextBar as Bar, ContextBreakdown, SessionContext } from '../types.ts'
+import { fromTranscriptTag, hiddenContextRows, SLICE_NAMES, topSlices, totalNote } from '../context.ts'
+import type { Advice, ContextBar as Bar, ContextBreakdown, HiddenPart, SessionContext } from '../types.ts'
 import ContextBar from './ContextBar.tsx'
 import type { Loadable } from './Sidebar.tsx'
 
@@ -74,6 +74,7 @@ export function ContextDetails({ breakdown }: { breakdown: ContextBreakdown }) {
                     {item.label}
                   </span>
                   <span className="muted">
+                    {fromTranscriptTag(item) && <span className="tag tag-small">{fromTranscriptTag(item)}</span>}{' '}
                     {item.tokens.toLocaleString('en-US')}
                     {item.count > 1 ? ` ×${item.count}` : ''}
                   </span>
@@ -144,11 +145,14 @@ export function CallContextSection({ api, project, sessionId, traceId, refreshKe
 interface CardProps {
   context: Loadable<SessionContext>
   onSelect: (traceId: string) => void
+  /** Opens the details of a hidden context part, which has no diagram box. */
+  onSelectHidden: (traceId: string, label: string) => void
+  selectedHiddenId: string | null
   onRetry: () => void
 }
 
 /** The session overview card: the latest call's context in short. */
-export function ContextCard({ context, onSelect, onRetry }: CardProps) {
+export function ContextCard({ context, onSelect, onSelectHidden, selectedHiddenId, onRetry }: CardProps) {
   return (
     <section className="context-card" aria-label="Context">
       <h3>Context</h3>
@@ -183,6 +187,50 @@ export function ContextCard({ context, onSelect, onRetry }: CardProps) {
             )}
           </>
         ))}
+      {context.status === 'ready' && (
+        <HiddenContextList
+          parts={context.value.hidden_context}
+          selectedId={selectedHiddenId}
+          onSelect={onSelectHidden}
+        />
+      )}
     </section>
+  )
+}
+
+/** The hidden context Claude Code recorded, one row per part. */
+function HiddenContextList({
+  parts,
+  selectedId,
+  onSelect,
+}: {
+  parts: HiddenPart[]
+  selectedId: string | null
+  onSelect: (traceId: string, label: string) => void
+}) {
+  const rows = hiddenContextRows(parts)
+  if (rows.length === 0) return null
+  return (
+    <details className="hidden-context">
+      <summary>Hidden context ({rows.length})</summary>
+      <ul className="item-list">
+        {rows.map((r) => (
+          <li key={r.traceId}>
+            <button
+              type="button"
+              className={`item item-compact${r.traceId === selectedId ? ' item-selected' : ''}`}
+              onClick={() => onSelect(r.traceId, r.label)}
+            >
+              <span className="item-title" title={r.label}>
+                {r.label}
+              </span>
+              <span className="item-meta">
+                {r.kindName} - {r.size}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { afterFailedLoad, barSegments, barTooltip, SLICE_NAMES, topSlices, totalNote } from './context.ts'
-import type { ContextBar, ContextBreakdown, ContextSlice } from './types.ts'
+import { afterFailedLoad, barSegments, barTooltip, fromTranscriptTag, hiddenContextRows, SLICE_NAMES, topSlices, totalNote } from './context.ts'
+import type { ContextBar, ContextBreakdown, ContextItem, ContextSlice, HiddenPart } from './types.ts'
 
 function bar(slices: [ContextBar['slices'][number]['kind'], number][], total: number): ContextBar {
   return {
@@ -102,4 +102,31 @@ test('afterFailedLoad shows the error on a fresh load or when nothing is ready',
     status: 'error',
     message: 'boom',
   })
+})
+
+test('hiddenContextRows names kinds and formats sizes', () => {
+  const parts: HiddenPart[] = [
+    { trace_id: 'context:a', key: 'k1', kind: 'system_prompt', label: 'system prompt', chars: 27500 },
+    { trace_id: 'context:b', key: 'k2', kind: 'tool_definitions', label: 'tools', chars: 999 },
+    { trace_id: 'context:c', key: 'k3', kind: 'instructions', label: 'CLAUDE.md', chars: 1000 },
+    { trace_id: 'context:d', key: 'k4', kind: 'reminder', label: 'environment', chars: 0 },
+    { trace_id: 'context:e', key: 'k5', kind: { other: 'skill listing' }, label: 'skills', chars: 1234 },
+  ]
+  assert.deepEqual(hiddenContextRows(parts), [
+    { traceId: 'context:a', kindName: 'System prompt', label: 'system prompt', size: '27.5k chars' },
+    { traceId: 'context:b', kindName: 'Tool definitions', label: 'tools', size: '999 chars' },
+    { traceId: 'context:c', kindName: 'Instructions', label: 'CLAUDE.md', size: '1.0k chars' },
+    { traceId: 'context:d', kindName: 'Reminder', label: 'environment', size: '0 chars' },
+    { traceId: 'context:e', kindName: 'skill listing', label: 'skills', size: '1.2k chars' },
+  ])
+})
+
+test('hiddenContextRows of nothing is empty', () => {
+  assert.deepEqual(hiddenContextRows([]), [])
+})
+
+test('fromTranscriptTag only tags items measured from the transcript', () => {
+  const item: ContextItem = { label: 'x', tokens: 1, count: 1, largest_tokens: 1, from_transcript: true }
+  assert.equal(fromTranscriptTag(item), 'from transcript')
+  assert.equal(fromTranscriptTag({ ...item, from_transcript: false }), null)
 })

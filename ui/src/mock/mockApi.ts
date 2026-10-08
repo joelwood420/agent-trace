@@ -44,7 +44,7 @@ const context = contextData as unknown as {
   session: SessionContext
   calls: Record<string, ContextBreakdown>
 }
-const emptyContext: SessionContext = { bars: {}, latest: null, latest_trace_id: null }
+const emptyContext: SessionContext = { bars: {}, latest: null, latest_trace_id: null, hidden_context: [] }
 const CAPTURE_KEY = 'basic/00000000-0000-4000-8000-000000000002'
 const emptyOverview: CaptureOverview = {
   session_key: null,

@@ -6,7 +6,8 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { errorMessage, type Api } from '../api.ts'
 import type { CaptureState } from '../captureView.ts'
 import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
-import type { ContentBlock, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
+import { partKindName } from '../context.ts'
+import type { ContentBlock, ContextPart, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
 import { CaptureSections } from './CapturePanel.tsx'
 import { CallContextSection } from './ContextSection.tsx'
 import { StatusChip } from './nodes.tsx'
@@ -20,6 +21,8 @@ interface Props {
   refreshKey: number
   /** The captured API call of this box, if it is a model call with the API tag. */
   capture: CaptureState | null
+  /** Replaces the box kind name, for items that have no box (hidden context). */
+  tagName?: string
   onClose: () => void
 }
 
@@ -37,7 +40,7 @@ const KIND_NAMES: Record<DiagramNode['kind'], string> = {
   marker: 'Marker',
 }
 
-export default function DetailsPanel({ api, project, sessionId, node, refreshKey, capture, onClose }: Props) {
+export default function DetailsPanel({ api, project, sessionId, node, refreshKey, capture, tagName, onClose }: Props) {
   const key = `${project}/${sessionId}/${node.id}`
   const [fetched, setFetched] = useState<Fetched | null>(null)
   // A live update hands over a new node object each time; keying the fetch on
@@ -69,7 +72,7 @@ export default function DetailsPanel({ api, project, sessionId, node, refreshKey
     <aside className="details" aria-label="Details of the selected box">
       <div className="details-header">
         <div className="details-title">
-          <span className="tag">{KIND_NAMES[node.kind]}</span>
+          <span className="tag">{tagName ?? KIND_NAMES[node.kind]}</span>
           <StatusChip status={node.status} />
           <span className="spacer" />
           <button type="button" className="icon-button" onClick={onClose} title="Close details">
@@ -134,6 +137,8 @@ function summaryLine(detail: NodeDetail): string {
       return `Model call${n.model ? `: ${n.model}` : ''}${suffix}`
     case 'marker':
       return `Marker: ${n.summary}`
+    case 'context_update':
+      return 'Hidden context'
     case 'turn':
       return 'Task given to the subagent'
     case 'run':
@@ -232,6 +237,12 @@ function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: Reac
         </Section>
       )}
 
+      {n.type === 'context_update' && (
+        <Section title="Parts">
+          <ContextParts parts={n.parts ?? []} remove={n.remove ?? []} />
+        </Section>
+      )}
+
       {Object.keys(detail.metadata).length > 0 && (
         <Section title="Metadata">
           <pre className="code">{prettyJson(detail.metadata)}</pre>
@@ -248,6 +259,34 @@ function Detail({ detail, capture = null }: { detail: NodeDetail; capture?: Reac
         )}
       </Section>
     </div>
+  )
+}
+
+function ContextParts({ parts, remove }: { parts: ContextPart[]; remove: string[] }) {
+  return (
+    <>
+      {parts.length === 0 && <p className="muted">No parts added.</p>}
+      {parts.map((part) => (
+        <details key={part.key} className="detail-item">
+          <summary>
+            {part.label} <span className="muted">({partKindName(part.kind)})</span>
+          </summary>
+          <pre className="text-block">{part.text}</pre>
+        </details>
+      ))}
+      {remove.length > 0 && (
+        <>
+          <p className="muted small">Removed:</p>
+          <ul className="item-list">
+            {remove.map((key) => (
+              <li key={key} className="mono small">
+                {key}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
   )
 }
 

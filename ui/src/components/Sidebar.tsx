@@ -117,6 +117,8 @@ interface SessionPanelProps {
   captureOverview: Loadable<CaptureOverview>
   sessionContext: Loadable<SessionContext>
   onSelectTrace: (traceId: string) => void
+  onSelectHidden: (traceId: string, label: string) => void
+  selectedHiddenId: string | null
   captureStatus: Loadable<CaptureStatus>
   selectedCaptureId: string | null
   onSelectCapture: (captureId: string) => void
@@ -186,6 +188,8 @@ function SessionContents({
   captureOverview,
   sessionContext,
   onSelectTrace,
+  onSelectHidden,
+  selectedHiddenId,
   captureStatus,
   selectedCaptureId,
   onSelectCapture,
@@ -240,7 +244,10 @@ function SessionContents({
         </details>
       )}
 
-      <ContextCard context={sessionContext} onSelect={onSelectTrace} onRetry={onReloadCaptures} />
+      <ContextCard context={sessionContext} onSelect={onSelectTrace}
+        onSelectHidden={onSelectHidden}
+        selectedHiddenId={selectedHiddenId}
+        onRetry={onReloadCaptures} />
 
       <CaptureOverviewSection
         overview={captureOverview}

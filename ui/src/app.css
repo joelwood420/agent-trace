@@ -246,9 +246,19 @@ button:focus-visible,
 }
 
 .session-markers summary,
+.hidden-context summary,
 .notice summary {
   cursor: pointer;
   font-size: 13px;
+}
+
+.hidden-context {
+  margin-top: 8px;
+}
+
+.tag-small {
+  font-size: 10px;
+  text-transform: none;
 }
 
 .session-markers {

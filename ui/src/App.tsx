@@ -31,6 +31,24 @@ const NOT_IN_APP =
   'This page is the Snitchcraft user interface and needs the desktop app to read sessions. ' +
   'Start it with "cargo tauri dev". During development you can add ?mock to the URL to view the sample session instead.'
 
+/** A stand-in for a box, so the details panel can show a trace node that has none. */
+function hiddenNode(traceId: string, label: string): DiagramNode {
+  return {
+    id: `hidden:${traceId}`,
+    kind: 'marker',
+    label,
+    detail_label: null,
+    started_at_ms: null,
+    duration_ms: null,
+    context_tokens: null,
+    output_tokens: null,
+    status: 'none',
+    collapsed_by_default: false,
+    trace_ids: [traceId],
+    children: [],
+  }
+}
+
 export default function App() {
   const [api, setApi] = useState<Api | null>(null)
   const [sessions, setSessions] = useState<Loadable<SessionSummary[]>>(() =>
@@ -50,6 +68,8 @@ export default function App() {
   const [captureOverview, setCaptureOverview] = useState<Loadable<CaptureOverview>>({ status: 'loading' })
   // A captured call picked in the session overview, shown instead of a box.
   const [selectedCapture, setSelectedCapture] = useState<string | null>(null)
+  // A hidden context part picked in the session overview. It has no diagram box.
+  const [selectedHidden, setSelectedHidden] = useState<{ traceId: string; label: string } | null>(null)
   // What fills each model call's context: bars by trace id and the latest breakdown.
   const [sessionContext, setSessionContext] = useState<Loadable<SessionContext>>({ status: 'loading' })
   // Ignores capture overview responses overtaken by a newer request.
@@ -251,6 +271,7 @@ export default function App() {
     setView({ status: 'loading' })
     setSelected(null)
     setSelectedCapture(null)
+    setSelectedHidden(null)
     setLiveStatus(null)
     clearHighlights()
     captureToken.current++
@@ -285,6 +306,7 @@ export default function App() {
     setSessionContext({ status: 'loading' })
     setSelected(null)
     setSelectedCapture(null)
+    setSelectedHidden(null)
     setPromptIndex(null)
     setLiveStatus(null)
     clearHighlights()
@@ -293,12 +315,20 @@ export default function App() {
   const selectPrompt = (index: number) => {
     setPromptIndex(index)
     setSelected(null)
+    setSelectedHidden(null)
   }
 
   const selectNode = useCallback((node: DiagramNode) => {
     setSelectedCapture(null)
+    setSelectedHidden(null)
     setSelected(node)
   }, [])
+
+  const selectHidden = (traceId: string, label: string) => {
+    setSelectedCapture(null)
+    setSelected(null)
+    setSelectedHidden({ traceId, label })
+  }
 
   /** Selects the model call box with this trace id, as a click on it would. */
   const selectTrace = (traceId: string) => {
@@ -315,6 +345,7 @@ export default function App() {
 
   const selectCapture = (captureId: string) => {
     setSelected(null)
+    setSelectedHidden(null)
     setSelectedCapture(captureId)
   }
 
@@ -356,7 +387,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app${selected || selectedCapture ? ' app-with-details' : ''}`}>
+    <div className={`app${selected || selectedCapture || selectedHidden ? ' app-with-details' : ''}`}>
       <header className="app-header">
         <h1>Snitchcraft</h1>
         {mockMode() && <span className="mock-badge">Mock data from the sample fixture</span>}
@@ -386,6 +417,8 @@ export default function App() {
             captureOverview={captureOverview}
             sessionContext={sessionContext}
             onSelectTrace={selectTrace}
+            onSelectHidden={selectHidden}
+            selectedHiddenId={selectedHidden?.traceId ?? null}
             captureStatus={captureStatus}
             selectedCaptureId={selectedCapture}
             onSelectCapture={selectCapture}
@@ -466,6 +499,18 @@ export default function App() {
           refreshKey={detailRefresh}
           capture={captureState(selected, capturedIds, captureOverview)}
           onClose={() => setSelected(null)}
+        />
+      )}
+      {selectedHidden && !selected && session && api && (
+        <DetailsPanel
+          api={api}
+          project={session.project}
+          sessionId={session.session_id}
+          node={hiddenNode(selectedHidden.traceId, selectedHidden.label)}
+          refreshKey={detailRefresh}
+          capture={null}
+          tagName="Hidden context"
+          onClose={() => setSelectedHidden(null)}
         />
       )}
       {selectedCapture && !selected && session && api && (

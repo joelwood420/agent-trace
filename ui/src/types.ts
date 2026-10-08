@@ -131,6 +131,18 @@ export type TraceNode =
       result?: { content: ContentBlock[]; is_error: boolean }
     }
   | { type: 'marker'; kind: string; summary: string }
+  | { type: 'context_update'; parts?: ContextPart[]; remove?: string[] }
+
+/** What a recorded piece of hidden context is. */
+export type ContextPartKind = 'system_prompt' | 'tool_definitions' | 'instructions' | 'reminder' | { other: string }
+
+/** One piece of hidden context with its full text. */
+export interface ContextPart {
+  key: string
+  kind: ContextPartKind
+  label: string
+  text: string
+}
 
 export interface RawSource {
   source: string
@@ -292,6 +304,8 @@ export interface ContextItem {
   tokens: number
   count: number
   largest_tokens: number
+  /** True when measured from the transcript instead of a captured request. */
+  from_transcript: boolean
 }
 
 /** One slice of a call's context, with the items it is made of. */
@@ -333,9 +347,19 @@ export interface ContextBar {
   slices: BarSlice[]
 }
 
+/** One hidden context part listed in the session overview. */
+export interface HiddenPart {
+  trace_id: string
+  key: string
+  kind: ContextPartKind
+  label: string
+  chars: number
+}
+
 /** Bars for every model call of a session, plus the latest full breakdown. */
 export interface SessionContext {
   bars: Record<string, ContextBar>
   latest: ContextBreakdown | null
   latest_trace_id: string | null
+  hidden_context: HiddenPart[]
 }
