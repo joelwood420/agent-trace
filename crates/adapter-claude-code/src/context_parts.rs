@@ -13,6 +13,9 @@ pub(crate) const SYSTEM_KEY: &str = "system";
 pub(crate) const TOOL_PREFIX: &str = "tool:";
 /// Prefix of the keys of reminder parts. Compaction removes these.
 pub(crate) const REMINDER_PREFIX: &str = "reminder:";
+/// Prefix of the keys of file parts, one part per path. Compaction removes
+/// these too.
+pub(crate) const FILE_PREFIX: &str = "file:";
 
 /// The parts one attachment gives, or `None` when the attachment type is not
 /// one that carries hidden context. `line_id` is the line's uuid, or
@@ -53,9 +56,66 @@ pub(crate) fn parts_for_attachment(
             "session context",
             attachment.get("context").and_then(compact_json),
         ),
+        "invoked_skills" => reminder("invoked skills", skills_text(attachment)),
+        "file" => file_part(attachment).into_iter().collect(),
+        // Names a file without its content, so it adds nothing to measure.
+        "compact_file_reference" => Vec::new(),
         _ => return None,
     };
     Some(parts)
+}
+
+/// The path of a `file` attachment: `content.file.filePath`, else `filename`.
+pub(crate) fn file_attachment_path(attachment: &Value) -> Option<String> {
+    attachment
+        .get("content")
+        .and_then(|c| c.get("file"))
+        .and_then(|f| string_at(f, "filePath"))
+        .or_else(|| string_at(attachment, "filename"))
+}
+
+/// The path a `compact_file_reference` names: `filename`, else `displayPath`.
+pub(crate) fn file_reference_path(attachment: &Value) -> Option<String> {
+    string_at(attachment, "filename").or_else(|| string_at(attachment, "displayPath"))
+}
+
+/// A `file` attachment as one part keyed by its path. No path or no
+/// content gives no part.
+fn file_part(attachment: &Value) -> Option<ContextPart> {
+    let Some(path) = file_attachment_path(attachment) else {
+        tracing::debug!("file attachment without a path");
+        return None;
+    };
+    let text = attachment
+        .get("content")
+        .and_then(|c| c.get("file"))
+        .and_then(|f| string_at(f, "content"));
+    let Some(text) = text else {
+        tracing::debug!(%path, "file attachment without content");
+        return None;
+    };
+    Some(ContextPart {
+        key: format!("{FILE_PREFIX}{path}"),
+        kind: ContextPartKind::File,
+        label: path,
+        text,
+    })
+}
+
+/// The content of every invoked skill, joined by blank lines. Skills
+/// without string content are left out.
+fn skills_text(attachment: &Value) -> Option<String> {
+    let items: Vec<&str> = attachment
+        .get("skills")?
+        .as_array()?
+        .iter()
+        .filter_map(|s| s.get("content").and_then(Value::as_str))
+        .collect();
+    if items.is_empty() {
+        None
+    } else {
+        Some(items.join("\n\n"))
+    }
 }
 
 fn prompt_snapshot(attachment: &Value) -> Vec<ContextPart> {
@@ -429,10 +489,41 @@ mod tests {
             ("date", json!({"date": ["x"]})),
             ("model", json!(null)),
             ("session_context", json!({})),
+            ("invoked_skills", json!({"skills": [{"content": 3}, "x"]})),
+            ("invoked_skills", json!({"skills": []})),
+            ("file", json!({"filename": "a.txt"})),
+            ("file", json!({"content": {"file": {"content": "no path"}}})),
+            ("compact_file_reference", json!({"filename": "a.txt"})),
         ] {
             let parts = parts_for_attachment(kind, &attachment, "u1").expect("mapped type");
             assert!(parts.is_empty(), "{kind}: {parts:#?}");
         }
+    }
+
+    #[test]
+    fn file_and_invoked_skills_attachments() {
+        let file = one(
+            "file",
+            json!({"filename": "short.txt", "content": {"file": {"filePath": r"C:\x\full.txt", "content": "F"}}}),
+        );
+        check(
+            &file,
+            r"file:C:\x\full.txt",
+            ContextPartKind::File,
+            r"C:\x\full.txt",
+            "F",
+        );
+        let skills = one(
+            "invoked_skills",
+            json!({"skills": [{"name": "a", "content": "A"}, {"name": "b"}, {"content": "B"}]}),
+        );
+        check(
+            &skills,
+            "reminder:u1",
+            ContextPartKind::Reminder,
+            "invoked skills",
+            "A\n\nB",
+        );
     }
 
     #[test]

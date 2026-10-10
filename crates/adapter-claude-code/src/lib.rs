@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use trace_core::TraceEvent;
 
 pub use capture::{SESSION_HEADER, model_call_id, session_key};
-pub use context::context_rules;
+pub use context::{context_rules, flag_rules};
 pub use follow::{PollOutcome, ReadMode, SessionFollower};
 pub use parser::{HARNESS, Parser, Skipped, SubagentLink};
 pub use tail::{TailRead, TranscriptTail};

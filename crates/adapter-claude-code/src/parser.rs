@@ -8,11 +8,14 @@ use std::collections::{HashMap, HashSet};
 
 use serde_json::{Map, Value};
 use trace_core::{
-    ContentBlock, ContextUpdate, Marker, ModelCall, Node, RawSource, Run, StopReason, ToolCall,
-    ToolResult, TraceEvent, Turn, Usage,
+    Compaction, ContentBlock, ContextUpdate, Marker, ModelCall, Node, RawSource, Run, StopReason,
+    ToolCall, ToolResult, TraceEvent, Turn, Usage,
 };
 
-use crate::context_parts::{REMINDER_PREFIX, TOOL_PREFIX, parts_for_attachment};
+use crate::context_parts::{
+    FILE_PREFIX, REMINDER_PREFIX, TOOL_PREFIX, file_attachment_path, file_reference_path,
+    parts_for_attachment,
+};
 use crate::time::parse_rfc3339_ms;
 
 /// Harness name written on every `Run`.
@@ -74,8 +77,13 @@ pub struct Parser {
     last_timestamp: Option<i64>,
     subagents: Vec<SubagentLink>,
     skipped: Vec<Skipped>,
-    /// Keys of the reminder parts emitted in this run, for compaction.
-    reminder_keys: Vec<String>,
+    /// Keys of the reminder and file parts emitted in this run. A
+    /// compaction removes them.
+    dropped_at_compaction: Vec<String>,
+    /// The latest compaction marker's id and details, while the files
+    /// re-attached after it are still arriving. Cleared by the next prompt
+    /// or model call.
+    open_compaction: Option<(String, Compaction)>,
     /// Keys of the tool parts of this run's latest tool snapshot. A new
     /// snapshot is the full tool set, so keys missing from it are removed.
     tool_keys: Vec<String>,
@@ -133,7 +141,8 @@ impl Parser {
             last_timestamp: None,
             subagents: Vec::new(),
             skipped: Vec::new(),
-            reminder_keys: Vec::new(),
+            dropped_at_compaction: Vec::new(),
+            open_compaction: None,
             tool_keys: Vec::new(),
             unmapped_logged: HashSet::new(),
         }
@@ -304,6 +313,11 @@ impl Parser {
             raw: vec![line.raw.clone()],
             metadata: metadata.into_iter().collect(),
         };
+        // The summary after a compaction is a turn here, but the files
+        // re-attached after it still belong to that compaction.
+        if line.obj.get("isCompactSummary").and_then(Value::as_bool) != Some(true) {
+            self.open_compaction = None;
+        }
         self.seen_prompt = true;
         self.current_turn = Some(id);
         self.last_local_marker = None;
@@ -374,7 +388,10 @@ impl Parser {
 
         let mut event = match self.nodes.get(&model_id).cloned() {
             Some(existing) => existing,
-            None => self.new_model_call(line, &model_id, message),
+            None => {
+                self.open_compaction = None;
+                self.new_model_call(line, &model_id, message)
+            }
         };
         if let Node::ModelCall(call) = &mut event.node {
             for block in blocks {
@@ -517,11 +534,25 @@ impl Parser {
                     Some(trigger) => format!("Context compacted ({trigger})"),
                     None => "Context compacted".to_string(),
                 };
+                let tokens = |key: &str| meta.and_then(|m| m.get(key)).and_then(Value::as_u64);
+                let compaction = Compaction {
+                    tokens_before: tokens("preTokens"),
+                    tokens_after: tokens("postTokens"),
+                    ..Compaction::default()
+                };
                 let mut metadata = Map::new();
                 if let Some(meta) = meta {
                     metadata.insert("compact_metadata".into(), meta.clone());
                 }
-                self.marker(line, "compaction", summary, metadata, out);
+                let id = self.marker_with(
+                    line,
+                    "compaction",
+                    summary,
+                    metadata,
+                    Some(compaction.clone()),
+                    out,
+                );
+                self.open_compaction = Some((id, compaction));
                 self.drop_reminders(line, out);
             }
             // A recap shown to the user on returning to a session, not a step.
@@ -536,7 +567,20 @@ impl Parser {
             return;
         };
         let kind = str_at(attachment, "type").unwrap_or("");
-        self.context_from_attachment(line, kind, attachment, out);
+        let produced = self.context_from_attachment(line, kind, attachment, out);
+        match kind {
+            // Only a file that became a part counts as restored.
+            "file" if produced => {
+                if let Some(path) = file_attachment_path(attachment) {
+                    self.note_compaction_file(line, path, true, out);
+                }
+            }
+            "compact_file_reference" => match file_reference_path(attachment) {
+                Some(path) => self.note_compaction_file(line, path, false, out),
+                None => tracing::debug!(source = %self.source, "file reference without a path"),
+            },
+            _ => {}
+        }
         // Hook results are steps, so they become markers. Other attachments
         // are context injected into the prompt, handled above.
         if !kind.starts_with("hook_") {
@@ -561,32 +605,71 @@ impl Parser {
 
     /// Emits a `context_update` for an attachment that carries hidden
     /// context. Unmapped attachment types are noted once at debug level.
+    /// Returns true when the attachment gave at least one part.
     fn context_from_attachment(
         &mut self,
         line: &Line,
         kind: &str,
         attachment: &Value,
         out: &mut Vec<TraceEvent>,
-    ) {
+    ) -> bool {
         let line_id = self.context_line_id(line);
         let Some(parts) = parts_for_attachment(kind, attachment, &line_id) else {
             if !kind.starts_with("hook_") && self.unmapped_logged.insert(kind.to_string()) {
                 tracing::debug!(source = %self.source, kind, "attachment type carries no hidden context");
             }
-            return;
+            return false;
         };
         let remove = self.track_tools(kind, attachment, &parts);
         if parts.is_empty() && remove.is_empty() {
-            return;
+            return false;
         }
+        let produced = !parts.is_empty();
         for part in &parts {
-            if part.key.starts_with(REMINDER_PREFIX) && !self.reminder_keys.contains(&part.key) {
-                self.reminder_keys.push(part.key.clone());
+            let dropped =
+                part.key.starts_with(REMINDER_PREFIX) || part.key.starts_with(FILE_PREFIX);
+            if dropped && !self.dropped_at_compaction.contains(&part.key) {
+                self.dropped_at_compaction.push(part.key.clone());
             }
         }
         let mut metadata = Map::new();
         metadata.insert("attachment_type".into(), Value::String(kind.to_string()));
         self.context_update(line, parts, remove, metadata, out);
+        produced
+    }
+
+    /// Adds a re-attached file to the open compaction, if there is one, and
+    /// sends its marker again with the same id. `restored` is true when the
+    /// file came with its content.
+    fn note_compaction_file(
+        &mut self,
+        line: &Line,
+        path: String,
+        restored: bool,
+        out: &mut Vec<TraceEvent>,
+    ) {
+        let Some((id, compaction)) = self.open_compaction.as_mut() else {
+            return;
+        };
+        let list = if restored {
+            &mut compaction.files_restored
+        } else {
+            &mut compaction.files_referenced
+        };
+        if !list.contains(&path) {
+            list.push(path);
+        }
+        let compaction = compaction.clone();
+        let Some(mut event) = self.nodes.get(id.as_str()).cloned() else {
+            return;
+        };
+        if let Node::Marker(marker) = &mut event.node {
+            marker.compaction = Some(compaction);
+        }
+        if !event.raw.iter().any(|r| r.line == line.raw.line) {
+            event.raw.push(line.raw.clone());
+        }
+        self.emit(event, out);
     }
 
     /// For a `prompt_snapshot` that lists tools, records its tool keys and
@@ -617,12 +700,13 @@ impl Parser {
         remove
     }
 
-    /// At a compaction, removes every reminder part this run emitted.
+    /// At a compaction, removes every reminder and file part this run
+    /// emitted.
     fn drop_reminders(&mut self, line: &Line, out: &mut Vec<TraceEvent>) {
-        if self.reminder_keys.is_empty() {
+        if self.dropped_at_compaction.is_empty() {
             return;
         }
-        let remove = std::mem::take(&mut self.reminder_keys);
+        let remove = std::mem::take(&mut self.dropped_at_compaction);
         let mut metadata = Map::new();
         metadata.insert("reason".into(), Value::String("compaction".to_string()));
         self.context_update(line, Vec::new(), remove, metadata, out);
@@ -715,13 +799,27 @@ impl Parser {
         metadata: Map<String, Value>,
         out: &mut Vec<TraceEvent>,
     ) {
+        self.marker_with(line, kind, summary, metadata, None, out);
+    }
+
+    /// Emits a marker and returns its id.
+    fn marker_with(
+        &mut self,
+        line: &Line,
+        kind: &str,
+        summary: String,
+        metadata: Map<String, Value>,
+        compaction: Option<Compaction>,
+        out: &mut Vec<TraceEvent>,
+    ) -> String {
+        let id = format!("marker:{}", self.line_id(line));
         let event = TraceEvent {
-            id: format!("marker:{}", self.line_id(line)),
+            id: id.clone(),
             parent_id: Some(self.turn_or_run()),
             node: Node::Marker(Marker {
                 kind: kind.to_string(),
                 summary,
-                compaction: None,
+                compaction,
             }),
             started_at_ms: line.ts,
             ended_at_ms: None,
@@ -729,6 +827,7 @@ impl Parser {
             metadata: metadata.into_iter().collect(),
         };
         self.emit(event, out);
+        id
     }
 
     fn local_marker(
@@ -1157,6 +1256,59 @@ mod tests {
             r#"{"type":"system","subtype":"compact_boundary","uuid":"sc1","compactMetadata":{"trigger":"auto"}}"#,
         );
         assert_eq!(removed_by(&sub_events, "context:sc1"), ["reminder:sa1"]);
+    }
+
+    #[test]
+    fn file_parts_are_removed_at_the_next_compaction() {
+        let (events, skipped) = run_lines(&[
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"auto","preTokens":900,"postTokens":100}}"#,
+            r#"{"type":"attachment","uuid":"f1","attachment":{"type":"file","filename":"C:\\x\\a.txt","content":{"file":{"filePath":"C:\\x\\a.txt","content":"A"}}}}"#,
+            r#"{"type":"attachment","uuid":"s1","attachment":{"type":"invoked_skills","skills":[{"name":"k","content":"K"}]}}"#,
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c2","compactMetadata":{"trigger":"auto"}}"#,
+        ]);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let first = update_of(&events, "context:f1");
+        assert_eq!(first.parts[0].key, r"file:C:\x\a.txt");
+        assert_eq!(first.parts[0].kind, trace_core::ContextPartKind::File);
+        assert_eq!(
+            removed_by(&events, "context:c2"),
+            [r"file:C:\x\a.txt", "reminder:s1"]
+        );
+    }
+
+    #[test]
+    fn compaction_details_collect_until_the_next_prompt() {
+        let (events, skipped) = run_lines(&[
+            r#"{"type":"user","uuid":"u1","message":{"content":"/compact"}}"#,
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"manual","preTokens":900,"postTokens":100}}"#,
+            r#"{"type":"user","uuid":"u2","isCompactSummary":true,"message":{"content":"Summary."}}"#,
+            r#"{"type":"attachment","uuid":"r1","attachment":{"type":"compact_file_reference","displayPath":"b.txt"}}"#,
+            r#"{"type":"attachment","uuid":"f1","attachment":{"type":"file","filename":"a.txt","content":{"file":{"content":"A"}}}}"#,
+            r#"{"type":"attachment","uuid":"f2","attachment":{"type":"file","filename":"a.txt","content":{"file":{"content":"A"}}}}"#,
+            r#"{"type":"attachment","uuid":"bad","attachment":{"type":"file","content":{"file":{"content":"no path"}}}}"#,
+            r#"{"type":"user","uuid":"u3","message":{"content":"Next."}}"#,
+            r#"{"type":"attachment","uuid":"f3","attachment":{"type":"file","filename":"late.txt","content":{"file":{"content":"L"}}}}"#,
+            r#"{"type":"attachment","uuid":"r2","attachment":{"type":"compact_file_reference","filename":"late2.txt"}}"#,
+        ]);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let marker = events
+            .iter()
+            .rev()
+            .find(|e| e.id == "marker:c1")
+            .expect("marker");
+        let Node::Marker(m) = &marker.node else {
+            panic!("not a marker")
+        };
+        let c = m.compaction.as_ref().expect("details");
+        assert_eq!((c.tokens_before, c.tokens_after), (Some(900), Some(100)));
+        assert_eq!(c.files_restored, ["a.txt"]);
+        assert_eq!(c.files_referenced, ["b.txt"]);
+        // A file seen after the next prompt is still a part, just not restored.
+        assert_eq!(
+            update_of(&events, "context:f3").parts[0].key,
+            "file:late.txt"
+        );
+        assert!(!events.iter().any(|e| e.id == "context:bad"));
     }
 
     fn update_of<'a>(events: &'a [TraceEvent], id: &str) -> &'a ContextUpdate {

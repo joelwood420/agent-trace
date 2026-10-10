@@ -1,7 +1,7 @@
 //! What Claude Code's injected reminders and file reads look like, as plain
 //! data for the harness neutral `insights` crate.
 
-use insights::{ContextRules, FileReadRule, LabelRule};
+use insights::{ContextRules, FileEditRule, FileReadRule, FlagRules, LabelRule};
 
 /// The rules that let `insights` recognise Claude Code's system reminders
 /// and its `Read` tool. Specific content rules (SessionStart hook, MCP
@@ -64,6 +64,28 @@ pub fn context_rules() -> ContextRules {
             tool: "Read".into(),
             path_field: "file_path".into(),
         }],
+    }
+}
+
+/// The rules the waste and problem flags use for Claude Code. `Read`, `Edit`,
+/// `Write` and `NotebookEdit` are Claude Code's built-in tool names, and the
+/// field names are their input fields.
+pub fn flag_rules() -> FlagRules {
+    let edit = |tool: &str, fields: &[&str]| FileEditRule {
+        tool: tool.into(),
+        path_fields: fields.iter().map(|f| f.to_string()).collect(),
+    };
+    FlagRules {
+        file_reads: vec![FileReadRule {
+            tool: "Read".into(),
+            path_field: "file_path".into(),
+        }],
+        range_fields: vec!["offset".into(), "limit".into()],
+        file_edits: vec![
+            edit("Edit", &["file_path"]),
+            edit("Write", &["file_path"]),
+            edit("NotebookEdit", &["notebook_path", "file_path"]),
+        ],
     }
 }
 
