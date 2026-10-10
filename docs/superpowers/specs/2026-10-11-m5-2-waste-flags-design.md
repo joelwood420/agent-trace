@@ -100,7 +100,7 @@ FlagRules {
 }
 ```
 
-Claude Code: reads `Read` / `file_path`; range fields `offset`, `limit`; edits `Edit`, `Write` (`file_path`) and `NotebookEdit` (`notebook_path`, then `file_path`).
+Claude Code: reads `Read` / `file_path`; range fields `offset`, `limit`, `pages` (PDF page chunks); edits `Edit`, `MultiEdit` (older transcripts), `Write` (`file_path`) and `NotebookEdit` (`notebook_path`, then `file_path`).
 
 ### `Flag`
 

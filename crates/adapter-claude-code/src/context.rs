@@ -68,8 +68,10 @@ pub fn context_rules() -> ContextRules {
 }
 
 /// The rules the waste and problem flags use for Claude Code. `Read`, `Edit`,
-/// `Write` and `NotebookEdit` are Claude Code's built-in tool names, and the
-/// field names are their input fields.
+/// `MultiEdit` (older transcripts), `Write` and `NotebookEdit` are Claude
+/// Code's built-in tool names, and the field names are their input fields.
+/// `pages` is the range a PDF read gives, so page chunks of one PDF are
+/// different reads.
 pub fn flag_rules() -> FlagRules {
     let edit = |tool: &str, fields: &[&str]| FileEditRule {
         tool: tool.into(),
@@ -80,9 +82,10 @@ pub fn flag_rules() -> FlagRules {
             tool: "Read".into(),
             path_field: "file_path".into(),
         }],
-        range_fields: vec!["offset".into(), "limit".into()],
+        range_fields: vec!["offset".into(), "limit".into(), "pages".into()],
         file_edits: vec![
             edit("Edit", &["file_path"]),
+            edit("MultiEdit", &["file_path"]),
             edit("Write", &["file_path"]),
             edit("NotebookEdit", &["notebook_path", "file_path"]),
         ],
@@ -93,7 +96,7 @@ pub fn flag_rules() -> FlagRules {
 mod tests {
     use super::*;
     use insights::{SliceKind, measure_request};
-    use serde_json::json;
+    use serde_json::{Value, json};
 
     const CLAUDE_MD: &str = r"C:\work\example\CLAUDE.md";
     const MEMORY_MD: &str = r"C:\work\example\memory\MEMORY.md";
@@ -188,5 +191,61 @@ mod tests {
     fn hook_mentioning_claude_md_is_labeled_as_hook() {
         let text = "<system-reminder>\nSessionStart hook additional context: remember to read CLAUDE.md first.\n</system-reminder>";
         assert_eq!(instruction_labels(text), vec!["hook output".to_string()]);
+    }
+
+    /// Parses one prompt whose model calls each make one tool call, and
+    /// returns how many `RepeatedRead` flags the flag rules give.
+    fn repeated_reads(calls: &[(&str, Value)]) -> usize {
+        let mut parser = crate::Parser::for_session("flags.jsonl", "s1");
+        let mut lines =
+            vec![r#"{"type":"user","uuid":"u1","message":{"content":"Go."}}"#.to_string()];
+        for (i, (tool, input)) in calls.iter().enumerate() {
+            let line = json!({
+                "type": "assistant",
+                "uuid": format!("a{i}"),
+                "message": { "id": format!("m{i}"), "content": [{
+                    "type": "tool_use", "id": format!("t{i}"), "name": tool, "input": input
+                }] }
+            });
+            lines.push(line.to_string());
+        }
+        let mut trace = trace_core::Trace::new();
+        let mut events = Vec::new();
+        for (i, line) in lines.iter().enumerate() {
+            events.extend(parser.push_line(i as u64 + 1, line));
+        }
+        events.extend(parser.finish());
+        for event in events {
+            trace.apply(event).expect("valid tree");
+        }
+        insights::session_flags(&trace, &flag_rules())
+            .iter()
+            .filter(|f| f.kind == insights::FlagKind::RepeatedRead)
+            .count()
+    }
+
+    #[test]
+    fn page_chunks_of_one_pdf_are_not_a_repeated_read() {
+        let read = |pages: &str| {
+            (
+                "Read",
+                json!({ "file_path": r"C:\x\doc.pdf", "pages": pages }),
+            )
+        };
+        assert_eq!(
+            repeated_reads(&[read("1-20"), read("21-40"), read("41-60")]),
+            0
+        );
+        assert_eq!(
+            repeated_reads(&[read("1-20"), read("1-20"), read("1-20")]),
+            1
+        );
+    }
+
+    #[test]
+    fn multi_edit_between_reads_resets_the_count() {
+        let read = ("Read", json!({ "file_path": NOTES }));
+        let edit = ("MultiEdit", json!({ "file_path": NOTES, "edits": [] }));
+        assert_eq!(repeated_reads(&[read.clone(), edit, read.clone(), read]), 0);
     }
 }
