@@ -8,6 +8,15 @@
       "modified_ms": 1767225600000,
       "size_bytes": 131777,
       "live": false
+    },
+    {
+      "project": "compaction",
+      "project_label": "compaction",
+      "session_id": "00000000-0000-4000-8000-000000000003",
+      "title": "Tidy the calculator module",
+      "modified_ms": 1767225600000,
+      "size_bytes": 106792,
+      "live": false
     }
   ],
   "views": {

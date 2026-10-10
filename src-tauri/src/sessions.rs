@@ -454,8 +454,12 @@ mod tests {
     #[test]
     fn lists_fixture_session_and_skips_subagents() {
         let sessions = list_sessions(&fixture_root()).expect("list");
-        assert_eq!(sessions.len(), 1, "{sessions:?}");
-        let s = &sessions[0];
+        // The basic and compaction fixture projects, one session each.
+        assert_eq!(sessions.len(), 2, "{sessions:?}");
+        let s = sessions
+            .iter()
+            .find(|s| s.project == "basic")
+            .expect("basic session");
         assert_eq!(s.project, "basic");
         assert_eq!(s.project_label, "basic");
         assert_eq!(s.session_id, FIXTURE_SESSION);
@@ -747,10 +751,12 @@ mod tests {
         let mut sessions = list_sessions(&root).expect("list");
         // The file's modified time depends on the checkout, so pin it and
         // the live flag that comes from it.
+        // The order comes from those times too, so fix it by name.
         for s in &mut sessions {
             s.modified_ms = 1_767_225_600_000;
             s.live = false;
         }
+        sessions.sort_by(|a, b| (&a.project, &a.session_id).cmp(&(&b.project, &b.session_id)));
         let mut live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
         let mut view = live.view();
         view.live = false;
