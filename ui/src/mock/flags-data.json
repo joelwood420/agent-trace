@@ -1,0 +1,68 @@
+{
+  "basic/00000000-0000-4000-8000-000000000002": {
+    "flags": []
+  },
+  "compaction/00000000-0000-4000-8000-000000000003": {
+    "flags": [
+      {
+        "kind": "repeated_read",
+        "level": "warn",
+        "text": "`C:\\work\\demo\\src\\calc.py` read 3 times with no edit in between.",
+        "trace_ids": [
+          "tool:toolu_example000000000301",
+          "tool:toolu_example000000000302",
+          "tool:toolu_example000000000303"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      },
+      {
+        "kind": "failed_retry",
+        "level": "warn",
+        "text": "`Bash` failed and was retried 1 time with the same input; it failed again.",
+        "trace_ids": [
+          "tool:toolu_example000000000306",
+          "tool:toolu_example000000000307"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      },
+      {
+        "kind": "loop",
+        "level": "warn",
+        "text": "The same `Bash` call ran 3 times in this prompt with no file edit in between.",
+        "trace_ids": [
+          "tool:toolu_example000000000308",
+          "tool:toolu_example000000000309",
+          "tool:toolu_example000000000310"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      },
+      {
+        "kind": "large_result",
+        "level": "warn",
+        "text": "`WebFetch` returned about 10k tokens.",
+        "trace_ids": [
+          "tool:toolu_example000000000311"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      },
+      {
+        "kind": "compaction",
+        "level": "info",
+        "text": "Compaction dropped about 112k tokens (kept about 8k). Re-attached 1 file in full and 2 by name only.",
+        "trace_ids": [
+          "marker:00000000-0000-4000-8000-100000000027"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      },
+      {
+        "kind": "reread_after_compaction",
+        "level": "warn",
+        "text": "`C:\\work\\demo\\src\\main.py` was read again after compaction dropped it.",
+        "trace_ids": [
+          "tool:toolu_example000000000312"
+        ],
+        "run_id": "run:00000000-0000-4000-8000-000000000003"
+      }
+    ]
+  }
+}

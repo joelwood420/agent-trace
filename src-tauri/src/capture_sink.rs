@@ -28,6 +28,7 @@ use trace_core::Trace;
 
 use crate::captures::{self, CaptureDetail, CaptureOverview, SessionRecords, TraceFacts};
 use crate::context::{self, ContextFacts, SessionContext};
+use crate::flags::{self, SessionFlags};
 use crate::live::LiveSession;
 use crate::sessions::{SessionError, check_trace_id, session_path};
 use crate::watch::Shared;
@@ -374,6 +375,17 @@ pub fn session_context_view(
     let records = measured_records(store, cache, session_id)?;
     let facts = copy_from_trace(root, shared, project, session_id, ContextFacts::of)?;
     Ok(context::session_context(&facts, &records))
+}
+
+/// The waste and problem flags of a session.
+pub fn session_flags_view(
+    root: &Path,
+    shared: &Shared,
+    project: &str,
+    session_id: &str,
+) -> Result<SessionFlags, SessionError> {
+    session_path(root, project, session_id)?;
+    copy_from_trace(root, shared, project, session_id, flags::session_flags)
 }
 
 /// What fills the context of one model call in full, or `None` if

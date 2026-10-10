@@ -15,6 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "delete_captures",
         "session_context",
         "call_context",
+        "session_flags",
     ]);
     let attributes = tauri_build::Attributes::new().app_manifest(manifest);
     tauri_build::try_build(attributes)?;

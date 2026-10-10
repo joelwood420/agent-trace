@@ -11,6 +11,7 @@
 mod capture_sink;
 mod captures;
 mod context;
+mod flags;
 mod live;
 mod sessions;
 mod watch;
@@ -27,6 +28,7 @@ use trace_view::NodeDetail;
 use capture_sink::{AppSink, CaptureStatus, ProxyState, RecordCache};
 use captures::{CaptureDetail, CaptureOverview};
 use context::SessionContext;
+use flags::SessionFlags;
 use insights::ContextBreakdown;
 use live::{LiveMessage, LiveSession, LiveStatus};
 use sessions::{SessionError, SessionSummary, SessionView, TitleCache};
@@ -238,6 +240,26 @@ async fn session_context(
     Ok(view)
 }
 
+/// Waste and problem flags of one session: repeated reads, retried failures,
+/// loops, very large results and compactions, each with the trace ids it is
+/// about. Works when capture is off.
+#[tauri::command(rename_all = "snake_case")]
+async fn session_flags(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    project: String,
+    session_id: String,
+) -> Result<SessionFlags, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let shared = Arc::clone(&shared);
+    let view = run_blocking(move || {
+        capture_sink::session_flags_view(&root, &shared, &project, &session_id)
+    })
+    .await?;
+    tracing::info!(flags = view.flags.len(), "loaded session flags");
+    Ok(view)
+}
+
 /// What fills the context of one model call in full, with advice, or `null`
 /// if the session has no such model call or the call has no data yet.
 #[tauri::command(rename_all = "snake_case")]
@@ -424,6 +446,7 @@ fn main() -> anyhow::Result<()> {
             capture_status,
             session_captures,
             session_context,
+            session_flags,
             call_context,
             capture_detail,
             delete_captures

@@ -192,6 +192,30 @@ An item is `{ "label", "tokens", "count", "largest_tokens", "from_transcript" }`
 
 All token splits are estimates: each part is measured in characters and scaled to the reported total. See `DECISIONS.md` (2026-10-08).
 
+## Flags (M5.2)
+
+The `session_flags` command returns the waste and problem flags of one session. It works with capture off, and reads the open session when it is the same one.
+
+`SessionFlags`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `flags` | list | Every flag found, in session order of each flag's first node. |
+
+`Flag`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `kind` | string | The pattern; see the list below. |
+| `level` | string | `warn` or `info`. |
+| `text` | string | A finished plain sentence. Never empty. |
+| `trace_ids` | list of string | Every node involved, in session order. |
+| `run_id` | string | The run (main agent or one subagent) the flag is about. Runs are checked separately. |
+
+Kinds: `repeated_read` (the same file read 3 or more times with no edit in between), `failed_retry` (a failed tool call retried with the same input), `loop` (the same tool call 3 or more times in one prompt with no edit in between), `large_result` (one tool result of about 10k tokens or more), `compaction` (the conversation was compacted), `reread_after_compaction` (a file read again after compaction dropped it).
+
+Placement rule: the UI puts a flag on every box whose `trace_ids` include one of the flag's `trace_ids`. A summary box that holds such a box gets the flag too, and a flag is counted once per screen.
+
 ## Example
 
 The JSON for `fixtures/trace-core/example-trace.jsonl` is checked in at `crates/trace-view/tests/snapshots/example-trace.diagram.json`. A test fails if the output changes, so the contract cannot drift without a visible diff. To accept an intended change, run the tests with `SNITCHCRAFT_UPDATE_SNAPSHOTS=1` set and review the diff.

@@ -444,6 +444,11 @@ mod tests {
     }
 
     const FIXTURE_SESSION: &str = "00000000-0000-4000-8000-000000000002";
+    /// The fixture sessions the UI mock data covers, as (project, session id).
+    const FIXTURE_SESSIONS: [(&str, &str); 2] = [
+        ("basic", FIXTURE_SESSION),
+        ("compaction", "00000000-0000-4000-8000-000000000003"),
+    ];
 
     #[test]
     fn projects_root_is_inside_dot_claude() {
@@ -757,21 +762,48 @@ mod tests {
             s.live = false;
         }
         sessions.sort_by(|a, b| (&a.project, &a.session_id).cmp(&(&b.project, &b.session_id)));
-        let mut live = LiveSession::open(&root, "basic", FIXTURE_SESSION).expect("open");
-        let mut view = live.view();
-        view.live = false;
-        let loaded = load_trace(&root, "basic", FIXTURE_SESSION).expect("trace");
+        let mut views = serde_json::Map::new();
         let mut details = serde_json::Map::new();
-        for id in all_trace_ids(&loaded.trace) {
-            let detail = live.node_detail(&id).expect("known id");
-            details.insert(id, serde_json::to_value(detail).expect("serialise"));
+        for (project, session_id) in FIXTURE_SESSIONS {
+            let mut live = LiveSession::open(&root, project, session_id).expect("open");
+            let mut view = live.view();
+            view.live = false;
+            views.insert(
+                format!("{project}/{session_id}"),
+                serde_json::to_value(view).expect("serialise"),
+            );
+            let loaded = load_trace(&root, project, session_id).expect("trace");
+            for id in all_trace_ids(&loaded.trace) {
+                let detail = live.node_detail(&id).expect("known id");
+                details.insert(id, serde_json::to_value(detail).expect("serialise"));
+            }
         }
         let expected = serde_json::json!({
             "sessions": sessions,
-            "views": { format!("basic/{FIXTURE_SESSION}"): view },
+            "views": views,
             "details": details,
         });
         check_snapshot(&mock_file("fixture-data.json"), &expected);
+    }
+
+    /// `ui/src/mock/flags-data.json` holds the waste and problem flags of both
+    /// fixture sessions, keyed by `<project>/<session id>`, for the dev mock mode.
+    #[test]
+    fn ui_flags_data_matches_the_backend() {
+        let root = fixture_root();
+        let mut all = serde_json::Map::new();
+        for (project, session_id) in FIXTURE_SESSIONS {
+            let loaded = load_trace(&root, project, session_id).expect("trace");
+            let view = crate::flags::session_flags(&loaded.trace);
+            all.insert(
+                format!("{project}/{session_id}"),
+                serde_json::to_value(view).expect("serialise"),
+            );
+        }
+        check_snapshot(
+            &mock_file("flags-data.json"),
+            &serde_json::Value::Object(all),
+        );
     }
 
     /// `ui/src/mock/capture-data.json` holds the capture overview and every
