@@ -534,7 +534,14 @@ impl Parser {
                     Some(trigger) => format!("Context compacted ({trigger})"),
                     None => "Context compacted".to_string(),
                 };
-                let tokens = |key: &str| meta.and_then(|m| m.get(key)).and_then(Value::as_u64);
+                let tokens = |key: &str| {
+                    let value = meta.and_then(|m| m.get(key))?;
+                    let count = value.as_u64();
+                    if count.is_none() {
+                        tracing::debug!(source = %self.source, key, %value, "token count is not a whole number");
+                    }
+                    count
+                };
                 let compaction = Compaction {
                     tokens_before: tokens("preTokens"),
                     tokens_after: tokens("postTokens"),
@@ -569,10 +576,11 @@ impl Parser {
         let kind = str_at(attachment, "type").unwrap_or("");
         let produced = self.context_from_attachment(line, kind, attachment, out);
         match kind {
-            // Only a file that became a part counts as restored.
-            "file" if produced => {
+            // Only a file that became a part counts as restored. A file with
+            // a path but no content is in the context by name only.
+            "file" => {
                 if let Some(path) = file_attachment_path(attachment) {
-                    self.note_compaction_file(line, path, true, out);
+                    self.note_compaction_file(line, path, produced, out);
                 }
             }
             "compact_file_reference" => match file_reference_path(attachment) {
@@ -1309,6 +1317,52 @@ mod tests {
             "file:late.txt"
         );
         assert!(!events.iter().any(|e| e.id == "context:bad"));
+    }
+
+    /// The compaction details of the last version of marker `id`.
+    fn compaction_of(events: &[TraceEvent], id: &str) -> Compaction {
+        let marker = events.iter().rev().find(|e| e.id == id).expect("marker");
+        let Node::Marker(m) = &marker.node else {
+            panic!("not a marker")
+        };
+        m.compaction.clone().expect("details")
+    }
+
+    #[test]
+    fn token_counts_that_are_not_numbers_are_left_out() {
+        let (events, _) = run_lines(&[
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"auto","preTokens":"900","postTokens":-5}}"#,
+        ]);
+        let c = compaction_of(&events, "marker:c1");
+        assert_eq!((c.tokens_before, c.tokens_after), (None, None));
+    }
+
+    #[test]
+    fn a_file_attachment_without_content_is_referenced_by_name() {
+        let (events, skipped) = run_lines(&[
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"manual"}}"#,
+            r#"{"type":"user","uuid":"u1","isCompactSummary":true,"message":{"content":"Summary."}}"#,
+            r#"{"type":"attachment","uuid":"f1","attachment":{"type":"file","filename":"big.txt","content":{"file":{"filePath":"big.txt"}}}}"#,
+        ]);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let c = compaction_of(&events, "marker:c1");
+        assert!(c.files_restored.is_empty(), "{c:?}");
+        assert_eq!(c.files_referenced, ["big.txt"]);
+        assert!(!events.iter().any(|e| e.id == "context:f1"));
+    }
+
+    #[test]
+    fn a_model_call_after_a_compaction_closes_its_details() {
+        let (events, skipped) = run_lines(&[
+            r#"{"type":"system","subtype":"compact_boundary","uuid":"c1","compactMetadata":{"trigger":"auto"}}"#,
+            r#"{"type":"assistant","uuid":"a1","message":{"id":"m1","content":[{"type":"text","text":"Carrying on."}]}}"#,
+            r#"{"type":"attachment","uuid":"f1","attachment":{"type":"file","filename":"a.txt","content":{"file":{"content":"A"}}}}"#,
+            r#"{"type":"attachment","uuid":"r1","attachment":{"type":"compact_file_reference","filename":"b.txt"}}"#,
+        ]);
+        assert!(skipped.is_empty(), "{skipped:#?}");
+        let c = compaction_of(&events, "marker:c1");
+        assert!(c.files_restored.is_empty(), "{c:?}");
+        assert!(c.files_referenced.is_empty(), "{c:?}");
     }
 
     fn update_of<'a>(events: &'a [TraceEvent], id: &str) -> &'a ContextUpdate {

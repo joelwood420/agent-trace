@@ -76,7 +76,7 @@ A new kind, serialised as `"file"`: a file's content that the harness put into t
 ## Adapter changes (Claude Code)
 
 - `compact_boundary`: `compaction.tokens_before` from `preTokens`, `tokens_after` from `postTokens`. The raw `compact_metadata` stays in the marker's `metadata`.
-- After a boundary, until the next prompt or model call, `file` and `compact_file_reference` attachments add their path (`content.file.filePath` or `filename`) to `files_restored` or `files_referenced`, and the adapter re-sends the marker with the same id. Re-sending an id replaces the node, so this works in a live session.
+- After a boundary, until the next prompt or model call, `file` and `compact_file_reference` attachments add their path (`content.file.filePath` or `filename`) to `files_restored` or `files_referenced` (a `file` with no content counts as referenced), and the adapter re-sends the marker with the same id. Re-sending an id replaces the node, so this works in a live session.
 - Every `file` attachment becomes a `File` context part keyed `file:<path>`. Only post-compaction `file` attachments have been seen in real transcripts so far; one found anywhere else is still a `File` part, just not counted as restored. File parts are removed at the next compaction, the same way reminder parts are.
 - `invoked_skills` becomes one reminder part labelled `invoked skills`, its text the skills' content joined with blank lines.
 - A missing or malformed field is skipped and logged, never a panic, as for every other line.
