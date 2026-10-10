@@ -13,6 +13,7 @@ import {
 import { useCallback, useMemo, useRef } from 'react'
 
 import { isCaptured } from '../captureView.ts'
+import { boxFlags, isOpen, type FlagIndex } from '../flags.ts'
 import { initialViewport, layoutTree, type OpenState } from '../layout.ts'
 import type { ContextBar, DiagramNode, PromptDiagram } from '../types.ts'
 import {
@@ -56,11 +57,22 @@ interface Props {
   capturedIds: ReadonlySet<string>
   /** Context bars by model call trace id. */
   contextBars: Readonly<Record<string, ContextBar>>
+  /** Flags by trace id, for the badges. */
+  flagIndex: FlagIndex
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
 
-export default function Diagram({ prompt, openState, selectedId, capturedIds, contextBars, onToggle, onSelect }: Props) {
+export default function Diagram({
+  prompt,
+  openState,
+  selectedId,
+  capturedIds,
+  contextBars,
+  flagIndex,
+  onToggle,
+  onSelect,
+}: Props) {
   const layout = useMemo(() => layoutTree(prompt.root, openState), [prompt.root, openState])
   const paneRef = useRef<HTMLDivElement>(null)
 
@@ -83,11 +95,12 @@ export default function Diagram({ prompt, openState, selectedId, capturedIds, co
           selected: box.id === selectedId,
           captured: isCaptured(box.node, capturedIds),
           context: box.node.kind === 'model_call' ? barFor(box.node, contextBars) : null,
+          flags: boxFlags(box.node, flagIndex, isOpen(box.node, openState)),
           onToggle,
           onSelect,
         },
       })),
-    [layout, selectedId, capturedIds, contextBars, onToggle, onSelect],
+    [layout, selectedId, capturedIds, contextBars, flagIndex, openState, onToggle, onSelect],
   )
 
   const edges: Edge[] = useMemo(

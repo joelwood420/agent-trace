@@ -5,7 +5,7 @@ import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { KeyboardEvent, ReactNode } from 'react'
 
 import { formatDuration, formatTokens } from '../format.ts'
-import type { ContextBar as Bar, DiagramNode, Status } from '../types.ts'
+import type { ContextBar as Bar, DiagramNode, Flag, Status } from '../types.ts'
 import ContextBar from './ContextBar.tsx'
 
 export interface BoxData extends Record<string, unknown> {
@@ -17,6 +17,8 @@ export interface BoxData extends Record<string, unknown> {
   captured: boolean
   /** What fills this model call's context, if known. */
   context: Bar | null
+  /** Flags this box's badge counts (see `boxFlags` in flags.ts). */
+  flags: Flag[]
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
@@ -43,6 +45,21 @@ function keyboardProps(data: BoxData) {
       }
     },
   }
+}
+
+/** A small count of the flags on a box; hover for their text. */
+function FlagBadge({ flags }: { flags: Flag[] }) {
+  if (flags.length === 0) return null
+  const anyWarn = flags.some((f) => f.level === 'warn')
+  return (
+    <span
+      className={`flag-badge flag-${anyWarn ? 'warn' : 'info'}`}
+      title={flags.map((f) => f.text).join('\n')}
+      aria-label={`${flags.length} flag(s)`}
+    >
+      <span aria-hidden="true">⚑</span> {flags.length}
+    </span>
+  )
 }
 
 const STATUS_TEXT: Record<Status, { icon: string; text: string } | null> = {
@@ -145,6 +162,7 @@ function Shell({ data, tag, labelLine = false, showMetrics = true }: ShellProps)
             API
           </span>
         )}
+        <FlagBadge flags={data.flags} />
         <StatusChip status={node.status} />
       </div>
       {labelLine && <div className="box-row">{label}</div>}
@@ -210,6 +228,7 @@ export function ParallelGroupNode({ data }: NodeProps<BoxNode>) {
         )}
         <span className="spacer" />
         {duration && <span className="metrics">{duration}</span>}
+        <FlagBadge flags={data.flags} />
         <StatusChip status={node.status} />
       </div>
     </div>

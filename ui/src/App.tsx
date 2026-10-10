@@ -7,8 +7,9 @@ import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
+import { flagsForNode, indexFlags, revealPath } from './flags.ts'
 import { formatDuration, formatTokens, plural } from './format.ts'
-import { collapsibleIds } from './layout.ts'
+import { collapsibleIds, isCollapsible } from './layout.ts'
 import { findByTraceId, findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
 import type {
   CaptureOverview,
@@ -17,6 +18,7 @@ import type {
   LiveMessage,
   LiveStatus,
   SessionContext,
+  SessionFlags,
   SessionSummary,
   SessionView,
 } from './types.ts'
@@ -74,6 +76,8 @@ export default function App() {
   const [selectedHidden, setSelectedHidden] = useState<HiddenRow | null>(null)
   // What fills each model call's context: bars by trace id and the latest breakdown.
   const [sessionContext, setSessionContext] = useState<Loadable<SessionContext>>({ status: 'loading' })
+  // Waste and problem flags of the whole session, loaded with the context.
+  const [sessionFlags, setSessionFlags] = useState<Loadable<SessionFlags>>({ status: 'loading' })
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
   // When the overview was last requested, and a pending throttled reload.
@@ -183,6 +187,7 @@ export default function App() {
       if (fresh) setCaptureOverview({ status: 'loading' })
       // The context follows the same moments and the same guard.
       if (fresh) setSessionContext({ status: 'loading' })
+      if (fresh) setSessionFlags({ status: 'loading' })
       api
         .sessionContext(s.project, s.session_id)
         .then((value) => {
@@ -193,6 +198,17 @@ export default function App() {
           const message = errorMessage(err)
           if (!fresh) console.warn('Could not refresh the session context:', message)
           setSessionContext((current) => afterFailedLoad(current, fresh, message))
+        })
+      api
+        .sessionFlags(s.project, s.session_id)
+        .then((value) => {
+          if (token === captureToken.current) setSessionFlags({ status: 'ready', value })
+        })
+        .catch((err: unknown) => {
+          if (token !== captureToken.current) return
+          const message = errorMessage(err)
+          if (!fresh) console.warn('Could not refresh the session flags:', message)
+          setSessionFlags((current) => afterFailedLoad(current, fresh, message))
         })
       api
         .sessionCaptures(s.project, s.session_id)
@@ -281,6 +297,7 @@ export default function App() {
     lastCaptureLoad.current = null
     setCaptureOverview({ status: 'loading' })
     setSessionContext({ status: 'loading' })
+    setSessionFlags({ status: 'loading' })
     if (!keepPrompt) {
       setPromptIndex(null)
       setOpenState(new Map())
@@ -306,6 +323,7 @@ export default function App() {
     cancelCaptureReload()
     setSession(null)
     setSessionContext({ status: 'loading' })
+    setSessionFlags({ status: 'loading' })
     setSelected(null)
     setSelectedCapture(null)
     setSelectedHidden(null)
@@ -332,13 +350,32 @@ export default function App() {
     setSelectedHidden(row)
   }
 
-  /** Selects the model call box with this trace id, as a click on it would. */
+  /**
+   * Selects the deepest box holding this trace id, as a click on it would,
+   * after opening every collapsed box around it so it is on screen.
+   */
   const selectTrace = (traceId: string) => {
     if (view.status !== 'ready') return
     for (const p of view.value.diagram.prompts) {
-      const found = findByTraceId(p.root, traceId)
+      const path = revealPath(p.root, traceId)
+      const last = path?.[path.length - 1]
+      if (!path || !last) continue
+      setPromptIndex(p.index)
+      const around = path.slice(0, -1).filter(isCollapsible)
+      if (around.length > 0) {
+        setOpenState((prev) => {
+          const next = new Map(prev)
+          for (const box of around) next.set(box.id, true)
+          return next
+        })
+      }
+      selectNode(last)
+      return
+    }
+    // Events before the first prompt have no diagram; select them as the list does.
+    for (const m of view.value.diagram.markers) {
+      const found = findByTraceId(m, traceId)
       if (found) {
-        setPromptIndex(p.index)
         selectNode(found)
         return
       }
@@ -366,6 +403,11 @@ export default function App() {
     () => (sessionContext.status === 'ready' ? sessionContext.value.bars : {}),
     [sessionContext],
   )
+  const flagIndex = useMemo(
+    () => indexFlags(sessionFlags.status === 'ready' ? sessionFlags.value.flags : []),
+    [sessionFlags],
+  )
+  const selectedFlags = useMemo(() => (selected ? flagsForNode(selected, flagIndex) : []), [selected, flagIndex])
   const viewValue = view.status === 'ready' ? view.value : null
   const capturedIds = useMemo(() => new Set(viewValue?.captured_trace_ids ?? []), [viewValue])
 
@@ -418,6 +460,7 @@ export default function App() {
             onSelectMarker={selectNode}
             captureOverview={captureOverview}
             sessionContext={sessionContext}
+            sessionFlags={sessionFlags}
             onSelectTrace={selectTrace}
             onSelectHidden={selectHidden}
             selectedHiddenKey={selectedHidden?.key ?? null}
@@ -470,6 +513,7 @@ export default function App() {
               selectedId={selected?.id ?? null}
               capturedIds={capturedIds}
               contextBars={contextBars}
+              flagIndex={flagIndex}
               onToggle={onToggle}
               onSelect={selectNode}
             />
@@ -500,6 +544,7 @@ export default function App() {
           node={selected}
           refreshKey={detailRefresh}
           capture={captureState(selected, capturedIds, captureOverview)}
+          flags={selectedFlags}
           onClose={() => setSelected(null)}
         />
       )}

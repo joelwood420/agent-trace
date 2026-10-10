@@ -13,6 +13,7 @@ import type {
   LiveMessage,
   NodeDetail,
   SessionContext,
+  SessionFlags,
   SessionSummary,
   SessionView,
 } from './types.ts'
@@ -30,6 +31,8 @@ export interface Api {
   deleteCaptures(project: string, sessionId: string): Promise<void>
   sessionContext(project: string, sessionId: string): Promise<SessionContext>
   callContext(project: string, sessionId: string, traceId: string): Promise<ContextBreakdown | null>
+  /** Waste and problem flags of the whole session. */
+  sessionFlags(project: string, sessionId: string): Promise<SessionFlags>
 }
 
 const tauriApi: Api = {
@@ -64,6 +67,7 @@ const tauriApi: Api = {
   sessionContext: (project, sessionId) => invoke<SessionContext>('session_context', { project, session_id: sessionId }),
   callContext: (project, sessionId, traceId) =>
     invoke<ContextBreakdown | null>('call_context', { project, session_id: sessionId, trace_id: traceId }),
+  sessionFlags: (project, sessionId) => invoke<SessionFlags>('session_flags', { project, session_id: sessionId }),
 }
 
 /** True when running inside the Tauri app window. */

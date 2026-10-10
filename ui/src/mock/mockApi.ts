@@ -1,11 +1,11 @@
 // Dev-only mock of the backend commands, for viewing the UI in a normal
-// browser. It replays the responses for the sanitised fixture session from
-// fixture-data.json, which a Rust test keeps identical to what the real
+// browser. It replays the responses for the sanitised fixture sessions from
+// fixture-data.json and flags-data.json, which a Rust test keeps identical to what the real
 // commands return. Never imported in production builds (see api.ts).
 //
 // URL flags (combine with `?mock`):
 //   delay=<ms>   wait this long before each response (default 250)
-//   fail=list|load|detail|captures|context   make that command fail, to see error handling
+//   fail=list|load|detail|captures|context|flags   make that command fail, to see error handling
 //   live         replay the session growing (ui/src/mock/live-steps.json),
 //                one step every `step` ms (default 1500)
 //   fail=live    with `live`, end the replay with a "deleted" status
@@ -21,12 +21,14 @@ import type {
   LiveStatus,
   NodeDetail,
   SessionContext,
+  SessionFlags,
   SessionSummary,
   SessionView,
 } from '../types.ts'
 import captureData from './capture-data.json'
 import contextData from './context-data.json'
 import data from './fixture-data.json'
+import flagsData from './flags-data.json'
 import liveSteps from './live-steps.json'
 
 interface MockData {
@@ -44,6 +46,7 @@ const context = contextData as unknown as {
   session: SessionContext
   calls: Record<string, ContextBreakdown>
 }
+const flags = flagsData as unknown as Record<string, SessionFlags>
 const emptyContext: SessionContext = { bars: {}, latest: null, latest_trace_id: null, hidden_context: [] }
 const CAPTURE_KEY = 'basic/00000000-0000-4000-8000-000000000002'
 const emptyOverview: CaptureOverview = {
@@ -175,6 +178,11 @@ export function createMockApi(params: URLSearchParams): Api {
       if (fail === 'context') throw 'could not measure the context: mock failure'
       if (`${project}/${sessionId}` !== CAPTURE_KEY) return null
       return context.calls[traceId] ?? null
+    },
+    async sessionFlags(project, sessionId) {
+      await wait()
+      if (fail === 'flags') throw 'could not read the session: mock failure'
+      return flags[`${project}/${sessionId}`] ?? { flags: [] }
     },
   }
 }

@@ -7,7 +7,7 @@ import { errorMessage, type Api } from '../api.ts'
 import type { CaptureState } from '../captureView.ts'
 import { formatDuration, formatTimestamp, formatTokens, prettyJson } from '../format.ts'
 import { focusParts, otherPartsLabel, partKindName } from '../context.ts'
-import type { ContentBlock, ContextPart, DiagramNode, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
+import type { ContentBlock, ContextPart, DiagramNode, Flag, NodeDetail, RawSource, StopReason, Usage } from '../types.ts'
 import { CaptureSections } from './CapturePanel.tsx'
 import { CallContextSection } from './ContextSection.tsx'
 import { StatusChip } from './nodes.tsx'
@@ -25,6 +25,8 @@ interface Props {
   tagName?: string
   /** For a hidden context row: the parts it stands for, shown first and open. */
   focusPartKeys?: string[]
+  /** Flags that touch this box, shown first. */
+  flags?: Flag[]
   onClose: () => void
 }
 
@@ -51,6 +53,7 @@ export default function DetailsPanel({
   capture,
   tagName,
   focusPartKeys = [],
+  flags = [],
   onClose,
 }: Props) {
   const key = `${project}/${sessionId}/${node.id}`
@@ -96,6 +99,17 @@ export default function DetailsPanel({
         {node.detail_label && <p className="muted">{node.detail_label}</p>}
       </div>
       <div className="details-body">
+        {flags.length > 0 && (
+          <Section title="Flags">
+            <ul className="flag-lines">
+              {flags.map((f, i) => (
+                <li key={i} className={`flag-line flag-line-${f.level}`}>
+                  {f.text}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
         {node.kind === 'model_call' && node.trace_ids[0] !== undefined && (
           <CallContextSection
             api={api}

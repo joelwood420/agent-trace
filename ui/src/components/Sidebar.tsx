@@ -13,11 +13,13 @@ import type {
   DiagramNode,
   LiveStatus,
   SessionContext,
+  SessionFlags,
   SessionSummary,
   SessionView,
 } from '../types.ts'
 import { CaptureOverviewSection, CaptureStartBox } from './CaptureOverview.tsx'
 import { ContextCard } from './ContextSection.tsx'
+import FlagsCard from './FlagsCard.tsx'
 
 export type Loadable<T> =
   | { status: 'loading' }
@@ -117,6 +119,7 @@ interface SessionPanelProps {
   newPrompts: ReadonlySet<number>
   captureOverview: Loadable<CaptureOverview>
   sessionContext: Loadable<SessionContext>
+  sessionFlags: Loadable<SessionFlags>
   onSelectTrace: (traceId: string) => void
   onSelectHidden: (row: HiddenRow) => void
   selectedHiddenKey: string | null
@@ -188,6 +191,7 @@ function SessionContents({
   onSelectMarker,
   captureOverview,
   sessionContext,
+  sessionFlags,
   onSelectTrace,
   onSelectHidden,
   selectedHiddenKey,
@@ -244,6 +248,8 @@ function SessionContents({
           </ul>
         </details>
       )}
+
+      <FlagsCard flags={sessionFlags} onSelect={onSelectTrace} />
 
       <ContextCard context={sessionContext} onSelect={onSelectTrace}
         onSelectHidden={onSelectHidden}
