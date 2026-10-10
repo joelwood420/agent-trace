@@ -86,7 +86,7 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls)
 - Capture a Claude Code session through the app's proxy (app must be running): `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`
 - Regenerate the invented capture fixture: `cargo run -p capture --example make_fixture`
-- Refresh the UI mock data (`ui/src/mock/fixture-data.json`, `live-steps.json` and `capture-data.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of all three files
+- Refresh the UI mock data (`ui/src/mock/fixture-data.json`, `live-steps.json`, `capture-data.json`, `context-data.json` and `flags-data.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of all the mock files
 
 If a command here turns out to be wrong after scaffolding, fix this file.
 
@@ -117,7 +117,8 @@ M5: insights, split into four sub-milestones, each with its own spec, plan and b
 
 - 5.1 Context breakdown per call: complete. New `insights` crate (harness-neutral measuring, scaling to the reported total, advice), Claude Code rules in the adapter, `session_context` and `call_context` commands, bar on model-call boxes, Context section in the details panel, Context card in the session overview. Spec: `docs/superpowers/specs/2026-10-08-m5-1-context-breakdown-design.md`.
 - 5.1b Hidden context from transcripts: complete. New trace node kind `context_update` (keyed parts plus removals, applied per run), the adapter maps Claude Code `attachment` lines to it, the breakdown counts the parts, and the session overview lists the main agent's hidden context. Spec: `docs/superpowers/specs/2026-10-08-m5-1b-transcript-context-design.md`.
-- 5.2 Waste and problem flags, 5.3 compare two runs, 5.4 shareable report: planned; plan each with me before starting.
+- 5.2 Waste and problem flags: complete. Schema additions `Marker.compaction` and context part kind `file`, the adapter reads compaction details and re-attached files, `insights::session_flags` (repeated reads, failed retries, loops, large results, compactions, re-reads after compaction) with Claude Code rules from the adapter, `session_flags` command, badges on boxes, Flags section in the details panel, Flags card in the session overview. Spec: `docs/superpowers/specs/2026-10-11-m5-2-waste-flags-design.md`.
+- 5.3 compare two runs, 5.4 shareable report: planned; plan each with me before starting.
 
 Out of scope for now: capturing scratchpad files, token cost breakdowns, other harnesses, and the toy harness.
 
