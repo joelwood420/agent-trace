@@ -44,3 +44,27 @@ pub struct FileReadRule {
     /// Input field holding the file path.
     pub path_field: String,
 }
+
+/// What a harness's file reads and edits look like, for the waste and problem
+/// flags. Plain data supplied by the adapter, so this crate stays harness
+/// neutral.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct FlagRules {
+    /// Tools whose result is the content of a file named in their input.
+    pub file_reads: Vec<FileReadRule>,
+    /// Input fields of a read that pick a part of the file. Two reads of one
+    /// path are the same read only when these fields are equal.
+    pub range_fields: Vec<String>,
+    /// Tools that change a file named in their input.
+    pub file_edits: Vec<FileEditRule>,
+}
+
+/// A rule that recognises a tool that changes a file.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FileEditRule {
+    /// Tool name, matched exactly.
+    pub tool: String,
+    /// Input fields that may hold the file path. The first one present as a
+    /// string wins.
+    pub path_fields: Vec<String>,
+}

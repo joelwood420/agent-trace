@@ -54,7 +54,7 @@ fn pct(share: f64) -> u64 {
     (share * 100.0).round().max(0.0) as u64
 }
 
-fn plural(n: u32, word: &str) -> String {
+pub(crate) fn plural(n: u32, word: &str) -> String {
     if n == 1 {
         format!("{n} {word}")
     } else {

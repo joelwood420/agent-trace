@@ -80,6 +80,8 @@ impl RunState {
             let kind = match part.kind {
                 ContextPartKind::SystemPrompt => SliceKind::SystemPrompt,
                 ContextPartKind::ToolDefinitions => SliceKind::ToolDefinitions,
+                // Labelled by path, so it merges with reads of the same file.
+                ContextPartKind::File => SliceKind::FilesRead,
                 _ => SliceKind::Instructions,
             };
             // Tool definitions are grouped the way a captured request's are,
@@ -190,7 +192,7 @@ fn add_tool(running: &mut ContextMeasure, tool: &ToolCall, rules: &ContextRules)
     }
 }
 
-fn block_chars(block: &ContentBlock) -> u64 {
+pub(crate) fn block_chars(block: &ContentBlock) -> u64 {
     match block {
         ContentBlock::Text { text } | ContentBlock::Thinking { text } => text_chars(text),
         ContentBlock::Image { .. } => IMAGE_CHARS,
@@ -513,6 +515,32 @@ mod tests {
             .map(|i| (i.label.as_str(), i.chars, i.count))
             .collect();
         assert_eq!(got, vec![("date", 8, 2)]);
+    }
+
+    #[test]
+    fn file_parts_count_as_files_read() {
+        let mut t = Trace::new();
+        add(&mut t, "R", None, run());
+        let file = part("file:a.rs", ContextPartKind::File, "a.rs", 10);
+        add(&mut t, "U1", Some("R"), update(vec![file], &[]));
+        add(&mut t, "M1", Some("R"), call(""));
+        let tool = Node::ToolCall(ToolCall {
+            name: "ReadFile".into(),
+            input: json!({"path": "a.rs"}),
+            result: Some(ToolResult {
+                content: vec![text(&"x".repeat(40))],
+                is_error: false,
+            }),
+        });
+        add(&mut t, "X", Some("M1"), tool);
+        add(&mut t, "M2", Some("R"), call(""));
+        let all = measure_transcript_all(&t, &rules());
+        assert_eq!(chars(&all["M1"], SliceKind::FilesRead, "a.rs"), Some(10));
+        assert_eq!(all["M1"].slice_chars(SliceKind::Instructions), 0);
+        let items = all["M2"].items(SliceKind::FilesRead);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].label, "a.rs");
+        assert_eq!(items[0].chars, 50);
     }
 
     #[test]
