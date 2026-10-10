@@ -130,11 +130,27 @@ export type TraceNode =
       input: unknown
       result?: { content: ContentBlock[]; is_error: boolean }
     }
-  | { type: 'marker'; kind: string; summary: string }
+  | { type: 'marker'; kind: string; summary: string; compaction?: CompactionDetails }
   | { type: 'context_update'; parts?: ContextPart[]; remove?: string[] }
 
+/** What a compaction marker knows about the compaction, each part only when recorded. */
+export interface CompactionDetails {
+  tokens_before?: number
+  tokens_after?: number
+  /** Files put back into the context in full. */
+  files_restored?: string[]
+  /** Files put back by name only. */
+  files_referenced?: string[]
+}
+
 /** What a recorded piece of hidden context is. */
-export type ContextPartKind = 'system_prompt' | 'tool_definitions' | 'instructions' | 'reminder' | { other: string }
+export type ContextPartKind =
+  | 'system_prompt'
+  | 'tool_definitions'
+  | 'instructions'
+  | 'reminder'
+  | 'file'
+  | { other: string }
 
 /** One piece of hidden context with its full text. */
 export interface ContextPart {
@@ -368,4 +384,31 @@ export interface SessionContext {
   latest: ContextBreakdown | null
   latest_trace_id: string | null
   hidden_context: HiddenPart[]
+}
+
+// --- Waste and problem flags (mirrors the `session_flags` command) ---
+
+/** What a flag is about. */
+export type FlagKind =
+  | 'repeated_read'
+  | 'failed_retry'
+  | 'loop'
+  | 'large_result'
+  | 'compaction'
+  | 'reread_after_compaction'
+
+/** One problem found in a session, with the trace nodes it is about. */
+export interface Flag {
+  kind: FlagKind
+  level: 'warn' | 'info'
+  text: string
+  /** The trace nodes involved, in order; the first is where a jump goes. */
+  trace_ids: string[]
+  /** The run the flag was found in (flags never span runs). */
+  run_id: string
+}
+
+/** The response of `session_flags`. */
+export interface SessionFlags {
+  flags: Flag[]
 }

@@ -70,6 +70,8 @@ export function partKindName(kind: ContextPartKind): string {
       return 'Instructions'
     case 'reminder':
       return 'Reminder'
+    case 'file':
+      return 'File'
   }
 }
 
