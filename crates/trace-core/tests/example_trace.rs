@@ -141,6 +141,7 @@ fn rejects_parent_or_kind_change_on_resend() {
     retyped.node = Node::Marker(trace_core::Marker {
         kind: "x".into(),
         summary: "y".into(),
+        compaction: None,
     });
     assert!(matches!(
         trace.apply(retyped),

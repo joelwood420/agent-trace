@@ -180,6 +180,7 @@ impl TraceBuilder {
             Node::Marker(Marker {
                 kind: "hook".to_string(),
                 summary: "A hook ran".to_string(),
+                compaction: None,
             }),
             None,
         );

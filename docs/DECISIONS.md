@@ -363,3 +363,7 @@ In the real request each injected reminder stays in the conversation history, so
 ### 2026-10-08: One context part per tool definition
 
 Real transcripts carry the full tool list in the session's second `prompt_snapshot`. As one part it showed up as a single item ("1 tool") and lost the per MCP server advice. So the adapter emits one `tool_definitions` part per tool (`tool:<name>`), and because each snapshot is the full set, it removes the tools the previous snapshot of that run had and this one lacks. `insights` groups these parts with the same helper as captured requests (`MCP: <server>` or `built-in`, one occurrence per tool), so a transcript call gets the same tool items and advice as a captured one. Grouping by the part's label keeps `insights` free of Claude Code keys; `mcp__<server>__<tool>` is an MCP naming convention, not a Claude Code one.
+
+### 2026-10-11: M5.2: compaction details and file parts in the schema
+
+Waste flags need to say what a compaction dropped, and they must work for any harness, including the owner's own, which will compact too. So `marker` gains an optional `compaction` object (context size before and after, files restored with content, files only named) and `context_part` gains a `file` kind for file content placed in context without a tool call. Both are additive: old traces read unchanged and markers without details serialise exactly as before. Claude Code specifics stay in the adapter, which fills these fields.

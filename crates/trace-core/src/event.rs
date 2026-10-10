@@ -139,6 +139,27 @@ pub struct Marker {
     pub kind: String,
     /// One-line human-readable description.
     pub summary: String,
+    /// Details of a compaction. Only markers of kind `"compaction"` carry it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compaction: Option<Compaction>,
+}
+
+/// What a compaction kept and dropped, when the harness reports it. Only
+/// markers of kind `compaction` carry it.
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub struct Compaction {
+    /// Context size in tokens just before the compaction, if known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tokens_before: Option<u64>,
+    /// Context size in tokens just after the compaction, if known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tokens_after: Option<u64>,
+    /// Paths of files put back into the context with their content.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub files_restored: Vec<String>,
+    /// Paths of files named after the compaction without their content.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub files_referenced: Vec<String>,
 }
 
 /// Parts of the hidden input a harness sends besides the conversation
@@ -185,6 +206,10 @@ pub enum ContextPartKind {
     Instructions,
     /// Other text the harness injected.
     Reminder,
+    /// A file's content that the harness put into the context without a tool
+    /// call, for example re-attached after a compaction. The label is the
+    /// file path.
+    File,
     /// Any other kind, with the harness's own name for it.
     Other(String),
 }
@@ -197,6 +222,7 @@ impl Serialize for ContextPartKind {
             ContextPartKind::ToolDefinitions => serializer.serialize_str("tool_definitions"),
             ContextPartKind::Instructions => serializer.serialize_str("instructions"),
             ContextPartKind::Reminder => serializer.serialize_str("reminder"),
+            ContextPartKind::File => serializer.serialize_str("file"),
             ContextPartKind::Other(name) => {
                 let mut map = serializer.serialize_map(Some(1))?;
                 map.serialize_entry("other", name)?;
@@ -220,6 +246,7 @@ impl<'de> Deserialize<'de> for ContextPartKind {
                 "tool_definitions" => ContextPartKind::ToolDefinitions,
                 "instructions" => ContextPartKind::Instructions,
                 "reminder" => ContextPartKind::Reminder,
+                "file" => ContextPartKind::File,
                 _ => ContextPartKind::Other(name),
             },
             Repr::Other { other } => ContextPartKind::Other(other),
@@ -375,5 +402,45 @@ mod tests {
         assert_eq!(json, r#"{"type":"context_update"}"#);
         let back: Node = serde_json::from_str(&json).unwrap();
         assert_eq!(back, Node::ContextUpdate(ContextUpdate::default()));
+    }
+
+    #[test]
+    fn marker_compaction_round_trips() {
+        let m = Marker {
+            kind: "compaction".into(),
+            summary: "Context compacted".into(),
+            compaction: Some(Compaction {
+                tokens_before: Some(380_000),
+                tokens_after: Some(19_000),
+                files_restored: vec!["src/a.rs".into()],
+                files_referenced: vec!["src/b.rs".into(), "notes.txt".into()],
+            }),
+        };
+        let json = serde_json::to_value(&m).unwrap();
+        assert_eq!(json["compaction"]["tokens_before"], 380_000);
+        assert_eq!(json["compaction"]["files_referenced"][1], "notes.txt");
+        let back: Marker = serde_json::from_value(json).unwrap();
+        assert_eq!(back, m);
+    }
+
+    #[test]
+    fn marker_without_compaction_reads_and_writes_as_before() {
+        let old = serde_json::json!({"kind": "hook", "summary": "Stop hooks ran (1)"});
+        let m: Marker = serde_json::from_value(old.clone()).unwrap();
+        assert_eq!(m.compaction, None);
+        assert_eq!(serde_json::to_value(&m).unwrap(), old);
+    }
+
+    #[test]
+    fn empty_compaction_details_serialise_as_an_empty_object() {
+        let c = Compaction::default();
+        assert_eq!(serde_json::to_value(&c).unwrap(), serde_json::json!({}));
+    }
+
+    #[test]
+    fn file_part_kind_is_a_plain_string() {
+        assert_eq!(serde_json::to_value(ContextPartKind::File).unwrap(), "file");
+        let k: ContextPartKind = serde_json::from_value(serde_json::json!("file")).unwrap();
+        assert_eq!(k, ContextPartKind::File);
     }
 }

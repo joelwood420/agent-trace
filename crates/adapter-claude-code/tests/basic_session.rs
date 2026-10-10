@@ -351,6 +351,7 @@ fn attachment_lines_become_context_updates_by_kind() {
                 ContextPartKind::ToolDefinitions => "tool_definitions",
                 ContextPartKind::Instructions => "instructions",
                 ContextPartKind::Reminder => "reminder",
+                ContextPartKind::File => "file",
                 ContextPartKind::Other(_) => "other",
             };
             *by_kind.entry(name).or_default() += 1;

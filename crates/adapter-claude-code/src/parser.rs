@@ -721,6 +721,7 @@ impl Parser {
             node: Node::Marker(Marker {
                 kind: kind.to_string(),
                 summary,
+                compaction: None,
             }),
             started_at_ms: line.ts,
             ended_at_ms: None,

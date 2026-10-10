@@ -80,6 +80,7 @@ For things that are not model or tool calls: context compaction, hooks, interrup
 |---|---|---|---|
 | `kind` | string | yes | Short label such as `"compaction"`, `"hook"`, `"interrupt"`, `"api_error"`. You can define your own. |
 | `summary` | string | yes | One line for humans. |
+| `compaction` | object | no | Only for kind `"compaction"`: `{ "tokens_before"?: int, "tokens_after"?: int, "files_restored"?: [string], "files_referenced"?: [string] }`. Context size before and after, files put back with their content, and files only named. Leave out what is unknown. |
 
 ### `context_update`
 
@@ -99,7 +100,7 @@ Context part:
 | `label` | string | yes | Short name for people, for example `"skills list"`. |
 | `text` | string | yes | The text as sent to the model, or the harness's best rendering of it (tool definitions as JSON). |
 
-Context part kind: one of `"system_prompt"`, `"tool_definitions"`, `"instructions"` (files the user wrote, such as project instructions), `"reminder"` (other injected text), or `{ "other": "<name>" }`. A reader that meets an unknown plain string treats it as `{ "other": "<that string>" }`.
+Context part kind: one of `"system_prompt"`, `"tool_definitions"`, `"instructions"` (files the user wrote, such as project instructions), `"reminder"` (other injected text), `"file"` (a file's content placed in context without a tool call; the label is its path), or `{ "other": "<name>" }`. A reader that meets an unknown plain string treats it as `{ "other": "<that string>" }`.
 
 Rules:
 

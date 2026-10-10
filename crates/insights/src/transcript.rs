@@ -275,6 +275,7 @@ mod tests {
         let marker = Node::Marker(Marker {
             kind: "compaction".into(),
             summary: String::new(),
+            compaction: None,
         });
         add(&mut t, "C", Some("T1"), marker);
         add(&mut t, "M3", Some("T1"), call(""));
@@ -424,6 +425,7 @@ mod tests {
         let marker = Node::Marker(Marker {
             kind: "compaction".into(),
             summary: String::new(),
+            compaction: None,
         });
         add(&mut t, "C", Some("T1"), marker);
         add(&mut t, "M1", Some("T1"), call(""));
