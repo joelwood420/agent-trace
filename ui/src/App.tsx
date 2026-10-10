@@ -7,7 +7,7 @@ import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
-import { flagsForNode, indexFlags, revealPath } from './flags.ts'
+import { detailFlags, indexFlags, revealPath } from './flags.ts'
 import { formatDuration, formatTokens, plural } from './format.ts'
 import { collapsibleIds, isCollapsible } from './layout.ts'
 import { findByTraceId, findNode, isForSession, isNewer, keepPromptIndex, needsDetailRefetch, newPromptIndexes } from './live.ts'
@@ -407,7 +407,11 @@ export default function App() {
     () => indexFlags(sessionFlags.status === 'ready' ? sessionFlags.value.flags : []),
     [sessionFlags],
   )
-  const selectedFlags = useMemo(() => (selected ? flagsForNode(selected, flagIndex) : []), [selected, flagIndex])
+  // The same flags the selected box's badge counts.
+  const selectedFlags = useMemo(
+    () => (selected ? detailFlags(selected, flagIndex, openState) : []),
+    [selected, flagIndex, openState],
+  )
   const viewValue = view.status === 'ready' ? view.value : null
   const capturedIds = useMemo(() => new Set(viewValue?.captured_trace_ids ?? []), [viewValue])
 

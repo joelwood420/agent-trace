@@ -66,9 +66,12 @@ export function boxFlags(node: DiagramNode, index: FlagIndex, open: boolean): Fl
   return own.filter((flag) => !flag.trace_ids.some((id) => below.has(id)))
 }
 
-/** Distinct flags that touch any of this box's own trace ids. */
-export function flagsForNode(node: DiagramNode, index: FlagIndex): Flag[] {
-  return flagsOver(node.trace_ids, index)
+/**
+ * The flags the details panel lists for a box: exactly the ones its badge
+ * counts in its current open or collapsed state, so the two always agree.
+ */
+export function detailFlags(node: DiagramNode, index: FlagIndex, openState: OpenState): Flag[] {
+  return boxFlags(node, index, isOpen(node, openState))
 }
 
 /**

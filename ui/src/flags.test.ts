@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { boxFlags, flagsForNode, indexFlags, isOpen, revealPath } from './flags.ts'
+import { boxFlags, detailFlags, indexFlags, isOpen, revealPath } from './flags.ts'
 import type { DiagramNode, Flag, NodeKind } from './types.ts'
 
 function box(id: string, kind: NodeKind, traceIds: string[], children: DiagramNode[] = [], collapsed = false): DiagramNode {
@@ -117,10 +117,23 @@ test('revealPath finds the root itself', () => {
   )
 })
 
-test('flagsForNode lists the flags touching a box', () => {
-  const group = box('parallel_group:m1', 'parallel_group', ['t1', 't2'])
-  const a = flag(['t1'])
-  const b = flag(['t1', 't2'])
-  const c = flag(['t3'])
-  assert.deepEqual(flagsForNode(group, indexFlags([a, b, c])), [a, b])
+test('detailFlags matches the badge of a collapsed summary', () => {
+  // Fixture-shaped: the summary lists model call ids, the flag names tool ids.
+  const call = (n: number) => box(`model_call:m${n}`, 'model_call', [`m${n}`], [box(`tool_call:t${n}`, 'tool_call', [`t${n}`])])
+  const summary = box('summary:m1', 'summary', ['m1', 'm2', 'm3'], [call(1), call(2), call(3)], true)
+  const read = flag(['t1', 't2', 't3'])
+  const index = indexFlags([read, flag(['t9'])])
+  const closed = new Map<string, boolean>()
+  assert.deepEqual(detailFlags(summary, index, closed), [read])
+  assert.deepEqual(detailFlags(summary, index, closed), boxFlags(summary, index, false))
+})
+
+test('detailFlags matches the badge of an open box', () => {
+  const summary = summaryTree()
+  const index = indexFlags([flag(['t1', 't2', 't3'])])
+  const opened = new Map([[summary.id, true]])
+  assert.deepEqual(detailFlags(summary, index, opened), [])
+  const tool = summary.children[0]?.children[0]
+  assert.ok(tool)
+  assert.equal(detailFlags(tool, index, opened).length, 1)
 })
