@@ -3,7 +3,12 @@
 // chart coordinates.
 
 import { formatDuration, formatTokens } from './format.ts'
-import type { CallPoint, CompareRow, CompareSection, CompareUnit, PromptChoice } from './types.ts'
+import type { CallPoint, CompareRow, CompareSection, CompareUnit, PromptChoice, RunRef } from './types.ts'
+
+/** The request for one side: the whole session when `scope` is empty. */
+export function runRef(session: { project: string; session_id: string }, scope: string): RunRef {
+  return { project: session.project, session_id: session.session_id, prompt_trace_id: scope === '' ? null : scope }
+}
 
 export function scopeOptions(prompts: PromptChoice[]): { value: string; label: string }[] {
   return [

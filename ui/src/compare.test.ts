@@ -3,7 +3,15 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { chartLines, formatDifference, formatValue, presenceTag, scopeOptions, visibleSections } from './compare.ts'
+import {
+  chartLines,
+  formatDifference,
+  formatValue,
+  presenceTag,
+  runRef,
+  scopeOptions,
+  visibleSections,
+} from './compare.ts'
 import type { CompareRow } from './types.ts'
 
 const row = (over: Partial<CompareRow>): CompareRow => ({
@@ -91,4 +99,14 @@ test('chartLines is empty with no known values', () => {
 
 test('chartLines puts a single call at the left edge', () => {
   assert.equal(chartLines([{ index: 1, trace_id: 'a', tokens: 10 }], [], 10, 10).a, '0,0')
+})
+
+const session = { project: 'p1', session_id: 's1' }
+
+test('runRef asks for the whole session when the scope is empty', () => {
+  assert.deepEqual(runRef(session, ''), { project: 'p1', session_id: 's1', prompt_trace_id: null })
+})
+
+test('runRef asks for one prompt when a turn id is given', () => {
+  assert.deepEqual(runRef(session, 't1'), { project: 'p1', session_id: 's1', prompt_trace_id: 't1' })
 })

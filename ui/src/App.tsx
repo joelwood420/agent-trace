@@ -4,6 +4,7 @@ import { errorMessage, getApi, insideTauri, mockMode, type Api } from './api.ts'
 import { captureState, sameLoad, throttleDelay } from './captureView.ts'
 import { afterFailedLoad, type HiddenRow } from './context.ts'
 import { CaptureDetailsPanel } from './components/CapturePanel.tsx'
+import CompareView from './components/CompareView.tsx'
 import DetailsPanel from './components/DetailsPanel.tsx'
 import Diagram from './components/Diagram.tsx'
 import { SessionList, SessionPanel, type Loadable } from './components/Sidebar.tsx'
@@ -81,6 +82,10 @@ export default function App() {
   const [sessionContext, setSessionContext] = useState<Loadable<SessionContext>>({ status: 'loading' })
   // Waste and problem flags of the whole session, loaded with the context.
   const [sessionFlags, setSessionFlags] = useState<Loadable<SessionFlags>>({ status: 'loading' })
+  // Picking the other run of a comparison in the session list.
+  const [picking, setPicking] = useState(false)
+  // The other run of the comparison on screen, or null when the diagram shows.
+  const [compareWith, setCompareWith] = useState<SessionSummary | null>(null)
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
   // When the overview was last requested, and a pending throttled reload.
@@ -289,6 +294,8 @@ export default function App() {
     // Every load starts again at version 1, so forget the old view.
     viewRef.current = null
     setSession(s)
+    setPicking(false)
+    setCompareWith(null)
     setView({ status: 'loading' })
     setSelected(null)
     setSelectedCapture(null)
@@ -325,6 +332,8 @@ export default function App() {
     captureToken.current++
     cancelCaptureReload()
     setSession(null)
+    setPicking(false)
+    setCompareWith(null)
     setSessionContext({ status: 'loading' })
     setSessionFlags({ status: 'loading' })
     setSelected(null)
@@ -336,19 +345,24 @@ export default function App() {
   }
 
   const selectPrompt = (index: number) => {
+    // A prompt picked during a comparison shows its diagram again.
+    setCompareWith(null)
     setPromptIndex(index)
     setSelected(null)
     setSelectedHidden(null)
     setFocusId(null)
   }
 
+  // Picking anything in the session overview leaves a comparison for the diagram.
   const selectNode = useCallback((node: DiagramNode) => {
+    setCompareWith(null)
     setSelectedCapture(null)
     setSelectedHidden(null)
     setSelected(node)
   }, [])
 
   const selectHidden = (row: HiddenRow) => {
+    setCompareWith(null)
     setSelectedCapture(null)
     setSelected(null)
     setSelectedHidden(row)
@@ -388,6 +402,7 @@ export default function App() {
   }
 
   const selectCapture = (captureId: string) => {
+    setCompareWith(null)
     setSelected(null)
     setSelectedHidden(null)
     setSelectedCapture(captureId)
@@ -403,6 +418,25 @@ export default function App() {
     setSelectedCapture(null)
     loadCaptures(s)
   }
+
+  /** Shows the comparison of the open session with `other`. */
+  const startCompare = (other: SessionSummary) => {
+    setPicking(false)
+    setCompareWith(other)
+    setSelected(null)
+    setSelectedCapture(null)
+    setSelectedHidden(null)
+    setFocusId(null)
+  }
+
+  // The other run as the latest session list has it, for its modified time.
+  const compareModified = useMemo(() => {
+    if (compareWith === null || sessions.status !== 'ready') return compareWith?.modified_ms ?? 0
+    const fresh = sessions.value.find(
+      (s) => s.project === compareWith.project && s.session_id === compareWith.session_id,
+    )
+    return (fresh ?? compareWith).modified_ms
+  }, [compareWith, sessions])
 
   const contextBars = useMemo(
     () => (sessionContext.status === 'ready' ? sessionContext.value.bars : {}),
@@ -439,8 +473,12 @@ export default function App() {
     })
   }
 
+  const comparing = compareWith !== null && session !== null && api !== null
+  const compareRefreshKey = `${viewValue?.version ?? 0}|${compareModified}`
+  const withDetails = !comparing && (selected || selectedCapture || selectedHidden)
+
   return (
-    <div className={`app${selected || selectedCapture || selectedHidden ? ' app-with-details' : ''}`}>
+    <div className={`app${withDetails ? ' app-with-details' : ''}`}>
       <header className="app-header">
         <h1>Snitchcraft</h1>
         {mockMode() && <span className="mock-badge">Mock data from the sample fixture</span>}
@@ -455,6 +493,15 @@ export default function App() {
             onOpen={(s) => openSession(s)}
             onRetry={refreshSessions}
           />
+        ) : picking ? (
+          <SessionList
+            sessions={sessions}
+            now={listedAt}
+            captureStatus={captureStatus}
+            onOpen={startCompare}
+            onRetry={refreshSessions}
+            pick={{ disabledKey: `${session.project}/${session.session_id}`, onCancel: () => setPicking(false) }}
+          />
         ) : (
           <SessionPanel
             session={session}
@@ -465,6 +512,7 @@ export default function App() {
             newPrompts={newPrompts}
             onBack={closeSession}
             onReload={() => openSession(session, true)}
+            onCompare={() => setPicking(true)}
             onSelectPrompt={selectPrompt}
             onSelectMarker={selectNode}
             captureOverview={captureOverview}
@@ -483,7 +531,16 @@ export default function App() {
       </aside>
 
       <main className="main">
-        {prompt && session ? (
+        {comparing ? (
+          <CompareView
+            key={`${session.project}/${session.session_id}|${compareWith.project}/${compareWith.session_id}`}
+            api={api}
+            left={session}
+            right={compareWith}
+            refreshKey={compareRefreshKey}
+            onBack={() => setCompareWith(null)}
+          />
+        ) : prompt && session ? (
           <>
             <div className="toolbar">
               <div className="toolbar-title">
@@ -547,7 +604,7 @@ export default function App() {
         )}
       </main>
 
-      {selected && session && api && (
+      {!comparing && selected && session && api && (
         <DetailsPanel
           api={api}
           project={session.project}
@@ -559,7 +616,7 @@ export default function App() {
           onClose={() => setSelected(null)}
         />
       )}
-      {selectedHidden && !selected && session && api && (
+      {!comparing && selectedHidden && !selected && session && api && (
         <DetailsPanel
           api={api}
           project={session.project}
@@ -573,7 +630,7 @@ export default function App() {
           onClose={() => setSelectedHidden(null)}
         />
       )}
-      {selectedCapture && !selected && session && api && (
+      {!comparing && selectedCapture && !selected && session && api && (
         <CaptureDetailsPanel
           api={api}
           project={session.project}

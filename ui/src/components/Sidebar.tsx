@@ -33,9 +33,14 @@ interface SessionListProps {
   captureStatus: Loadable<CaptureStatus>
   onOpen: (session: SessionSummary) => void
   onRetry: () => void
+  /**
+   * Pick mode: choosing the other run of a comparison. The session whose
+   * `project/session_id` is `disabledKey` (the open one) cannot be picked.
+   */
+  pick?: { disabledKey: string; onCancel: () => void }
 }
 
-export function SessionList({ sessions, now, captureStatus, onOpen, onRetry }: SessionListProps) {
+export function SessionList({ sessions, now, captureStatus, onOpen, onRetry, pick }: SessionListProps) {
   const [filter, setFilter] = useState('')
   const groups = useMemo(
     () => (sessions.status === 'ready' ? groupSessions(sessions.value, filter) : []),
@@ -44,12 +49,18 @@ export function SessionList({ sessions, now, captureStatus, onOpen, onRetry }: S
 
   return (
     <nav className="sidebar-section" aria-label="Sessions">
-      <CaptureStartBox status={captureStatus} />
+      {!pick && <CaptureStartBox status={captureStatus} />}
       <div className="sidebar-heading">
-        <h2>Sessions</h2>
-        <button type="button" className="link-button" onClick={onRetry} title="Read the session list again">
-          Refresh
-        </button>
+        <h2>{pick ? 'Pick a session to compare with' : 'Sessions'}</h2>
+        {pick ? (
+          <button type="button" className="link-button" onClick={pick.onCancel}>
+            Cancel
+          </button>
+        ) : (
+          <button type="button" className="link-button" onClick={onRetry} title="Read the session list again">
+            Refresh
+          </button>
+        )}
       </div>
       {sessions.status === 'loading' && <p className="muted loading">Looking for sessions...</p>}
       {sessions.status === 'error' && (
@@ -85,19 +96,28 @@ export function SessionList({ sessions, now, captureStatus, onOpen, onRetry }: S
                   {group.label}
                 </h3>
                 <ul className="item-list">
-                  {group.sessions.map((s) => (
-                    <li key={s.session_id}>
-                      <button type="button" className="item" onClick={() => onOpen(s)}>
-                        <span className="item-title" title={s.title ?? s.session_id}>
-                          {s.live && <span className="live-dot" title="Written in the last 10 minutes" aria-label="live" />}
-                          {s.title ?? `Session ${shortId(s.session_id)}`}
-                        </span>
-                        <span className="item-meta">
-                          {formatRelative(s.modified_ms, now)} - {formatBytes(s.size_bytes)}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
+                  {group.sessions.map((s) => {
+                    const disabled = pick !== undefined && `${s.project}/${s.session_id}` === pick.disabledKey
+                    return (
+                      <li key={s.session_id}>
+                        <button
+                          type="button"
+                          className={`item${disabled ? ' item-disabled' : ''}`}
+                          disabled={disabled}
+                          title={disabled ? 'This is the open session' : undefined}
+                          onClick={() => onOpen(s)}
+                        >
+                          <span className="item-title" title={s.title ?? s.session_id}>
+                            {s.live && <span className="live-dot" title="Written in the last 10 minutes" aria-label="live" />}
+                            {s.title ?? `Session ${shortId(s.session_id)}`}
+                          </span>
+                          <span className="item-meta">
+                            {formatRelative(s.modified_ms, now)} - {formatBytes(s.size_bytes)}
+                          </span>
+                        </button>
+                      </li>
+                    )
+                  })}
                 </ul>
               </section>
             ))}
@@ -130,6 +150,8 @@ interface SessionPanelProps {
   onReloadCaptures: () => void
   onBack: () => void
   onReload: () => void
+  /** Starts picking another session to compare this one with. */
+  onCompare: () => void
   onSelectPrompt: (index: number) => void
   onSelectMarker: (marker: DiagramNode) => void
 }
@@ -144,9 +166,19 @@ export function SessionPanel(props: SessionPanelProps) {
         <button type="button" className="link-button" onClick={props.onBack}>
           {'←'} All sessions
         </button>
-        <button type="button" className="link-button" onClick={props.onReload} title="Read this session again">
-          Reload
-        </button>
+        <span className="sidebar-heading-actions">
+          <button
+            type="button"
+            className="link-button"
+            onClick={props.onCompare}
+            title="Compare this session with another one"
+          >
+            Compare with...
+          </button>
+          <button type="button" className="link-button" onClick={props.onReload} title="Read this session again">
+            Reload
+          </button>
+        </span>
       </div>
       <div className="session-title-row">
         <h2 className="session-title" title={session.title ?? session.session_id}>
