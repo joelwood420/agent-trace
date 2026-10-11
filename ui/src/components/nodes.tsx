@@ -4,7 +4,7 @@
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { KeyboardEvent, ReactNode } from 'react'
 
-import { formatDuration, formatTokens } from '../format.ts'
+import { formatDuration, formatTokens, plural } from '../format.ts'
 import type { ContextBar as Bar, DiagramNode, Flag, Status } from '../types.ts'
 import ContextBar from './ContextBar.tsx'
 
@@ -55,7 +55,7 @@ function FlagBadge({ flags }: { flags: Flag[] }) {
     <span
       className={`flag-badge flag-${anyWarn ? 'warn' : 'info'}`}
       title={flags.map((f) => f.text).join('\n')}
-      aria-label={`${flags.length} flag(s)`}
+      aria-label={plural(flags.length, 'flag')}
     >
       <span aria-hidden="true">⚑</span> {flags.length}
     </span>
