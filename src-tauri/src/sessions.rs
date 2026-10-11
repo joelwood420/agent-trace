@@ -714,6 +714,15 @@ mod tests {
     }
 
     #[test]
+    fn run_errors_name_the_side() {
+        let err = SessionError::InRun {
+            side: "B",
+            source: Box::new(SessionError::NotFound),
+        };
+        assert_eq!(err.to_string(), "Run B: session not found");
+    }
+
+    #[test]
     fn errors_do_not_contain_paths() {
         let err = LiveSession::open(&fixture_root(), "basic", "nope")
             .err()
