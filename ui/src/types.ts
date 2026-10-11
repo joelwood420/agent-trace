@@ -412,3 +412,112 @@ export interface Flag {
 export interface SessionFlags {
   flags: Flag[]
 }
+
+/** One side of a comparison, as sent to `compare_runs`. */
+export interface RunRef {
+  project: string
+  session_id: string
+  /** A prompt's turn id, or null for the whole session. */
+  prompt_trace_id: string | null
+}
+
+export interface Total {
+  value: number | null
+  /** True when only some calls reported a value. */
+  partial: boolean
+}
+
+export interface Named {
+  name: string
+  value: number
+}
+
+export interface CallPoint {
+  index: number
+  trace_id: string
+  tokens: number | null
+}
+
+export interface KindCount {
+  kind: FlagKind
+  count: number
+}
+
+export interface RunSummary {
+  first_call_source: ContextSource | null
+  first_call_tokens: number | null
+  system_prompt_tokens: number | null
+  tool_definition_tokens: number | null
+  instruction_tokens: number | null
+  other_context_tokens: number | null
+  tool_count: number | null
+  tool_groups: Named[] | null
+  instruction_parts: Named[] | null
+  models: Named[]
+  prompts: number
+  model_calls: number
+  tool_calls: number
+  subagents: number
+  tools_by_name: Named[]
+  wall_ms: number | null
+  model_ms: Total
+  tool_ms: Total
+  input_tokens: Total
+  output_tokens: Total
+  cache_read_tokens: Total
+  cache_write_tokens: Total
+  largest_context: number | null
+  context_per_call: CallPoint[]
+  flags_by_kind: KindCount[]
+  failed_tool_calls: number
+  compactions: number
+  final_message: string | null
+}
+
+export type CompareUnit = 'count' | 'tokens' | 'ms'
+export type Higher = 'a' | 'b' | 'equal' | 'unknown'
+export type Presence = 'both' | 'only_a' | 'only_b'
+
+export interface CompareRow {
+  label: string
+  unit: CompareUnit
+  a: number | null
+  b: number | null
+  a_partial: boolean
+  b_partial: boolean
+  /** b - a, when both are known. */
+  difference: number | null
+  higher: Higher
+  presence: Presence
+}
+
+export interface CompareSection {
+  title: string
+  rows: CompareRow[]
+}
+
+export interface Comparison {
+  a: RunSummary
+  b: RunSummary
+  sections: CompareSection[]
+}
+
+export interface PromptChoice {
+  turn_id: string
+  /** From 0, as in the diagram. */
+  index: number
+  preview: string
+}
+
+export interface CompareSide {
+  prompts: PromptChoice[]
+  /** The asked-for prompt was not found; the whole session is shown. */
+  scope_missing: boolean
+}
+
+/** The response of `compare_runs`. */
+export interface CompareView {
+  comparison: Comparison
+  a: CompareSide
+  b: CompareSide
+}

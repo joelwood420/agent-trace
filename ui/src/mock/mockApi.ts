@@ -1,11 +1,11 @@
 // Dev-only mock of the backend commands, for viewing the UI in a normal
 // browser. It replays the responses for the sanitised fixture sessions from
-// fixture-data.json and flags-data.json, which a Rust test keeps identical to what the real
+// fixture-data.json, flags-data.json and compare-data.json, which a Rust test keeps identical to what the real
 // commands return. Never imported in production builds (see api.ts).
 //
 // URL flags (combine with `?mock`):
 //   delay=<ms>   wait this long before each response (default 250)
-//   fail=list|load|detail|captures|context|flags   make that command fail, to see error handling
+//   fail=list|load|detail|captures|context|flags|compare   make that command fail, to see error handling
 //   live         replay the session growing (ui/src/mock/live-steps.json),
 //                one step every `step` ms (default 1500)
 //   fail=live    with `live`, end the replay with a "deleted" status
@@ -16,6 +16,7 @@ import type { Api } from '../api.ts'
 import type {
   CaptureDetail,
   CaptureOverview,
+  CompareView,
   ContextBreakdown,
   LiveMessage,
   LiveStatus,
@@ -26,6 +27,7 @@ import type {
   SessionView,
 } from '../types.ts'
 import captureData from './capture-data.json'
+import compareData from './compare-data.json'
 import contextData from './context-data.json'
 import data from './fixture-data.json'
 import flagsData from './flags-data.json'
@@ -47,6 +49,7 @@ const context = contextData as unknown as {
   calls: Record<string, ContextBreakdown>
 }
 const flags = flagsData as unknown as Record<string, SessionFlags>
+const comparisons = compareData as unknown as Record<string, CompareView>
 const emptyContext: SessionContext = { bars: {}, latest: null, latest_trace_id: null, hidden_context: [] }
 const CAPTURE_KEY = 'basic/00000000-0000-4000-8000-000000000002'
 const emptyOverview: CaptureOverview = {
@@ -183,6 +186,15 @@ export function createMockApi(params: URLSearchParams): Api {
       await wait()
       if (fail === 'flags') throw 'could not read the session: mock failure'
       return flags[`${project}/${sessionId}`] ?? { flags: [] }
+    },
+    // The mock only has whole-session comparisons of the two sample sessions,
+    // so a prompt scope is ignored here.
+    async compareRuns(a, b) {
+      await wait()
+      if (fail === 'compare') throw 'Run B: could not load session: mock failure'
+      const found = comparisons[`${a.project}/${a.session_id}|${b.project}/${b.session_id}`]
+      if (!found) throw 'Run B: the mock has no comparison for these sessions'
+      return found
     },
   }
 }
