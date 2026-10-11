@@ -994,6 +994,22 @@ mod tests {
     }
 
     #[test]
+    fn compaction_text_with_only_restored_files_and_several_missing() {
+        let mut t = session(vec![read("a.rs"), read("b.rs"), read("c.rs")]);
+        let details = Compaction {
+            files_restored: vec!["c.rs".into(), "d.rs".into()],
+            ..Compaction::default()
+        };
+        add(&mut t, "C", Some("T1"), compaction_with(details));
+        let flags = session_flags(&t, &rules());
+        let compactions = of_kind(&flags, FlagKind::Compaction);
+        assert_eq!(
+            compactions[0].text,
+            "Context was compacted. Re-attached 2 files in full. 2 files read earlier were not re-attached."
+        );
+    }
+
+    #[test]
     fn reread_after_compaction_is_flagged_once() {
         let mut t = compacted_session();
         for (i, path) in ["b.rs", "c.rs", "a.rs", "b.rs"].into_iter().enumerate() {
