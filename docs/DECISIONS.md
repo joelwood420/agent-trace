@@ -367,3 +367,13 @@ Real transcripts carry the full tool list in the session's second `prompt_snapsh
 ### 2026-10-11: M5.2: compaction details and file parts in the schema
 
 Waste flags need to say what a compaction dropped, and they must work for any harness, including the owner's own, which will compact too. So `marker` gains an optional `compaction` object (context size before and after, files restored with content, files only named) and `context_part` gains a `file` kind for file content placed in context without a tool call. Both are additive: old traces read unchanged and markers without details serialise exactly as before. Claude Code specifics stay in the adapter, which fills these fields.
+
+### 2026-10-12: M5.3: comparing two runs
+
+- The comparison logic lives in `insights`. It is pure and harness-neutral, so traces from the owner's own harness compare too.
+- Rows are built in Rust. The UI shows them as they are and does no maths.
+- The context chart is plain SVG, so there is no new chart dependency.
+- The higher side is highlighted neutrally. More is not always worse: more cache reads is good, more tokens may be a better answer.
+- Setup slices (system prompt, tools, instructions) not seen in the first call are unknown, not 0. A transcript-only session often lacks them, and 0 would claim a fact we do not have.
+- `compare_runs` fails as a whole when one side cannot load. The error names the side. One round trip keeps the UI simple.
+- "Largest context" counts the main run only, to match the chart.
