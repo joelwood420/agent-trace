@@ -63,6 +63,9 @@ export default function App() {
   const [promptIndex, setPromptIndex] = useState<number | null>(null)
   const [openState, setOpenState] = useState<ReadonlyMap<string, boolean>>(new Map())
   const [selected, setSelected] = useState<DiagramNode | null>(null)
+  // A box a jump selected, for the diagram to bring into view.
+  const [focusId, setFocusId] = useState<string | null>(null)
+  const clearFocus = useCallback(() => setFocusId(null), [])
   const [liveStatus, setLiveStatus] = useState<LiveStatus | null>(null)
   const [newPrompts, setNewPrompts] = useState<ReadonlySet<number>>(new Set())
   // Goes up when the selected box's trace nodes changed, so the details refetch.
@@ -336,6 +339,7 @@ export default function App() {
     setPromptIndex(index)
     setSelected(null)
     setSelectedHidden(null)
+    setFocusId(null)
   }
 
   const selectNode = useCallback((node: DiagramNode) => {
@@ -370,6 +374,7 @@ export default function App() {
         })
       }
       selectNode(last)
+      setFocusId(last.id)
       return
     }
     // Events before the first prompt have no diagram; select them as the list does.
@@ -518,6 +523,8 @@ export default function App() {
               capturedIds={capturedIds}
               contextBars={contextBars}
               flagIndex={flagIndex}
+              focusId={focusId}
+              onFocused={clearFocus}
               onToggle={onToggle}
               onSelect={selectNode}
             />

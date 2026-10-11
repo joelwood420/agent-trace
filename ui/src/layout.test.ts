@@ -10,6 +10,7 @@ import {
   INDENT,
   NODE_WIDTH,
   collapsibleIds,
+  focusPoint,
   initialViewport,
   isOpen,
   layoutTree,
@@ -192,4 +193,10 @@ test('initial viewport fits small diagrams and shows the top of tall ones', () =
   const tall = initialViewport(700, 5000, 1000, 800)
   assert.ok(tall.zoom >= 0.7, `readable zoom, got ${tall.zoom}`)
   assert.equal(tall.y, 24, 'starts at the top')
+})
+
+test('focusPoint centres a box and never zooms in past the current zoom or 1', () => {
+  const box = { x: 100, y: 2000, width: 200, height: 60 }
+  assert.deepEqual(focusPoint(box, 0.7), { x: 200, y: 2030, zoom: 0.7 })
+  assert.deepEqual(focusPoint(box, 1.6), { x: 200, y: 2030, zoom: 1 })
 })

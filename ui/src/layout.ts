@@ -196,3 +196,14 @@ export function initialViewport(
   const zoom = Math.min(1, Math.max(minReadable, (paneWidth - 2 * padding) / Math.max(width, 1)))
   return { x: padding, y: padding, zoom }
 }
+
+/**
+ * Where to point the camera to bring one box into view after a jump: the
+ * box's centre, at the current zoom but never closer than 1.
+ */
+export function focusPoint(
+  box: { x: number; y: number; width: number; height: number },
+  currentZoom: number,
+): { x: number; y: number; zoom: number } {
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2, zoom: Math.min(currentZoom, 1) }
+}

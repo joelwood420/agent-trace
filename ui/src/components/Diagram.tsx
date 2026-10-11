@@ -10,11 +10,11 @@ import {
   type NodeTypes,
   type ReactFlowInstance,
 } from '@xyflow/react'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { isCaptured } from '../captureView.ts'
 import { boxFlags, isOpen, type FlagIndex } from '../flags.ts'
-import { initialViewport, layoutTree, type OpenState } from '../layout.ts'
+import { focusPoint, initialViewport, layoutTree, type OpenState } from '../layout.ts'
 import type { ContextBar, DiagramNode, PromptDiagram } from '../types.ts'
 import {
   MarkerNode,
@@ -59,6 +59,10 @@ interface Props {
   contextBars: Readonly<Record<string, ContextBar>>
   /** Flags by trace id, for the badges. */
   flagIndex: FlagIndex
+  /** A box to bring into view after a jump, or null. */
+  focusId: string | null
+  /** Called once the view has moved to `focusId`. */
+  onFocused: () => void
   onToggle: (id: string, open: boolean) => void
   onSelect: (node: DiagramNode) => void
 }
@@ -70,11 +74,14 @@ export default function Diagram({
   capturedIds,
   contextBars,
   flagIndex,
+  focusId,
+  onFocused,
   onToggle,
   onSelect,
 }: Props) {
   const layout = useMemo(() => layoutTree(prompt.root, openState), [prompt.root, openState])
   const paneRef = useRef<HTMLDivElement>(null)
+  const [instance, setInstance] = useState<ReactFlowInstance<BoxNode, Edge> | null>(null)
 
   const nodes: BoxNode[] = useMemo(
     () =>
@@ -126,11 +133,23 @@ export default function Diagram({
       const pane = paneRef.current?.getBoundingClientRect()
       if (!pane) return
       void instance.setViewport(initialViewport(layout.width, layout.height, pane.width, pane.height))
+      setInstance(instance)
     },
     // Only the layout at mount time matters; the component is re-keyed per prompt.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
+
+  // After a jump, centre the chosen box once it has a position. A jump to
+  // another prompt remounts this component, so it waits for `onInit`.
+  useEffect(() => {
+    if (!instance || focusId === null) return
+    const box = layout.boxes.find((b) => b.id === focusId)
+    if (!box) return
+    const { x, y, zoom } = focusPoint(box, instance.getZoom())
+    void instance.setCenter(x, y, { zoom, duration: 300 })
+    onFocused()
+  }, [instance, focusId, layout, onFocused])
 
   return (
     <div className="diagram" ref={paneRef}>
