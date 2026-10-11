@@ -1910,7 +1910,7 @@ git commit -m "Add the Compare view and the session picker" -m "Co-Authored-By: 
 - [ ] **Step 4: `README.md`**: update the milestone status for 5.3 in the same style as 5.2.
 - [ ] **Step 5: Check and commit**
 
-Run: `git grep -nP "x{2014}" -- docs README.md CLAUDE.md` (expect no new matches) and re-read the changed sections.
+Run: `git grep -nP "\x{2014}" -- docs README.md CLAUDE.md` (expect no new matches) and re-read the changed sections.
 
 ```powershell
 git add docs CLAUDE.md README.md
