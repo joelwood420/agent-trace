@@ -368,8 +368,7 @@ pub fn run_summary(
         .filter_map(|&kind| slice_tokens(b, kind))
         .fold(0u64, u64::saturating_add)
     });
-    let not_captured =
-        first_call.map(|b| slice_tokens(b, SliceKind::NotCaptured).unwrap_or(0));
+    let not_captured = first_call.map(|b| slice_tokens(b, SliceKind::NotCaptured).unwrap_or(0));
     let tool_groups = first_call.and_then(|b| slice_items(b, SliceKind::ToolDefinitions, true));
     let flags_by_kind = FLAG_KINDS
         .iter()
