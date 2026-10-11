@@ -10,6 +10,7 @@ import {
   chartLines,
   formatDifference,
   formatValue,
+  hasPartial,
   presenceTag,
   runRef,
   sameRequest,
@@ -36,6 +37,7 @@ const CHART_WIDTH = 600
 const CHART_HEIGHT = 120
 
 const PARTIAL_NOTE = 'Some calls did not report this; the total counts the ones that did'
+const PARTIAL_FOOTNOTE = '* Some calls did not report this; the total counts the ones that did.'
 const SCOPE_MISSING = 'That prompt is no longer in the session; showing the whole session.'
 
 type Slot = 'left' | 'right'
@@ -319,6 +321,7 @@ function SectionTable({ section }: { section: CompareSection }) {
           </tbody>
         </table>
       </div>
+      {hasPartial(section) && <p className="muted small compare-footnote">{PARTIAL_FOOTNOTE}</p>}
     </section>
   )
 }
@@ -349,7 +352,12 @@ function ValueCell({ value, partial, higher, row }: ValueCellProps) {
   return (
     <td className={higher ? 'compare-higher' : undefined} title={partial ? PARTIAL_NOTE : undefined}>
       {formatValue(value, row.unit)}
-      {partial && ' *'}
+      {partial && (
+        <>
+          {' *'}
+          <span className="visually-hidden"> (partial)</span>
+        </>
+      )}
     </td>
   )
 }

@@ -1289,6 +1289,10 @@ button:focus-visible,
   margin-bottom: 6px;
 }
 
+.compare-footnote {
+  margin: 4px 0 0;
+}
+
 .compare-table-wrap {
   max-width: 100%;
   overflow-x: auto;

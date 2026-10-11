@@ -7,6 +7,7 @@ import {
   chartLines,
   formatDifference,
   formatValue,
+  hasPartial,
   presenceTag,
   runRef,
   sameRequest,
@@ -125,4 +126,10 @@ test('sameRequest is false when the runs were swapped since', () => {
 test('sameRequest is false when a scope changed since', () => {
   assert.equal(sameRequest(request, { swapped: false, scopes: { left: 't1', right: 't2' } }), false)
   assert.equal(sameRequest(request, { swapped: false, scopes: { left: '', right: '' } }), false)
+})
+
+test('hasPartial is true when either side of any row is partial', () => {
+  assert.equal(hasPartial({ title: 'Tokens', rows: [row({}), row({})] }), false)
+  assert.equal(hasPartial({ title: 'Tokens', rows: [row({}), row({ b_partial: true })] }), true)
+  assert.equal(hasPartial({ title: 'Tokens', rows: [row({ a_partial: true })] }), true)
 })

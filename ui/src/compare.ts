@@ -60,6 +60,11 @@ export function visibleSections(sections: CompareSection[]): CompareSection[] {
   return sections.filter((s) => s.rows.length > 0)
 }
 
+/** True when any row of the section has a value that counts only some calls. */
+export function hasPartial(section: CompareSection): boolean {
+  return section.rows.some((r) => r.a_partial || r.b_partial)
+}
+
 const round = (n: number) => Math.round(n * 10) / 10
 
 export function chartLines(
