@@ -17,8 +17,8 @@ pub use breakdown::{
     BarSlice, CHARS_PER_TOKEN, ContextBar, ContextBreakdown, Item, Slice, breakdown,
 };
 pub use compare::{
-    CallPoint, FLAG_KINDS, KindCount, Named, RunSummary, Scope, Total, first_main_call,
-    prompt_in_main_run, run_summary,
+    CallPoint, Comparison, FLAG_KINDS, Higher, KindCount, Named, Presence, Row, RunSummary, Scope,
+    Section, Total, Unit, compare, first_main_call, prompt_in_main_run, run_summary,
 };
 pub use flags::{Flag, FlagKind, LARGE_RESULT_TOKENS, LOOP_WARN, REPEAT_READ_WARN, session_flags};
 pub use measure::{

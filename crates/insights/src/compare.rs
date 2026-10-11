@@ -128,6 +128,7 @@ pub struct RunSummary {
     /// The text of the last main-run model call that wrote text.
     pub final_message: Option<String>,
 }
+
 /// The first root node that is a run.
 fn main_run(trace: &Trace) -> Option<&str> {
     trace
@@ -408,6 +409,315 @@ pub fn run_summary(
         compactions: w.compactions,
         final_message: w.final_message,
     }
+}
+
+/// What a row's numbers measure, for formatting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Unit {
+    /// A plain count.
+    Count,
+    /// Tokens.
+    Tokens,
+    /// Milliseconds.
+    Ms,
+}
+
+/// Which side of a row has the larger number.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Higher {
+    /// Run A.
+    A,
+    /// Run B.
+    B,
+    /// Both the same.
+    Equal,
+    /// At least one side is unknown.
+    Unknown,
+}
+
+/// Whether a named row's name appears in both runs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Presence {
+    /// In both runs, or not known for one of them.
+    Both,
+    /// Only in run A.
+    OnlyA,
+    /// Only in run B.
+    OnlyB,
+}
+
+/// One line of a comparison.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Row {
+    /// What the row is.
+    pub label: String,
+    /// What the numbers measure.
+    pub unit: Unit,
+    /// Run A's value, `None` if unknown.
+    pub a: Option<u64>,
+    /// Run B's value, `None` if unknown.
+    pub b: Option<u64>,
+    /// True when run A's value counts only some calls.
+    pub a_partial: bool,
+    /// True when run B's value counts only some calls.
+    pub b_partial: bool,
+    /// `b - a`, when both are known.
+    pub difference: Option<i64>,
+    /// Which side is larger.
+    pub higher: Higher,
+    /// For named rows, which runs have the name.
+    pub presence: Presence,
+}
+
+/// A titled group of rows.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Section {
+    /// The section title.
+    pub title: String,
+    /// Its rows, in display order.
+    pub rows: Vec<Row>,
+}
+
+/// Two runs side by side.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Comparison {
+    /// Run A.
+    pub a: RunSummary,
+    /// Run B.
+    pub b: RunSummary,
+    /// The rows to show, in sections.
+    pub sections: Vec<Section>,
+}
+
+fn difference(a: u64, b: u64) -> i64 {
+    if b >= a {
+        i64::try_from(b - a).unwrap_or(i64::MAX)
+    } else {
+        i64::try_from(a - b).map(|d| -d).unwrap_or(i64::MIN)
+    }
+}
+
+fn row(label: &str, unit: Unit, a: Total, b: Total) -> Row {
+    let (difference, higher) = match (a.value, b.value) {
+        (Some(x), Some(y)) => (
+            Some(difference(x, y)),
+            match x.cmp(&y) {
+                std::cmp::Ordering::Greater => Higher::A,
+                std::cmp::Ordering::Less => Higher::B,
+                std::cmp::Ordering::Equal => Higher::Equal,
+            },
+        ),
+        _ => (None, Higher::Unknown),
+    };
+    Row {
+        label: label.to_string(),
+        unit,
+        a: a.value,
+        b: b.value,
+        a_partial: a.partial,
+        b_partial: b.partial,
+        difference,
+        higher,
+        presence: Presence::Both,
+    }
+}
+
+fn known(value: Option<u64>) -> Total {
+    Total {
+        value,
+        partial: false,
+    }
+}
+
+fn count(value: u64) -> Total {
+    known(Some(value))
+}
+
+fn named_rows(unit: Unit, a: Option<&[Named]>, b: Option<&[Named]>) -> Vec<Row> {
+    let mut names: Vec<&str> = Vec::new();
+    for n in a.into_iter().flatten().chain(b.into_iter().flatten()) {
+        if !names.contains(&n.name.as_str()) {
+            names.push(n.name.as_str());
+        }
+    }
+    let value = |list: Option<&[Named]>, name: &str| {
+        list.map(|l| l.iter().find(|n| n.name == name).map_or(0, |n| n.value))
+    };
+    let has =
+        |list: Option<&[Named]>, name: &str| list.is_some_and(|l| l.iter().any(|n| n.name == name));
+    names
+        .into_iter()
+        .map(|name| {
+            let mut r = row(name, unit, known(value(a, name)), known(value(b, name)));
+            if a.is_some() && b.is_some() {
+                r.presence = match (has(a, name), has(b, name)) {
+                    (true, false) => Presence::OnlyA,
+                    (false, true) => Presence::OnlyB,
+                    _ => Presence::Both,
+                };
+            }
+            r
+        })
+        .collect()
+}
+
+fn flag_count(s: &RunSummary, kind: FlagKind) -> u64 {
+    s.flags_by_kind
+        .iter()
+        .find(|c| c.kind == kind)
+        .map_or(0, |c| c.count)
+}
+
+fn section(title: &str, rows: Vec<Row>) -> Section {
+    Section {
+        title: title.to_string(),
+        rows,
+    }
+}
+
+/// Two runs side by side, as sections of rows.
+pub fn compare(a: RunSummary, b: RunSummary) -> Comparison {
+    use Unit::{Count, Ms, Tokens};
+    let flag_rows = [
+        ("Repeated reads", FlagKind::RepeatedRead),
+        ("Failed retries", FlagKind::FailedRetry),
+        ("Loops", FlagKind::Loop),
+        ("Large results", FlagKind::LargeResult),
+        ("Re-reads after compaction", FlagKind::RereadAfterCompaction),
+    ];
+    let mut problems: Vec<Row> = flag_rows
+        .iter()
+        .map(|&(label, kind)| {
+            row(
+                label,
+                Count,
+                count(flag_count(&a, kind)),
+                count(flag_count(&b, kind)),
+            )
+        })
+        .collect();
+    problems.push(row(
+        "Failed tool calls",
+        Count,
+        count(a.failed_tool_calls),
+        count(b.failed_tool_calls),
+    ));
+    problems.push(row(
+        "Compactions",
+        Count,
+        count(a.compactions),
+        count(b.compactions),
+    ));
+    let sections = vec![
+        section(
+            "Setup",
+            vec![
+                row(
+                    "First call context",
+                    Tokens,
+                    known(a.first_call_tokens),
+                    known(b.first_call_tokens),
+                ),
+                row(
+                    "System prompt",
+                    Tokens,
+                    known(a.system_prompt_tokens),
+                    known(b.system_prompt_tokens),
+                ),
+                row(
+                    "Tool definitions",
+                    Tokens,
+                    known(a.tool_definition_tokens),
+                    known(b.tool_definition_tokens),
+                ),
+                row(
+                    "Instructions and reminders",
+                    Tokens,
+                    known(a.instruction_tokens),
+                    known(b.instruction_tokens),
+                ),
+                row(
+                    "Everything else",
+                    Tokens,
+                    known(a.other_context_tokens),
+                    known(b.other_context_tokens),
+                ),
+                row("Tools", Count, known(a.tool_count), known(b.tool_count)),
+            ],
+        ),
+        section(
+            "Models",
+            named_rows(Count, Some(&a.models), Some(&b.models)),
+        ),
+        section(
+            "Tool groups",
+            named_rows(Count, a.tool_groups.as_deref(), b.tool_groups.as_deref()),
+        ),
+        section(
+            "Instructions",
+            named_rows(
+                Tokens,
+                a.instruction_parts.as_deref(),
+                b.instruction_parts.as_deref(),
+            ),
+        ),
+        section(
+            "Work",
+            vec![
+                row("Prompts", Count, count(a.prompts), count(b.prompts)),
+                row(
+                    "Model calls",
+                    Count,
+                    count(a.model_calls),
+                    count(b.model_calls),
+                ),
+                row(
+                    "Tool calls",
+                    Count,
+                    count(a.tool_calls),
+                    count(b.tool_calls),
+                ),
+                row("Subagents", Count, count(a.subagents), count(b.subagents)),
+                row("Wall-clock time", Ms, known(a.wall_ms), known(b.wall_ms)),
+                row("Time in model calls", Ms, a.model_ms, b.model_ms),
+                row("Time in tools", Ms, a.tool_ms, b.tool_ms),
+            ],
+        ),
+        section(
+            "Tools used",
+            named_rows(Count, Some(&a.tools_by_name), Some(&b.tools_by_name)),
+        ),
+        section(
+            "Tokens",
+            vec![
+                row("Input (not cached)", Tokens, a.input_tokens, b.input_tokens),
+                row("Output", Tokens, a.output_tokens, b.output_tokens),
+                row(
+                    "Cache read",
+                    Tokens,
+                    a.cache_read_tokens,
+                    b.cache_read_tokens,
+                ),
+                row(
+                    "Cache write",
+                    Tokens,
+                    a.cache_write_tokens,
+                    b.cache_write_tokens,
+                ),
+                row(
+                    "Largest context",
+                    Tokens,
+                    known(a.largest_context),
+                    known(b.largest_context),
+                ),
+            ],
+        ),
+        section("Problems", problems),
+    ];
+    Comparison { a, b, sections }
 }
 
 #[cfg(test)]
@@ -830,5 +1140,188 @@ mod tests {
         assert_eq!(s.tool_groups, None);
         assert_eq!(s.instruction_parts, None);
         assert_eq!(s.other_context_tokens, Some(500));
+    }
+
+    fn summary_with(
+        models: Vec<(&str, u64)>,
+        groups: Option<Vec<(&str, u64)>>,
+        output: Total,
+    ) -> RunSummary {
+        let mut s = run_summary(&Trace::new(), &Scope::Session, None, &[]);
+        s.models = models
+            .into_iter()
+            .map(|(n, v)| Named {
+                name: n.into(),
+                value: v,
+            })
+            .collect();
+        s.tool_groups = groups.map(|g| {
+            g.into_iter()
+                .map(|(n, v)| Named {
+                    name: n.into(),
+                    value: v,
+                })
+                .collect()
+        });
+        s.output_tokens = output;
+        s
+    }
+
+    fn find_section<'c>(c: &'c Comparison, title: &str) -> &'c Section {
+        c.sections
+            .iter()
+            .find(|s| s.title == title)
+            .expect("section")
+    }
+
+    fn find_row<'c>(c: &'c Comparison, title: &str, label: &str) -> &'c Row {
+        find_section(c, title)
+            .rows
+            .iter()
+            .find(|r| r.label == label)
+            .expect("row")
+    }
+
+    #[test]
+    fn sections_come_in_order() {
+        let s = run_summary(&sample(), &Scope::Session, None, &[]);
+        let c = compare(s.clone(), s);
+        let titles: Vec<&str> = c.sections.iter().map(|s| s.title.as_str()).collect();
+        assert_eq!(
+            titles,
+            vec![
+                "Setup",
+                "Models",
+                "Tool groups",
+                "Instructions",
+                "Work",
+                "Tools used",
+                "Tokens",
+                "Problems"
+            ]
+        );
+        let problems: Vec<&str> = find_section(&c, "Problems")
+            .rows
+            .iter()
+            .map(|r| r.label.as_str())
+            .collect();
+        assert_eq!(
+            problems,
+            vec![
+                "Repeated reads",
+                "Failed retries",
+                "Loops",
+                "Large results",
+                "Re-reads after compaction",
+                "Failed tool calls",
+                "Compactions"
+            ]
+        );
+    }
+
+    #[test]
+    fn a_run_against_itself_is_equal_everywhere_known() {
+        let s = run_summary(&sample(), &Scope::Session, None, &[]);
+        let c = compare(s.clone(), s);
+        for sec in &c.sections {
+            for r in &sec.rows {
+                if r.a.is_some() {
+                    assert_eq!(r.higher, Higher::Equal, "{}", r.label);
+                    assert_eq!(r.difference, Some(0), "{}", r.label);
+                } else {
+                    assert_eq!(r.higher, Higher::Unknown, "{}", r.label);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn difference_is_b_minus_a() {
+        let a = summary_with(
+            vec![],
+            None,
+            Total {
+                value: Some(100),
+                partial: false,
+            },
+        );
+        let b = summary_with(
+            vec![],
+            None,
+            Total {
+                value: Some(40),
+                partial: true,
+            },
+        );
+        let c = compare(a, b);
+        let r = find_row(&c, "Tokens", "Output");
+        assert_eq!((r.a, r.b), (Some(100), Some(40)));
+        assert_eq!(r.difference, Some(-60));
+        assert_eq!(r.higher, Higher::A);
+        assert!(!r.a_partial);
+        assert!(r.b_partial);
+        assert_eq!(r.unit, Unit::Tokens);
+    }
+
+    #[test]
+    fn unknown_on_one_side_is_unknown() {
+        let a = summary_with(
+            vec![],
+            None,
+            Total {
+                value: Some(1),
+                partial: false,
+            },
+        );
+        let b = summary_with(vec![], None, Total::default());
+        let c = compare(a, b);
+        let r = find_row(&c, "Tokens", "Output");
+        assert_eq!(r.difference, None);
+        assert_eq!(r.higher, Higher::Unknown);
+    }
+
+    #[test]
+    fn names_on_one_side_get_zero_and_a_tag() {
+        let a = summary_with(
+            vec![("m1", 3), ("m2", 1)],
+            Some(vec![("built-in", 10)]),
+            Total::default(),
+        );
+        let b = summary_with(
+            vec![("m3", 2), ("m1", 1)],
+            Some(vec![("built-in", 10), ("mcp: docs", 4)]),
+            Total::default(),
+        );
+        let c = compare(a, b);
+        let models: Vec<(&str, Option<u64>, Option<u64>, Presence)> = find_section(&c, "Models")
+            .rows
+            .iter()
+            .map(|r| (r.label.as_str(), r.a, r.b, r.presence))
+            .collect();
+        assert_eq!(
+            models,
+            vec![
+                ("m1", Some(3), Some(1), Presence::Both),
+                ("m2", Some(1), Some(0), Presence::OnlyA),
+                ("m3", Some(0), Some(2), Presence::OnlyB),
+            ]
+        );
+        let docs = find_row(&c, "Tool groups", "mcp: docs");
+        assert_eq!(
+            (docs.a, docs.b, docs.presence, docs.higher),
+            (Some(0), Some(4), Presence::OnlyB, Higher::B)
+        );
+    }
+
+    #[test]
+    fn unknown_setup_is_not_only_on_the_other_side() {
+        let a = summary_with(vec![], None, Total::default());
+        let b = summary_with(vec![], Some(vec![("built-in", 10)]), Total::default());
+        let c = compare(a, b);
+        let r = find_row(&c, "Tool groups", "built-in");
+        assert_eq!(
+            (r.a, r.b, r.presence, r.higher),
+            (None, Some(10), Presence::Both, Higher::Unknown)
+        );
     }
 }
