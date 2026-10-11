@@ -53,7 +53,12 @@ export function SessionList({ sessions, now, captureStatus, onOpen, onRetry, pic
       <div className="sidebar-heading">
         <h2>{pick ? 'Pick a session to compare with' : 'Sessions'}</h2>
         {pick ? (
-          <button type="button" className="link-button" onClick={pick.onCancel}>
+          <button
+            type="button"
+            className="link-button"
+            onClick={pick.onCancel}
+            title="Stop picking and go back to the session"
+          >
             Cancel
           </button>
         ) : (

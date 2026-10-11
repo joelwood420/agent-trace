@@ -12,10 +12,12 @@ import {
   formatValue,
   presenceTag,
   runRef,
+  sameRequest,
   scopeOptions,
+  type CompareRequest,
   visibleSections,
 } from '../compare.ts'
-import { shortId } from '../format.ts'
+import { formatRelative, formatTimestamp, shortId } from '../format.ts'
 import type {
   CompareRow,
   CompareSection,
@@ -44,17 +46,19 @@ interface Props {
   right: SessionSummary
   /** Changes when either session changed on disk; the comparison then refetches. */
   refreshKey: string
+  /** When the session list was read, for relative times. */
+  now: number
   onBack: () => void
 }
 
-export default function CompareView({ api, left, right, refreshKey, onBack }: Props) {
+export default function CompareView({ api, left, right, refreshKey, now, onBack }: Props) {
   const [swapped, setSwapped] = useState(false)
   // Turn ids per session, '' for the whole session.
   const [scopes, setScopes] = useState<{ left: string; right: string }>({ left: '', right: '' })
   const [result, setResult] = useState<Loadable<CompareResult>>({ status: 'loading' })
-  // The last comparison that loaded and whether it was asked for swapped, so
-  // the header keeps each session's prompts after an error or a swap.
-  const [lastGood, setLastGood] = useState<{ value: CompareResult; swapped: boolean } | null>(null)
+  // The last comparison that loaded and what it answers, so the header keeps
+  // each session's prompts after an error or a swap, and a stale table hides.
+  const [lastGood, setLastGood] = useState<{ value: CompareResult; request: CompareRequest } | null>(null)
   const [scopeMissing, setScopeMissing] = useState(false)
   // Ignores responses overtaken by a newer request.
   const token = useRef(0)
@@ -84,22 +88,22 @@ export default function CompareView({ api, left, right, refreshKey, onBack }: Pr
       )
       .then((value) => {
         if (mine !== token.current) return
+        // A prompt that is gone was answered with the whole session.
+        const answeredA = value.a.scope_missing ? '' : scopeA
+        const answeredB = value.b.scope_missing ? '' : scopeB
+        const answered = swapped ? { left: answeredB, right: answeredA } : { left: answeredA, right: answeredB }
         setResult({ status: 'ready', value })
-        setLastGood({ value, swapped })
+        setLastGood({ value, request: { swapped, scopes: answered } })
         if (value.a.scope_missing || value.b.scope_missing) {
           setScopeMissing(true)
-          setScopes((current) => ({
-            ...current,
-            ...(value.a.scope_missing ? { [slotA]: '' } : {}),
-            ...(value.b.scope_missing ? { [slotB]: '' } : {}),
-          }))
+          setScopes(answered)
         }
       })
       .catch((err: unknown) => {
         if (mine !== token.current) return
         setResult({ status: 'error', message: errorMessage(err) })
       })
-  }, [api, projectA, idA, projectB, idB, scopeA, scopeB, slotA, slotB, swapped])
+  }, [api, projectA, idA, projectB, idB, scopeA, scopeB, swapped])
 
   // The latest `load`, for a throttled refetch that fires later.
   const loadRef = useRef(load)
@@ -150,10 +154,13 @@ export default function CompareView({ api, left, right, refreshKey, onBack }: Pr
   // What the last result says about a session, whichever side it was on then.
   const known = (slot: Slot): { side: CompareSide; summary: RunSummary } | null => {
     if (!lastGood) return null
-    const wasA = (slot === 'left') !== lastGood.swapped
+    const wasA = (slot === 'left') !== lastGood.request.swapped
     const { value } = lastGood
     return wasA ? { side: value.a, summary: value.comparison.a } : { side: value.b, summary: value.comparison.b }
   }
+
+  // False while a swap or scope change the user asked for is still loading.
+  const current = lastGood !== null && sameRequest(lastGood.request, { swapped, scopes })
 
   return (
     <div className="compare">
@@ -176,6 +183,7 @@ export default function CompareView({ api, left, right, refreshKey, onBack }: Pr
           <RunHeader
             letter="A"
             session={sessionA}
+            now={now}
             scope={scopeA}
             prompts={known(slotA)?.side.prompts ?? []}
             summary={known(slotA)?.summary ?? null}
@@ -184,6 +192,7 @@ export default function CompareView({ api, left, right, refreshKey, onBack }: Pr
           <RunHeader
             letter="B"
             session={sessionB}
+            now={now}
             scope={scopeB}
             prompts={known(slotB)?.side.prompts ?? []}
             summary={known(slotB)?.summary ?? null}
@@ -205,7 +214,8 @@ export default function CompareView({ api, left, right, refreshKey, onBack }: Pr
             {SCOPE_MISSING}
           </div>
         )}
-        {result.status === 'ready' && <CompareBody view={result.value} />}
+        {result.status === 'ready' && current && <CompareBody view={result.value} />}
+        {result.status === 'ready' && !current && <p className="muted loading">Comparing the two runs...</p>}
       </div>
     </div>
   )
@@ -220,13 +230,14 @@ function sourceNote(source: ContextSource | null): string {
 interface RunHeaderProps {
   letter: 'A' | 'B'
   session: SessionSummary
+  now: number
   scope: string
   prompts: CompareSide['prompts']
   summary: RunSummary | null
   onScope: (value: string) => void
 }
 
-function RunHeader({ letter, session, scope, prompts, summary, onScope }: RunHeaderProps) {
+function RunHeader({ letter, session, now, scope, prompts, summary, onScope }: RunHeaderProps) {
   const options = scopeOptions(prompts)
   // Keep the chosen prompt selectable while its list is not loaded yet.
   const known = options.some((o) => o.value === scope)
@@ -238,8 +249,9 @@ function RunHeader({ letter, session, scope, prompts, summary, onScope }: RunHea
           {session.title ?? `Session ${shortId(session.session_id)}`}
         </span>
       </div>
-      <p className="muted small" title={session.project}>
-        {session.project_label}
+      <p className="muted small">
+        <span title={session.project}>{session.project_label}</span> -{' '}
+        <span title={formatTimestamp(session.modified_ms) ?? undefined}>{formatRelative(session.modified_ms, now)}</span>
       </p>
       <select
         className="compare-scope"

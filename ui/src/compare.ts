@@ -10,6 +10,25 @@ export function runRef(session: { project: string; session_id: string }, scope: 
   return { project: session.project, session_id: session.session_id, prompt_trace_id: scope === '' ? null : scope }
 }
 
+/** What a comparison was asked for: the order of the two sessions and each one's scope. */
+export interface CompareRequest {
+  swapped: boolean
+  /** Turn ids by session, '' for the whole session. */
+  scopes: { left: string; right: string }
+}
+
+/**
+ * True if a result asked for `shown` still answers `current`. When it does
+ * not, the user changed the order or a scope and the old table is stale.
+ */
+export function sameRequest(shown: CompareRequest, current: CompareRequest): boolean {
+  return (
+    shown.swapped === current.swapped &&
+    shown.scopes.left === current.scopes.left &&
+    shown.scopes.right === current.scopes.right
+  )
+}
+
 export function scopeOptions(prompts: PromptChoice[]): { value: string; label: string }[] {
   return [
     { value: '', label: 'Whole session' },

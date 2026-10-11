@@ -538,6 +538,7 @@ export default function App() {
             left={session}
             right={compareWith}
             refreshKey={compareRefreshKey}
+            now={listedAt}
             onBack={() => setCompareWith(null)}
           />
         ) : prompt && session ? (

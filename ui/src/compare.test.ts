@@ -9,6 +9,7 @@ import {
   formatValue,
   presenceTag,
   runRef,
+  sameRequest,
   scopeOptions,
   visibleSections,
 } from './compare.ts'
@@ -109,4 +110,19 @@ test('runRef asks for the whole session when the scope is empty', () => {
 
 test('runRef asks for one prompt when a turn id is given', () => {
   assert.deepEqual(runRef(session, 't1'), { project: 'p1', session_id: 's1', prompt_trace_id: 't1' })
+})
+
+const request = { swapped: false, scopes: { left: '', right: 't2' } }
+
+test('sameRequest is true when the order and both scopes match', () => {
+  assert.equal(sameRequest(request, { swapped: false, scopes: { left: '', right: 't2' } }), true)
+})
+
+test('sameRequest is false when the runs were swapped since', () => {
+  assert.equal(sameRequest(request, { ...request, swapped: true }), false)
+})
+
+test('sameRequest is false when a scope changed since', () => {
+  assert.equal(sameRequest(request, { swapped: false, scopes: { left: 't1', right: 't2' } }), false)
+  assert.equal(sameRequest(request, { swapped: false, scopes: { left: '', right: '' } }), false)
 })
