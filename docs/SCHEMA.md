@@ -80,7 +80,7 @@ For things that are not model or tool calls: context compaction, hooks, interrup
 |---|---|---|---|
 | `kind` | string | yes | Short label such as `"compaction"`, `"hook"`, `"interrupt"`, `"api_error"`. You can define your own. |
 | `summary` | string | yes | One line for humans. |
-| `compaction` | object | no | Only for kind `"compaction"`: `{ "tokens_before"?: int, "tokens_after"?: int, "files_restored"?: [string], "files_referenced"?: [string] }`. Context size before and after, files put back with their content, and files only named. Leave out what is unknown. |
+| `compaction` | object | no | Only for kind `"compaction"`: `{ "tokens_before"?: int, "tokens_after"?: int, "files_restored"?: [string], "files_referenced"?: [string] }`. Context size before and after, files put back with their content, and files only named. Leave out what is unknown. Tools recognise a compaction by `kind` exactly `"compaction"`, and only those markers carry `compaction` details. |
 
 ### `context_update`
 

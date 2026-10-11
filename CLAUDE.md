@@ -83,7 +83,7 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - Format: `cargo fmt --all`
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
 - UI checks: `cd ui; npm run lint; npm run typecheck; npm test; npm run build`
-- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls)
+- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls; open the compaction sample session to see every kind of flag)
 - Capture a Claude Code session through the app's proxy (app must be running): `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`
 - Regenerate the invented capture fixture: `cargo run -p capture --example make_fixture`
 - Refresh the UI mock data (`ui/src/mock/fixture-data.json`, `live-steps.json`, `capture-data.json`, `context-data.json` and `flags-data.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of all the mock files

@@ -151,13 +151,13 @@ Rule details:
 - Session overview: a "Flags" card, grouped by kind with a count per kind, each flag clickable. Clicking jumps to the flag's first node, opening any summary, group or subagent that hides it, and selects it.
 - Live sessions: refetched on the same throttle as the session context.
 - Mapping trace ids to boxes and summing hidden children are plain functions with unit tests. The UI does not decide what is a flag.
-- Mock: the sample session gets invented flags so `?mock` shows every kind.
+- Mock: under `?mock`, the compaction sample session shows every kind of flag and the basic sample session has none.
 
 ## Error handling
 
 - Malformed compaction or attachment fields: skipped and logged in the adapter. A boundary with no numbers still gives a `compaction` marker, and the flag text leaves the numbers out.
 - A flag whose node is not in the current diagram (for example a live update in between): the badge is not shown and the card entry still lists it, but jumping does nothing.
-- `session_flags` on a session that is not open: an error string, as `session_context` does.
+- `session_flags` on a session that is not open: loads it from disk, as `session_context` does.
 
 ## Testing
 
