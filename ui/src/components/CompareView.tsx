@@ -30,8 +30,8 @@ import type {
 } from '../types.ts'
 import type { Loadable } from './Sidebar.tsx'
 
-/** Live updates refetch the comparison at most this often. */
-const REFRESH_MS = 2000
+/** Live updates refetch the comparison at most this often, in milliseconds. */
+const COMPARE_RELOAD_MS = 5000
 
 const CHART_WIDTH = 600
 const CHART_HEIGHT = 120
@@ -126,13 +126,13 @@ export default function CompareView({ api, left, right, refreshKey, now, onBack 
     load()
   }, [load, cancelTimer])
 
-  // A change on disk refetches, at most once every REFRESH_MS.
+  // A change on disk refetches, at most once every COMPARE_RELOAD_MS.
   const seenKey = useRef(refreshKey)
   useEffect(() => {
     if (seenKey.current === refreshKey) return
     seenKey.current = refreshKey
     if (timer.current !== null) return
-    const delay = throttleDelay(lastRun.current, Date.now(), REFRESH_MS)
+    const delay = throttleDelay(lastRun.current, Date.now(), COMPARE_RELOAD_MS)
     if (delay === 0) {
       loadRef.current()
       return
