@@ -295,6 +295,7 @@ Request: `a` and `b`, each a `RunRef`.
 Words used above:
 
 - Wall-clock time: from the first event to the last in scope. For a whole session it includes idle time between prompts.
+- Time in model calls and time in tools: summed durations. Tool calls run in parallel and background subagents run beside the main agent, so these sums can be larger than the wall-clock time. A model call is timed from the event before it, so a call that waited on an idle gap (a resumed subagent, a late background notification) counts that wait too.
 - Main run: the top-level agent. Per-call setup, the context chart and "Largest context" use the main run only.
 - Subagent: a run nested in a tool call. Counts and totals include subagents.
 - Partial: some calls had no number, so the value is a lower bound. The UI marks it.

@@ -113,3 +113,12 @@ Checked against one real manual `/compact` (transcript only, not captured throug
 - A file that was read before the compaction but only referenced, or not mentioned at all, is out of the context afterwards. Reading it again is the real cost of compaction, so 5.2 flags that re-read.
 - `file` attachments have only been seen right after a compaction so far.
 - The preserved messages mean a few messages survive the compaction word for word. The transcript-only context estimate still resets all history at the marker, so it slightly undercounts the calls right after a compaction (parked).
+
+## Comparing real runs (seen during M5.3)
+
+Checked by comparing real sessions in the app:
+
+- Times overlap. In one prompt the tool calls added up to 2m 44s while the prompt took 2m 27s, because tool calls in one model response run in parallel. In a session with a background subagent, model calls added up to more than the wall-clock time, because the subagent's calls ran while the main agent kept going.
+- Transcript timestamps make a model call start at the event before it. When nothing happens for a long time first, the wait lands on the model call: a subagent that stalled and was resumed hours later showed an 11-hour model call, and the first call after a late background notification showed almost two hours. The diagram shows the same durations. Summed model time in a comparison inherits this (parked).
+- Without captures, the first call has no tool definitions (the tools snapshot is written just after it, see the 5.1 notes), so most of its context is "Not captured" and setup comparisons show "?" for tools. The system prompt and instructions files are there and compare well. Comparing two captured runs is what shows tool differences such as MCP servers.
+- Two large sessions (about 6 MB each, roughly 800 model calls each) compared in about 3 seconds, most of it reading the session that was not open.
