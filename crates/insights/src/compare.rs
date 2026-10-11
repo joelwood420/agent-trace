@@ -81,8 +81,13 @@ pub struct RunSummary {
     pub tool_definition_tokens: Option<u64>,
     /// Instruction and reminder tokens of the first call; `None` if not seen.
     pub instruction_tokens: Option<u64>,
-    /// The rest of the first call's context.
+    /// The rest of the first call's context that was seen: files read, tool
+    /// results and conversation. `None` without a first-call breakdown,
+    /// `Some(0)` when a breakdown has none of these.
     pub other_context_tokens: Option<u64>,
+    /// Context of the first call that could not be seen. `None` without a
+    /// first-call breakdown, `Some(0)` when the breakdown has no such slice.
+    pub not_captured_tokens: Option<u64>,
     /// Tools defined in the first call; `None` if not seen.
     pub tool_count: Option<u64>,
     /// Tools per group in the first call; `None` if not seen.
@@ -354,9 +359,17 @@ pub fn run_summary(
     let tools = first_call.and_then(|b| slice_tokens(b, SliceKind::ToolDefinitions));
     let instructions = first_call.and_then(|b| slice_tokens(b, SliceKind::Instructions));
     let other = first_call.map(|b| {
-        let known: u64 = [system, tools, instructions].iter().flatten().sum();
-        b.total_tokens.saturating_sub(known)
+        [
+            SliceKind::FilesRead,
+            SliceKind::ToolResults,
+            SliceKind::Conversation,
+        ]
+        .iter()
+        .filter_map(|&kind| slice_tokens(b, kind))
+        .fold(0u64, u64::saturating_add)
     });
+    let not_captured =
+        first_call.map(|b| slice_tokens(b, SliceKind::NotCaptured).unwrap_or(0));
     let tool_groups = first_call.and_then(|b| slice_items(b, SliceKind::ToolDefinitions, true));
     let flags_by_kind = FLAG_KINDS
         .iter()
@@ -384,6 +397,7 @@ pub fn run_summary(
         tool_definition_tokens: tools,
         instruction_tokens: instructions,
         other_context_tokens: other,
+        not_captured_tokens: not_captured,
         tool_count: tool_groups
             .as_ref()
             .map(|g| g.iter().map(|n| n.value).sum()),
@@ -644,6 +658,12 @@ pub fn compare(a: RunSummary, b: RunSummary) -> Comparison {
                     Tokens,
                     known(a.other_context_tokens),
                     known(b.other_context_tokens),
+                ),
+                row(
+                    "Not captured",
+                    Tokens,
+                    known(a.not_captured_tokens),
+                    known(b.not_captured_tokens),
                 ),
                 row("Tools", Count, known(a.tool_count), known(b.tool_count)),
             ],
@@ -1110,16 +1130,18 @@ mod tests {
                     vec![("CLAUDE.md", 40, 1), ("other reminders", 10, 2)],
                 ),
                 slice(SliceKind::Conversation, 20, vec![("prompt", 20, 1)]),
+                slice(SliceKind::FilesRead, 5, vec![("a.rs", 5, 1)]),
             ],
-            470,
+            475,
         );
         let s = run_summary(&sample(), &Scope::Session, Some(&b), &[]);
         assert_eq!(s.first_call_source, Some(ContextSource::Captured));
-        assert_eq!(s.first_call_tokens, Some(470));
+        assert_eq!(s.first_call_tokens, Some(475));
         assert_eq!(s.system_prompt_tokens, Some(100));
         assert_eq!(s.tool_definition_tokens, Some(300));
         assert_eq!(s.instruction_tokens, Some(50));
-        assert_eq!(s.other_context_tokens, Some(20));
+        assert_eq!(s.other_context_tokens, Some(25));
+        assert_eq!(s.not_captured_tokens, Some(0));
         assert_eq!(s.tool_count, Some(15));
         assert_eq!(
             s.tool_groups.as_deref().map(names),
@@ -1133,13 +1155,27 @@ mod tests {
 
     #[test]
     fn setup_slices_not_seen_stay_unknown() {
-        let b = breakdown_of(vec![slice(SliceKind::Conversation, 20, vec![])], 500);
+        let b = breakdown_of(
+            vec![
+                slice(SliceKind::Conversation, 20, vec![]),
+                slice(SliceKind::NotCaptured, 480, vec![]),
+            ],
+            500,
+        );
         let s = run_summary(&sample(), &Scope::Session, Some(&b), &[]);
         assert_eq!(s.system_prompt_tokens, None);
         assert_eq!(s.tool_count, None);
         assert_eq!(s.tool_groups, None);
         assert_eq!(s.instruction_parts, None);
-        assert_eq!(s.other_context_tokens, Some(500));
+        assert_eq!(s.other_context_tokens, Some(20));
+        assert_eq!(s.not_captured_tokens, Some(480));
+    }
+
+    #[test]
+    fn setup_without_a_breakdown_is_unknown() {
+        let s = run_summary(&sample(), &Scope::Session, None, &[]);
+        assert_eq!(s.other_context_tokens, None);
+        assert_eq!(s.not_captured_tokens, None);
     }
 
     fn summary_with(
@@ -1215,6 +1251,23 @@ mod tests {
                 "Re-reads after compaction",
                 "Failed tool calls",
                 "Compactions"
+            ]
+        );
+        let setup: Vec<&str> = find_section(&c, "Setup")
+            .rows
+            .iter()
+            .map(|r| r.label.as_str())
+            .collect();
+        assert_eq!(
+            setup,
+            vec![
+                "First call context",
+                "System prompt",
+                "Tool definitions",
+                "Instructions and reminders",
+                "Everything else",
+                "Not captured",
+                "Tools"
             ]
         );
     }

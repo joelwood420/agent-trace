@@ -273,7 +273,9 @@ Request: `a` and `b`, each a `RunRef`.
 |---|---|---|
 | `first_call_source` | string, optional | Where the first call's context split came from (captured or transcript). |
 | `first_call_tokens` | number, optional | The first main-run call's input context. |
-| `system_prompt_tokens`, `tool_definition_tokens`, `instruction_tokens`, `other_context_tokens` | number, optional | The setup slices of the first call. `None` means the slice was not seen, which is not the same as 0. |
+| `system_prompt_tokens`, `tool_definition_tokens`, `instruction_tokens` | number, optional | The setup slices of the first call. `None` means the slice was not seen, which is not the same as 0. |
+| `other_context_tokens` | number, optional | The rest of the first call's context that was seen: files read, tool results and conversation. 0 when the first call has a breakdown but none of these; `None` without a breakdown. |
+| `not_captured_tokens` | number, optional | First-call context that could not be seen (the breakdown's "Not captured" slice). 0 when the breakdown has no such slice; `None` without a breakdown. |
 | `tool_count` | number, optional | Tools defined in the first call. |
 | `tool_groups`, `instruction_parts` | list of `Named`, optional | Tools per group and instruction parts with tokens, for the first call. |
 | `models` | list of `Named` | Model calls per model name. |

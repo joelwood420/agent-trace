@@ -2,62 +2,36 @@
   "basic/00000000-0000-4000-8000-000000000002|compaction/00000000-0000-4000-8000-000000000003": {
     "comparison": {
       "a": {
-        "first_call_source": "transcript",
+        "first_call_source": "captured",
         "first_call_tokens": 70719,
-        "system_prompt_tokens": 14,
-        "tool_definition_tokens": null,
-        "instruction_tokens": 196,
-        "other_context_tokens": 70509,
-        "tool_count": null,
-        "tool_groups": null,
+        "system_prompt_tokens": 3437,
+        "tool_definition_tokens": 43857,
+        "instruction_tokens": 22990,
+        "other_context_tokens": 435,
+        "not_captured_tokens": 0,
+        "tool_count": 7,
+        "tool_groups": [
+          {
+            "name": "MCP: docs",
+            "value": 2
+          },
+          {
+            "name": "built-in",
+            "value": 5
+          }
+        ],
         "instruction_parts": [
           {
-            "name": "environment",
-            "value": 65
+            "name": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+            "value": 21666
           },
           {
-            "name": "hook output",
-            "value": 49
+            "name": "memory: C:\\work\\example\\memory\\MEMORY.md",
+            "value": 981
           },
           {
-            "name": "session context",
-            "value": 16
-          },
-          {
-            "name": "MCP server instructions",
-            "value": 14
-          },
-          {
-            "name": "agent list",
-            "value": 13
-          },
-          {
-            "name": "deferred tools list",
-            "value": 13
-          },
-          {
-            "name": "date",
-            "value": 4
-          },
-          {
-            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
-            "value": 4
-          },
-          {
-            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
-            "value": 4
-          },
-          {
-            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
-            "value": 4
-          },
-          {
-            "name": "model",
-            "value": 4
-          },
-          {
-            "name": "skills list",
-            "value": 4
+            "name": "other reminders",
+            "value": 344
           }
         ],
         "models": [
@@ -241,7 +215,8 @@
         "system_prompt_tokens": null,
         "tool_definition_tokens": null,
         "instruction_tokens": null,
-        "other_context_tokens": 12502,
+        "other_context_tokens": 8,
+        "not_captured_tokens": 12494,
         "tool_count": null,
         "tool_groups": null,
         "instruction_parts": null,
@@ -410,7 +385,7 @@
             {
               "label": "System prompt",
               "unit": "tokens",
-              "a": 14,
+              "a": 3437,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -421,7 +396,7 @@
             {
               "label": "Tool definitions",
               "unit": "tokens",
-              "a": null,
+              "a": 43857,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -432,7 +407,7 @@
             {
               "label": "Instructions and reminders",
               "unit": "tokens",
-              "a": 196,
+              "a": 22990,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -443,18 +418,29 @@
             {
               "label": "Everything else",
               "unit": "tokens",
-              "a": 70509,
-              "b": 12502,
+              "a": 435,
+              "b": 8,
               "a_partial": false,
               "b_partial": false,
-              "difference": -58007,
+              "difference": -427,
               "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Not captured",
+              "unit": "tokens",
+              "a": 0,
+              "b": 12494,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 12494,
+              "higher": "b",
               "presence": "both"
             },
             {
               "label": "Tools",
               "unit": "count",
-              "a": null,
+              "a": 7,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -482,15 +468,38 @@
         },
         {
           "title": "Tool groups",
-          "rows": []
+          "rows": [
+            {
+              "label": "MCP: docs",
+              "unit": "count",
+              "a": 2,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "built-in",
+              "unit": "count",
+              "a": 5,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
         },
         {
           "title": "Instructions",
           "rows": [
             {
-              "label": "environment",
+              "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "unit": "tokens",
-              "a": 65,
+              "a": 21666,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -499,9 +508,9 @@
               "presence": "both"
             },
             {
-              "label": "hook output",
+              "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "unit": "tokens",
-              "a": 49,
+              "a": 981,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -510,108 +519,9 @@
               "presence": "both"
             },
             {
-              "label": "session context",
+              "label": "other reminders",
               "unit": "tokens",
-              "a": 16,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "MCP server instructions",
-              "unit": "tokens",
-              "a": 14,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "agent list",
-              "unit": "tokens",
-              "a": 13,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "deferred tools list",
-              "unit": "tokens",
-              "a": 13,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "date",
-              "unit": "tokens",
-              "a": 4,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
-              "unit": "tokens",
-              "a": 4,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
-              "unit": "tokens",
-              "a": 4,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
-              "unit": "tokens",
-              "a": 4,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "model",
-              "unit": "tokens",
-              "a": 4,
-              "b": null,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "skills list",
-              "unit": "tokens",
-              "a": 4,
+              "a": 344,
               "b": null,
               "a_partial": false,
               "b_partial": false,
@@ -982,7 +892,8 @@
         "system_prompt_tokens": null,
         "tool_definition_tokens": null,
         "instruction_tokens": null,
-        "other_context_tokens": 12502,
+        "other_context_tokens": 8,
+        "not_captured_tokens": 12494,
         "tool_count": null,
         "tool_groups": null,
         "instruction_parts": null,
@@ -1134,62 +1045,36 @@
         "final_message": "main.py only uses add; I will add multiply to calc.py next."
       },
       "b": {
-        "first_call_source": "transcript",
+        "first_call_source": "captured",
         "first_call_tokens": 70719,
-        "system_prompt_tokens": 14,
-        "tool_definition_tokens": null,
-        "instruction_tokens": 196,
-        "other_context_tokens": 70509,
-        "tool_count": null,
-        "tool_groups": null,
+        "system_prompt_tokens": 3437,
+        "tool_definition_tokens": 43857,
+        "instruction_tokens": 22990,
+        "other_context_tokens": 435,
+        "not_captured_tokens": 0,
+        "tool_count": 7,
+        "tool_groups": [
+          {
+            "name": "MCP: docs",
+            "value": 2
+          },
+          {
+            "name": "built-in",
+            "value": 5
+          }
+        ],
         "instruction_parts": [
           {
-            "name": "environment",
-            "value": 65
+            "name": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+            "value": 21666
           },
           {
-            "name": "hook output",
-            "value": 49
+            "name": "memory: C:\\work\\example\\memory\\MEMORY.md",
+            "value": 981
           },
           {
-            "name": "session context",
-            "value": 16
-          },
-          {
-            "name": "MCP server instructions",
-            "value": 14
-          },
-          {
-            "name": "agent list",
-            "value": 13
-          },
-          {
-            "name": "deferred tools list",
-            "value": 13
-          },
-          {
-            "name": "date",
-            "value": 4
-          },
-          {
-            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
-            "value": 4
-          },
-          {
-            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
-            "value": 4
-          },
-          {
-            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
-            "value": 4
-          },
-          {
-            "name": "model",
-            "value": 4
-          },
-          {
-            "name": "skills list",
-            "value": 4
+            "name": "other reminders",
+            "value": 344
           }
         ],
         "models": [
@@ -1386,7 +1271,7 @@
               "label": "System prompt",
               "unit": "tokens",
               "a": null,
-              "b": 14,
+              "b": 3437,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1397,7 +1282,7 @@
               "label": "Tool definitions",
               "unit": "tokens",
               "a": null,
-              "b": null,
+              "b": 43857,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1408,7 +1293,7 @@
               "label": "Instructions and reminders",
               "unit": "tokens",
               "a": null,
-              "b": 196,
+              "b": 22990,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1418,19 +1303,30 @@
             {
               "label": "Everything else",
               "unit": "tokens",
-              "a": 12502,
-              "b": 70509,
+              "a": 8,
+              "b": 435,
               "a_partial": false,
               "b_partial": false,
-              "difference": 58007,
+              "difference": 427,
               "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Not captured",
+              "unit": "tokens",
+              "a": 12494,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -12494,
+              "higher": "a",
               "presence": "both"
             },
             {
               "label": "Tools",
               "unit": "count",
               "a": null,
-              "b": null,
+              "b": 7,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1457,16 +1353,39 @@
         },
         {
           "title": "Tool groups",
-          "rows": []
+          "rows": [
+            {
+              "label": "MCP: docs",
+              "unit": "count",
+              "a": null,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "built-in",
+              "unit": "count",
+              "a": null,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
         },
         {
           "title": "Instructions",
           "rows": [
             {
-              "label": "environment",
+              "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
               "unit": "tokens",
               "a": null,
-              "b": 65,
+              "b": 21666,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1474,10 +1393,10 @@
               "presence": "both"
             },
             {
-              "label": "hook output",
+              "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
               "unit": "tokens",
               "a": null,
-              "b": 49,
+              "b": 981,
               "a_partial": false,
               "b_partial": false,
               "difference": null,
@@ -1485,109 +1404,10 @@
               "presence": "both"
             },
             {
-              "label": "session context",
+              "label": "other reminders",
               "unit": "tokens",
               "a": null,
-              "b": 16,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "MCP server instructions",
-              "unit": "tokens",
-              "a": null,
-              "b": 14,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "agent list",
-              "unit": "tokens",
-              "a": null,
-              "b": 13,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "deferred tools list",
-              "unit": "tokens",
-              "a": null,
-              "b": 13,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "date",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "model",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
-              "a_partial": false,
-              "b_partial": false,
-              "difference": null,
-              "higher": "unknown",
-              "presence": "both"
-            },
-            {
-              "label": "skills list",
-              "unit": "tokens",
-              "a": null,
-              "b": 4,
+              "b": 344,
               "a_partial": false,
               "b_partial": false,
               "difference": null,

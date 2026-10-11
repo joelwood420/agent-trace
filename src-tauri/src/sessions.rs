@@ -817,16 +817,24 @@ mod tests {
     /// `ui/src/mock/compare-data.json` holds the whole-session comparison of
     /// the two fixture sessions in both orders, keyed by
     /// `<project>/<session id>|<project>/<session id>`, for the dev mock mode.
+    /// The basic session has the invented captures, as in the context mock,
+    /// so one side's setup is captured; the compaction session has none.
     #[test]
     fn ui_compare_data_matches_the_backend() {
         let root = fixture_root();
         let side = |project: &str, session_id: &str| {
             let loaded = load_trace(&root, project, session_id).expect("trace");
-            crate::compare::side_summary(
-                &loaded.trace,
-                None,
-                &crate::captures::SessionRecords::default(),
-            )
+            let records = if project == "basic" {
+                let mut captures = crate::captures::SessionRecords::new(
+                    crate::captures::fixture_records(),
+                    Vec::new(),
+                );
+                captures.summarise_missing();
+                captures
+            } else {
+                crate::captures::SessionRecords::default()
+            };
+            crate::compare::side_summary(&loaded.trace, None, &records)
         };
         let [first, second] = FIXTURE_SESSIONS;
         let mut all = serde_json::Map::new();

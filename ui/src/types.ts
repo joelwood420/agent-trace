@@ -450,6 +450,7 @@ export interface RunSummary {
   tool_definition_tokens: number | null
   instruction_tokens: number | null
   other_context_tokens: number | null
+  not_captured_tokens: number | null
   tool_count: number | null
   tool_groups: Named[] | null
   instruction_parts: Named[] | null

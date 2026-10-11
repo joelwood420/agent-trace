@@ -223,7 +223,8 @@ export default function CompareView({ api, left, right, refreshKey, now, onBack 
 
 function sourceNote(source: ContextSource | null): string {
   if (source === 'captured') return 'Setup from a captured API call'
-  if (source === 'transcript') return 'Setup estimated from the transcript'
+  if (source === 'transcript')
+    return 'Setup estimated from the transcript. A transcript does not record the system prompt or tool definitions; capture the session to see them.'
   return 'No model call to read the setup from'
 }
 
