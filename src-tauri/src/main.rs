@@ -10,6 +10,7 @@
 
 mod capture_sink;
 mod captures;
+mod compare;
 mod context;
 mod flags;
 mod live;
@@ -260,6 +261,43 @@ async fn session_flags(
     Ok(view)
 }
 
+/// Two runs side by side: each a whole session or one of its prompts, with
+/// setup, work, tokens, problems and the final message. Works when capture
+/// is off.
+#[tauri::command(rename_all = "snake_case")]
+async fn compare_runs(
+    paths: tauri::State<'_, AppPaths>,
+    shared: tauri::State<'_, Arc<Shared>>,
+    captures: tauri::State<'_, Captures>,
+    a: compare::RunRef,
+    b: compare::RunRef,
+) -> Result<compare::CompareView, String> {
+    let root = paths.root().map_err(|e| e.to_string())?;
+    let store = captures.store.clone();
+    let cache = Arc::clone(&captures.cache);
+    let shared = Arc::clone(&shared);
+    let started = std::time::Instant::now();
+    let view = run_blocking(move || {
+        let side = |run: &compare::RunRef, name: &'static str| {
+            capture_sink::compare_side(&root, store.as_deref(), &cache, &shared, run).map_err(|e| {
+                SessionError::InRun {
+                    side: name,
+                    source: Box::new(e),
+                }
+            })
+        };
+        let a = side(&a, "A")?;
+        let b = side(&b, "B")?;
+        Ok(compare::compare_view(a, b))
+    })
+    .await?;
+    tracing::info!(
+        ms = started.elapsed().as_millis() as u64,
+        "compared two runs"
+    );
+    Ok(view)
+}
+
 /// What fills the context of one model call in full, with advice, or `null`
 /// if the session has no such model call or the call has no data yet.
 #[tauri::command(rename_all = "snake_case")]
@@ -447,6 +485,7 @@ fn main() -> anyhow::Result<()> {
             session_captures,
             session_context,
             session_flags,
+            compare_runs,
             call_context,
             capture_detail,
             delete_captures

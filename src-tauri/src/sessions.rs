@@ -60,6 +60,14 @@ pub enum SessionError {
     /// A trace node id was empty or too long to be one.
     #[error("invalid trace id")]
     InvalidTraceId,
+    /// Loading one side of a comparison failed.
+    #[error("Run {side}: {source}")]
+    InRun {
+        /// "A" or "B".
+        side: &'static str,
+        /// What went wrong.
+        source: Box<SessionError>,
+    },
 }
 
 /// One session transcript found under the projects folder.
@@ -802,6 +810,35 @@ mod tests {
         }
         check_snapshot(
             &mock_file("flags-data.json"),
+            &serde_json::Value::Object(all),
+        );
+    }
+
+    /// `ui/src/mock/compare-data.json` holds the whole-session comparison of
+    /// the two fixture sessions in both orders, keyed by
+    /// `<project>/<session id>|<project>/<session id>`, for the dev mock mode.
+    #[test]
+    fn ui_compare_data_matches_the_backend() {
+        let root = fixture_root();
+        let side = |project: &str, session_id: &str| {
+            let loaded = load_trace(&root, project, session_id).expect("trace");
+            crate::compare::side_summary(
+                &loaded.trace,
+                None,
+                &crate::captures::SessionRecords::default(),
+            )
+        };
+        let [first, second] = FIXTURE_SESSIONS;
+        let mut all = serde_json::Map::new();
+        for (a, b) in [(first, second), (second, first)] {
+            let view = crate::compare::compare_view(side(a.0, a.1), side(b.0, b.1));
+            all.insert(
+                format!("{}/{}|{}/{}", a.0, a.1, b.0, b.1),
+                serde_json::to_value(view).expect("serialise"),
+            );
+        }
+        check_snapshot(
+            &mock_file("compare-data.json"),
             &serde_json::Value::Object(all),
         );
     }

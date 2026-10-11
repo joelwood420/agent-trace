@@ -27,6 +27,7 @@ use serde::Serialize;
 use trace_core::Trace;
 
 use crate::captures::{self, CaptureDetail, CaptureOverview, SessionRecords, TraceFacts};
+use crate::compare::{self, RunRef, SideSummary};
 use crate::context::{self, ContextFacts, SessionContext};
 use crate::flags::{self, SessionFlags};
 use crate::live::LiveSession;
@@ -388,6 +389,25 @@ pub fn session_flags_view(
     copy_from_trace(root, shared, project, session_id, flags::session_flags)
 }
 
+/// One side of a comparison, from the open session when it is that one.
+/// Errors are not labelled with the side; the command does that.
+pub fn compare_side(
+    root: &Path,
+    store: Option<&CaptureStore>,
+    cache: &RecordCache,
+    shared: &Shared,
+    run: &RunRef,
+) -> Result<SideSummary, SessionError> {
+    session_path(root, &run.project, &run.session_id)?;
+    if let Some(id) = &run.prompt_trace_id {
+        check_trace_id(id)?;
+    }
+    let records = measured_records(store, cache, &run.session_id)?;
+    copy_from_trace(root, shared, &run.project, &run.session_id, |trace| {
+        compare::side_summary(trace, run.prompt_trace_id.as_deref(), &records)
+    })
+}
+
 /// What fills the context of one model call in full, or `None` if
 /// `trace_id` is not a model call of the session or the call has no data.
 pub fn call_context_view(
@@ -529,6 +549,24 @@ mod tests {
             Arc::clone(&state),
         );
         (sink, state)
+    }
+
+    #[test]
+    fn compare_side_reports_a_missing_session() {
+        let (root, _store) = setup("compare-missing");
+        let run = RunRef {
+            project: "basic".to_string(),
+            session_id: OTHER.to_string(),
+            prompt_trace_id: None,
+        };
+        let result = compare_side(
+            &root,
+            None,
+            &RecordCache::default(),
+            &Shared::default(),
+            &run,
+        );
+        assert!(matches!(result, Err(SessionError::NotFound)));
     }
 
     /// The first fixture capture that maps to a model call, and that call's id.

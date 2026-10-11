@@ -1,1 +1,1952 @@
-{}
+{
+  "basic/00000000-0000-4000-8000-000000000002|compaction/00000000-0000-4000-8000-000000000003": {
+    "comparison": {
+      "a": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 14,
+        "tool_definition_tokens": null,
+        "instruction_tokens": 196,
+        "other_context_tokens": 70509,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": [
+          {
+            "name": "environment",
+            "value": 65
+          },
+          {
+            "name": "hook output",
+            "value": 49
+          },
+          {
+            "name": "session context",
+            "value": 16
+          },
+          {
+            "name": "MCP server instructions",
+            "value": 14
+          },
+          {
+            "name": "agent list",
+            "value": 13
+          },
+          {
+            "name": "deferred tools list",
+            "value": 13
+          },
+          {
+            "name": "date",
+            "value": 4
+          },
+          {
+            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
+            "value": 4
+          },
+          {
+            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
+            "value": 4
+          },
+          {
+            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
+            "value": 4
+          },
+          {
+            "name": "model",
+            "value": 4
+          },
+          {
+            "name": "skills list",
+            "value": 4
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_example000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_example000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_example000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_example000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "b": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 12502,
+        "system_prompt_tokens": null,
+        "tool_definition_tokens": null,
+        "instruction_tokens": null,
+        "other_context_tokens": 12502,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": null,
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 13
+          }
+        ],
+        "prompts": 4,
+        "model_calls": 13,
+        "tool_calls": 12,
+        "subagents": 0,
+        "tools_by_name": [
+          {
+            "name": "Read",
+            "value": 6
+          },
+          {
+            "name": "Bash",
+            "value": 5
+          },
+          {
+            "name": "WebFetch",
+            "value": 1
+          }
+        ],
+        "wall_ms": 39000,
+        "model_ms": {
+          "value": 14000,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 14000,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 26,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 550,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 276700,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 6500,
+          "partial": false
+        },
+        "largest_context": 120502,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000301",
+            "tokens": 12502
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000302",
+            "tokens": 12802
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000303",
+            "tokens": 13102
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000304",
+            "tokens": 13502
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000305",
+            "tokens": 14502
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000306",
+            "tokens": 14702
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000307",
+            "tokens": 15502
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000308",
+            "tokens": 15602
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000309",
+            "tokens": 15702
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000310",
+            "tokens": 16502
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000311",
+            "tokens": 120502
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000312",
+            "tokens": 9002
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000313",
+            "tokens": 9302
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 1
+          },
+          {
+            "kind": "failed_retry",
+            "count": 1
+          },
+          {
+            "kind": "loop",
+            "count": 1
+          },
+          {
+            "kind": "large_result",
+            "count": 1
+          },
+          {
+            "kind": "compaction",
+            "count": 1
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 1
+          }
+        ],
+        "failed_tool_calls": 2,
+        "compactions": 1,
+        "final_message": "main.py only uses add; I will add multiply to calc.py next."
+      },
+      "sections": [
+        {
+          "title": "Setup",
+          "rows": [
+            {
+              "label": "First call context",
+              "unit": "tokens",
+              "a": 70719,
+              "b": 12502,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -58217,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "System prompt",
+              "unit": "tokens",
+              "a": 14,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Tool definitions",
+              "unit": "tokens",
+              "a": null,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Instructions and reminders",
+              "unit": "tokens",
+              "a": 196,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Everything else",
+              "unit": "tokens",
+              "a": 70509,
+              "b": 12502,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -58007,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Tools",
+              "unit": "count",
+              "a": null,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Models",
+          "rows": [
+            {
+              "label": "claude-opus-5-5",
+              "unit": "count",
+              "a": 19,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -6,
+              "higher": "a",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tool groups",
+          "rows": []
+        },
+        {
+          "title": "Instructions",
+          "rows": [
+            {
+              "label": "environment",
+              "unit": "tokens",
+              "a": 65,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "hook output",
+              "unit": "tokens",
+              "a": 49,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "session context",
+              "unit": "tokens",
+              "a": 16,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "MCP server instructions",
+              "unit": "tokens",
+              "a": 14,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "agent list",
+              "unit": "tokens",
+              "a": 13,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "deferred tools list",
+              "unit": "tokens",
+              "a": 13,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "date",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "model",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "skills list",
+              "unit": "tokens",
+              "a": 4,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Work",
+          "rows": [
+            {
+              "label": "Prompts",
+              "unit": "count",
+              "a": 5,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Model calls",
+              "unit": "count",
+              "a": 19,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -6,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Tool calls",
+              "unit": "count",
+              "a": 14,
+              "b": 12,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -2,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Subagents",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Wall-clock time",
+              "unit": "ms",
+              "a": 567224,
+              "b": 39000,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -528224,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Time in model calls",
+              "unit": "ms",
+              "a": 78238,
+              "b": 14000,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -64238,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Time in tools",
+              "unit": "ms",
+              "a": 113388,
+              "b": 14000,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -99388,
+              "higher": "a",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tools used",
+          "rows": [
+            {
+              "label": "PowerShell",
+              "unit": "count",
+              "a": 2,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -2,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "Grep",
+              "unit": "count",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "Read",
+              "unit": "count",
+              "a": 1,
+              "b": 6,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 5,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Bash",
+              "unit": "count",
+              "a": 6,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Skill",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "WebFetch",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "only_b"
+            }
+          ]
+        },
+        {
+          "title": "Tokens",
+          "rows": [
+            {
+              "label": "Input (not cached)",
+              "unit": "tokens",
+              "a": 40,
+              "b": 26,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -14,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Output",
+              "unit": "tokens",
+              "a": 6676,
+              "b": 550,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -6126,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Cache read",
+              "unit": "tokens",
+              "a": 1285833,
+              "b": 276700,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1009133,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Cache write",
+              "unit": "tokens",
+              "a": 149126,
+              "b": 6500,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -142626,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Largest context",
+              "unit": "tokens",
+              "a": 85078,
+              "b": 120502,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 35424,
+              "higher": "b",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Problems",
+          "rows": [
+            {
+              "label": "Repeated reads",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Failed retries",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Loops",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Large results",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Re-reads after compaction",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Failed tool calls",
+              "unit": "count",
+              "a": 1,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Compactions",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            }
+          ]
+        }
+      ]
+    },
+    "a": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    },
+    "b": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000001",
+          "index": 0,
+          "preview": "Tidy up the calculator module."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000026",
+          "index": 1,
+          "preview": "/compact"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000032",
+          "index": 2,
+          "preview": "This session is being continued from an earlier conversation. Summary: the us..."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000040",
+          "index": 3,
+          "preview": "Now add a multiply function."
+        }
+      ],
+      "scope_missing": false
+    }
+  },
+  "compaction/00000000-0000-4000-8000-000000000003|basic/00000000-0000-4000-8000-000000000002": {
+    "comparison": {
+      "a": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 12502,
+        "system_prompt_tokens": null,
+        "tool_definition_tokens": null,
+        "instruction_tokens": null,
+        "other_context_tokens": 12502,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": null,
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 13
+          }
+        ],
+        "prompts": 4,
+        "model_calls": 13,
+        "tool_calls": 12,
+        "subagents": 0,
+        "tools_by_name": [
+          {
+            "name": "Read",
+            "value": 6
+          },
+          {
+            "name": "Bash",
+            "value": 5
+          },
+          {
+            "name": "WebFetch",
+            "value": 1
+          }
+        ],
+        "wall_ms": 39000,
+        "model_ms": {
+          "value": 14000,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 14000,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 26,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 550,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 276700,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 6500,
+          "partial": false
+        },
+        "largest_context": 120502,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000301",
+            "tokens": 12502
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000302",
+            "tokens": 12802
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000303",
+            "tokens": 13102
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000304",
+            "tokens": 13502
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000305",
+            "tokens": 14502
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000306",
+            "tokens": 14702
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000307",
+            "tokens": 15502
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000308",
+            "tokens": 15602
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000309",
+            "tokens": 15702
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000310",
+            "tokens": 16502
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000311",
+            "tokens": 120502
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000312",
+            "tokens": 9002
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000313",
+            "tokens": 9302
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 1
+          },
+          {
+            "kind": "failed_retry",
+            "count": 1
+          },
+          {
+            "kind": "loop",
+            "count": 1
+          },
+          {
+            "kind": "large_result",
+            "count": 1
+          },
+          {
+            "kind": "compaction",
+            "count": 1
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 1
+          }
+        ],
+        "failed_tool_calls": 2,
+        "compactions": 1,
+        "final_message": "main.py only uses add; I will add multiply to calc.py next."
+      },
+      "b": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 14,
+        "tool_definition_tokens": null,
+        "instruction_tokens": 196,
+        "other_context_tokens": 70509,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": [
+          {
+            "name": "environment",
+            "value": 65
+          },
+          {
+            "name": "hook output",
+            "value": 49
+          },
+          {
+            "name": "session context",
+            "value": 16
+          },
+          {
+            "name": "MCP server instructions",
+            "value": 14
+          },
+          {
+            "name": "agent list",
+            "value": 13
+          },
+          {
+            "name": "deferred tools list",
+            "value": 13
+          },
+          {
+            "name": "date",
+            "value": 4
+          },
+          {
+            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
+            "value": 4
+          },
+          {
+            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
+            "value": 4
+          },
+          {
+            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
+            "value": 4
+          },
+          {
+            "name": "model",
+            "value": 4
+          },
+          {
+            "name": "skills list",
+            "value": 4
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_example000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_example000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_example000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_example000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "sections": [
+        {
+          "title": "Setup",
+          "rows": [
+            {
+              "label": "First call context",
+              "unit": "tokens",
+              "a": 12502,
+              "b": 70719,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 58217,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "System prompt",
+              "unit": "tokens",
+              "a": null,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Tool definitions",
+              "unit": "tokens",
+              "a": null,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Instructions and reminders",
+              "unit": "tokens",
+              "a": null,
+              "b": 196,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Everything else",
+              "unit": "tokens",
+              "a": 12502,
+              "b": 70509,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 58007,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Tools",
+              "unit": "count",
+              "a": null,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Models",
+          "rows": [
+            {
+              "label": "claude-opus-5-5",
+              "unit": "count",
+              "a": 13,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 6,
+              "higher": "b",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tool groups",
+          "rows": []
+        },
+        {
+          "title": "Instructions",
+          "rows": [
+            {
+              "label": "environment",
+              "unit": "tokens",
+              "a": null,
+              "b": 65,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "hook output",
+              "unit": "tokens",
+              "a": null,
+              "b": 49,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "session context",
+              "unit": "tokens",
+              "a": null,
+              "b": 16,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "MCP server instructions",
+              "unit": "tokens",
+              "a": null,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "agent list",
+              "unit": "tokens",
+              "a": null,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "deferred tools list",
+              "unit": "tokens",
+              "a": null,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "date",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "model",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "skills list",
+              "unit": "tokens",
+              "a": null,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Work",
+          "rows": [
+            {
+              "label": "Prompts",
+              "unit": "count",
+              "a": 4,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Model calls",
+              "unit": "count",
+              "a": 13,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 6,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Tool calls",
+              "unit": "count",
+              "a": 12,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 2,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Subagents",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Wall-clock time",
+              "unit": "ms",
+              "a": 39000,
+              "b": 567224,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 528224,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Time in model calls",
+              "unit": "ms",
+              "a": 14000,
+              "b": 78238,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 64238,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Time in tools",
+              "unit": "ms",
+              "a": 14000,
+              "b": 113388,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 99388,
+              "higher": "b",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tools used",
+          "rows": [
+            {
+              "label": "Read",
+              "unit": "count",
+              "a": 6,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -5,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Bash",
+              "unit": "count",
+              "a": 5,
+              "b": 6,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "WebFetch",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "PowerShell",
+              "unit": "count",
+              "a": 0,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 2,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "Grep",
+              "unit": "count",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "Skill",
+              "unit": "count",
+              "a": 0,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1,
+              "higher": "b",
+              "presence": "only_b"
+            }
+          ]
+        },
+        {
+          "title": "Tokens",
+          "rows": [
+            {
+              "label": "Input (not cached)",
+              "unit": "tokens",
+              "a": 26,
+              "b": 40,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 14,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Output",
+              "unit": "tokens",
+              "a": 550,
+              "b": 6676,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 6126,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Cache read",
+              "unit": "tokens",
+              "a": 276700,
+              "b": 1285833,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 1009133,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Cache write",
+              "unit": "tokens",
+              "a": 6500,
+              "b": 149126,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 142626,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Largest context",
+              "unit": "tokens",
+              "a": 120502,
+              "b": 85078,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -35424,
+              "higher": "a",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Problems",
+          "rows": [
+            {
+              "label": "Repeated reads",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Failed retries",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Loops",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Large results",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Re-reads after compaction",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Failed tool calls",
+              "unit": "count",
+              "a": 2,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Compactions",
+              "unit": "count",
+              "a": 1,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -1,
+              "higher": "a",
+              "presence": "both"
+            }
+          ]
+        }
+      ]
+    },
+    "a": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000001",
+          "index": 0,
+          "preview": "Tidy up the calculator module."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000026",
+          "index": 1,
+          "preview": "/compact"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000032",
+          "index": 2,
+          "preview": "This session is being continued from an earlier conversation. Summary: the us..."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-100000000040",
+          "index": 3,
+          "preview": "Now add a multiply function."
+        }
+      ],
+      "scope_missing": false
+    },
+    "b": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    }
+  }
+}
