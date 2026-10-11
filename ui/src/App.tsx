@@ -500,7 +500,7 @@ export default function App() {
             captureStatus={captureStatus}
             onOpen={startCompare}
             onRetry={refreshSessions}
-            pick={{ disabledKey: `${session.project}/${session.session_id}`, onCancel: () => setPicking(false) }}
+            pick={{ openKey: `${session.project}/${session.session_id}`, onCancel: () => setPicking(false) }}
           />
         ) : (
           <SessionPanel

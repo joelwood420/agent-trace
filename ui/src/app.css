@@ -1211,15 +1211,6 @@ button:focus-visible,
   gap: 4px;
 }
 
-.item-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.item-disabled:hover {
-  background: none;
-}
-
 .compare {
   flex: 1;
   display: flex;

@@ -377,3 +377,4 @@ Waste flags need to say what a compaction dropped, and they must work for any ha
 - Setup slices (system prompt, tools, instructions) not seen in the first call are unknown, not 0. A transcript-only session often lacks them, and 0 would claim a fact we do not have.
 - `compare_runs` fails as a whole when one side cannot load. The error names the side. One round trip keeps the UI simple.
 - "Largest context" counts the main run only, to match the chart.
+- The picker does not block the open session. Picking it compares two of its prompts, chosen in each side's scope drop-down.

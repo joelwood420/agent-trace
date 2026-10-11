@@ -35,9 +35,10 @@ interface SessionListProps {
   onRetry: () => void
   /**
    * Pick mode: choosing the other run of a comparison. The session whose
-   * `project/session_id` is `disabledKey` (the open one) cannot be picked.
+   * `project/session_id` is `openKey` (the open one) is marked; picking it
+   * compares two of its prompts.
    */
-  pick?: { disabledKey: string; onCancel: () => void }
+  pick?: { openKey: string; onCancel: () => void }
 }
 
 export function SessionList({ sessions, now, captureStatus, onOpen, onRetry, pick }: SessionListProps) {
@@ -102,14 +103,13 @@ export function SessionList({ sessions, now, captureStatus, onOpen, onRetry, pic
                 </h3>
                 <ul className="item-list">
                   {group.sessions.map((s) => {
-                    const disabled = pick !== undefined && `${s.project}/${s.session_id}` === pick.disabledKey
+                    const isOpen = pick !== undefined && `${s.project}/${s.session_id}` === pick.openKey
                     return (
                       <li key={s.session_id}>
                         <button
                           type="button"
-                          className={`item${disabled ? ' item-disabled' : ''}`}
-                          disabled={disabled}
-                          title={disabled ? 'This is the open session' : undefined}
+                          className="item"
+                          title={isOpen ? 'The open session: pick it to compare two of its prompts' : undefined}
                           onClick={() => onOpen(s)}
                         >
                           <span className="item-title" title={s.title ?? s.session_id}>
@@ -118,6 +118,7 @@ export function SessionList({ sessions, now, captureStatus, onOpen, onRetry, pic
                           </span>
                           <span className="item-meta">
                             {formatRelative(s.modified_ms, now)} - {formatBytes(s.size_bytes)}
+                            {isOpen && ' (open session)'}
                           </span>
                         </button>
                       </li>
