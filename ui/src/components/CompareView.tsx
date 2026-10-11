@@ -385,7 +385,8 @@ function ContextChart({ a, b }: { a: RunSummary; b: RunSummary }) {
           <span className="chart-key chart-key-b" aria-hidden="true" /> B
         </span>
         <span>
-          Context per model call of the main agent (largest: {formatValue(lines.maxTokens, 'tokens')})
+          Context per model call of the main agent. Largest: A {formatValue(a.largest_context, 'tokens')}, B{' '}
+          {formatValue(b.largest_context, 'tokens')}.
         </span>
       </figcaption>
     </figure>
