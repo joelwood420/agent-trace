@@ -265,41 +265,42 @@ Request: `a` and `b`, each a `RunRef`.
 | `a_partial`, `b_partial` | bool | True when that value counts only some calls. |
 | `difference` | number or null | `b - a`, when both are known. |
 | `higher` | string | `a`, `b`, `equal` or `unknown` (at least one side unknown). |
-| `presence` | string | For named rows (tools, models, tool groups, instruction parts): `both`, `only_a` or `only_b`. |
+| `presence` | string | For named rows (tools, models, tool groups, instruction parts): `both`, `only_a` or `only_b`. Always `both` for every other row. |
 
 `RunSummary` (one run reduced to its numbers):
 
 | Field | Type | Meaning |
 |---|---|---|
-| `first_call_source` | string, optional | Where the first call's context split came from (captured or transcript). |
-| `first_call_tokens` | number, optional | The first main-run call's input context. |
-| `system_prompt_tokens`, `tool_definition_tokens`, `instruction_tokens` | number, optional | The setup slices of the first call. `None` means the slice was not seen, which is not the same as 0. |
-| `other_context_tokens` | number, optional | The rest of the first call's context that was seen: files read, tool results and conversation. 0 when the first call has a breakdown but none of these; `None` without a breakdown. |
-| `not_captured_tokens` | number, optional | First-call context that could not be seen (the breakdown's "Not captured" slice). 0 when the breakdown has no such slice; `None` without a breakdown. |
-| `tool_count` | number, optional | Tools defined in the first call. |
-| `tool_groups`, `instruction_parts` | list of `Named`, optional | Tools per group and instruction parts with tokens, for the first call. |
+| `first_call_source` | string or null | Where the first call's context split came from (captured or transcript). |
+| `first_call_tokens` | number or null | The first main-run call's input context. |
+| `system_prompt_tokens`, `tool_definition_tokens`, `instruction_tokens` | number or null | The setup slices of the first call. `null` means the slice was not seen, which is not the same as 0. |
+| `other_context_tokens` | number or null | The rest of the first call's context that was seen: files read, tool results and conversation. 0 when the first call has a breakdown but none of these; `null` without a breakdown. |
+| `not_captured_tokens` | number or null | First-call context that could not be seen (the breakdown's "Not captured" slice). 0 when the breakdown has no such slice; `null` without a breakdown. The Setup section shows it as its own "Not captured" row, apart from "Everything else". |
+| `tool_count` | number or null | Tools defined in the first call. |
+| `tool_groups`, `instruction_parts` | list of `Named`, or null | Tools per group and instruction parts with tokens, for the first call. |
 | `models` | list of `Named` | Model calls per model name. |
 | `prompts`, `model_calls`, `tool_calls`, `subagents` | number | Counts. Model and tool calls include subagent runs. |
 | `tools_by_name` | list of `Named` | Tool calls per tool name. |
-| `wall_ms` | number, optional | From the first start to the last end in scope. |
+| `wall_ms` | number or null | From the first start to the last end in scope. For a whole session that includes idle time between prompts. |
 | `model_ms`, `tool_ms` | `Total` | Summed durations. |
 | `input_tokens`, `output_tokens`, `cache_read_tokens`, `cache_write_tokens` | `Total` | Summed over every model call. |
-| `largest_context` | number, optional | The largest reported context of one main-run call. |
+| `largest_context` | number or null | The largest reported context of one main-run call. |
 | `context_per_call` | list of `CallPoint` | The main run's calls in order (`index`, `trace_id`, `tokens`), for the chart. |
 | `flags_by_kind` | list of `KindCount` | A count for every flag kind, in a fixed order. |
 | `failed_tool_calls`, `compactions` | number | Counts. |
-| `final_message` | string, optional | The text of the last main-run model call that wrote text. |
+| `final_message` | string or null | The text of the last main-run model call that wrote text. |
 
-`Total` is `value` (null if no call had the number) and `partial` (true when some calls had it and some did not). `Named` is `name` and `value`.
+`Total` is `value` (null if no call had the number) and `partial` (true when some calls had it and some did not). `Named` is `name` and `value`. `KindCount` is `kind` (a flag kind, as in the flags section) and `count` (flags of that kind whose first node is in scope).
 
 Words used above:
 
+- Wall-clock time: from the first event to the last in scope. For a whole session it includes idle time between prompts.
 - Main run: the top-level agent. Per-call setup, the context chart and "Largest context" use the main run only.
 - Subagent: a run nested in a tool call. Counts and totals include subagents.
 - Partial: some calls had no number, so the value is a lower bound. The UI marks it.
-- Unknown: nothing was seen. Unknown is shown as a dash, never as 0, and a row with an unknown side has `higher` set to `unknown`.
+- Unknown: nothing was seen. The UI shows unknown as `?`, never as 0, and a row with an unknown side has `higher` set to `unknown`.
 
-Named rows show 0 for a name that one side lacks and carry `only_a` or `only_b` in `presence`, so the UI can tag them "only in".
+Named rows show 0 for a name that one side lacks and carry `only_a` or `only_b` in `presence`, so the UI can tag them "only in". When one side's whole list is unknown (for example tool groups of a transcript-only side), that side's value is `null`, not 0, and `presence` stays `both`.
 
 A prompt that is not found (for example the session changed) falls back to the whole session and sets `scope_missing` on that side.
 

@@ -378,3 +378,5 @@ Waste flags need to say what a compaction dropped, and they must work for any ha
 - `compare_runs` fails as a whole when one side cannot load. The error names the side. One round trip keeps the UI simple.
 - "Largest context" counts the main run only, to match the chart.
 - The picker does not block the open session. Picking it compares two of its prompts, chosen in each side's scope drop-down.
+- Clicking in the sidebar while comparing (a prompt, a box, a hidden context row or a capture) closes the comparison and shows that item. Back to diagram keeps the selection the diagram had.
+- The setup separates "Not captured" from "Everything else". "Everything else" is the context that was seen outside the setup slices (files read, tool results, conversation); "Not captured" is what could not be seen, so a transcript-only side does not pass off unseen context as conversation.
