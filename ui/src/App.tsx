@@ -422,11 +422,9 @@ export default function App() {
   /** Shows the comparison of the open session with `other`. */
   const startCompare = (other: SessionSummary) => {
     setPicking(false)
+    // The selection stays, hidden while comparing, so Back to diagram
+    // returns to it.
     setCompareWith(other)
-    setSelected(null)
-    setSelectedCapture(null)
-    setSelectedHidden(null)
-    setFocusId(null)
   }
 
   // The other run as the latest session list has it, for its modified time.
