@@ -3,7 +3,16 @@
 // chart coordinates.
 
 import { formatDuration, formatTokens } from './format.ts'
-import type { CallPoint, CompareRow, CompareSection, CompareUnit, PromptChoice, RunRef } from './types.ts'
+import type {
+  AlignRow,
+  Alignment,
+  CallPoint,
+  CompareRow,
+  CompareSection,
+  CompareUnit,
+  PromptChoice,
+  RunRef,
+} from './types.ts'
 
 /** The request for one side: the whole session when `scope` is empty. */
 export function runRef(session: { project: string; session_id: string }, scope: string): RunRef {
@@ -63,6 +72,39 @@ export function visibleSections(sections: CompareSection[]): CompareSection[] {
 /** True when any row of the section has a value that counts only some calls. */
 export function hasPartial(section: CompareSection): boolean {
   return section.rows.some((r) => r.a_partial || r.b_partial)
+}
+
+/** How many rows of a prompt pair show before "Show all". */
+export const STEP_ROW_LIMIT = 50
+
+/** The rows of a pair on screen: the first `limit` unless all are shown. */
+export function visibleRows(rows: AlignRow[], showAll: boolean, limit = STEP_ROW_LIMIT): AlignRow[] {
+  return showAll || rows.length <= limit ? rows : rows.slice(0, limit)
+}
+
+/** The tags shown in a step row. */
+export function stepTags(row: AlignRow): string[] {
+  const tags: string[] = []
+  if (row.kind === 'only_a') tags.push('only in A')
+  if (row.kind === 'only_b') tags.push('only in B')
+  if (row.differs) tags.push('outcome differs')
+  return tags
+}
+
+/** The header of the Steps section. */
+export function diffLabel(alignment: Alignment): string {
+  if (alignment.pairs.length === 0) return 'No steps to line up.'
+  const point = alignment.first_difference
+  if (point === null) return 'The runs took the same steps.'
+  const pair = alignment.pairs[point.pair]
+  const side = pair?.a ?? pair?.b ?? null
+  const prompt = side === null ? point.pair + 1 : side.index + 1
+  return `First difference: prompt ${prompt}, step ${point.row + 1}`
+}
+
+/** The session a step of side `side` belongs to, given the order on screen. */
+export function jumpSession<T>(side: 'a' | 'b', swapped: boolean, left: T, right: T): T {
+  return (side === 'a') !== swapped ? left : right
 }
 
 const round = (n: number) => Math.round(n * 10) / 10

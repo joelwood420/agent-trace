@@ -516,9 +516,63 @@ export interface CompareSide {
   scope_missing: boolean
 }
 
+/** One step of a run in the step lineup: a tool call or a notification. */
+export interface AlignStep {
+  /** The trace node to jump to in that run's diagram. */
+  trace_id: string
+  label: string
+  failed: boolean
+  running: boolean
+  duration_ms: number | null
+}
+
+/** One prompt of one run in the step lineup. */
+export interface PromptSide {
+  turn_id: string
+  /** From 0, as in the diagram. */
+  index: number
+  preview: string
+}
+
+export type RowKind = 'both' | 'only_a' | 'only_b'
+
+/** One row of a prompt pair: a step on both sides, or on one side only. */
+export interface AlignRow {
+  kind: RowKind
+  a: AlignStep | null
+  b: AlignStep | null
+  /** Both sides took the step but exactly one failed. */
+  differs: boolean
+}
+
+/** A prompt of run A lined up with a prompt of run B; either may be missing. */
+export interface PromptPair {
+  a: PromptSide | null
+  b: PromptSide | null
+  rows: AlignRow[]
+  /** The first row that is not the same clean step on both sides; 0 for a prompt only one run has. */
+  first_difference: number | null
+  /** Too long to line up exactly; the steps were matched in order. */
+  approximate: boolean
+}
+
+/** Where the two runs first differ: a pair and a row in it. */
+export interface DiffPoint {
+  pair: number
+  row: number
+}
+
+/** The two runs lined up step by step. */
+export interface Alignment {
+  pairs: PromptPair[]
+  first_difference: DiffPoint | null
+}
+
 /** The response of `compare_runs`. */
 export interface CompareView {
   comparison: Comparison
   a: CompareSide
   b: CompareSide
+  /** The two runs lined up step by step. */
+  alignment: Alignment
 }

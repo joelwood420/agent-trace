@@ -1418,9 +1418,133 @@ button:focus-visible,
   font-size: 12px;
 }
 
+/* The Steps section: the two runs lined up step by step. */
+.steps-header {
+  margin: 0 0 8px;
+}
+
+.steps-diff-link {
+  padding: 2px 0;
+  font: inherit;
+  font-weight: 600;
+}
+
+.steps-pair {
+  margin-bottom: 12px;
+}
+
+.steps-pair-title {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 4px;
+  padding: 2px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.steps-pair-side {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.steps-note {
+  margin: 0 0 4px;
+}
+
+.steps-table {
+  table-layout: fixed;
+}
+
+.steps-table thead th,
+.steps-table td {
+  text-align: left;
+  width: 50%;
+}
+
+.steps-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.steps-cell > * + * {
+  margin-left: 6px;
+}
+
+.steps-step {
+  padding: 0;
+  font: inherit;
+  text-align: left;
+}
+
+.steps-empty {
+  background: var(--panel-2);
+}
+
+.steps-error {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.steps-duration {
+  font-size: 12px;
+}
+
+.steps-table tr.steps-first-difference td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* The row the "First difference" link points at, for a moment. */
+.steps-flash {
+  animation: new-prompt 2s ease-out;
+}
+
+.steps-show-all {
+  margin-top: 4px;
+  padding: 2px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps-flash {
+    animation: none;
+    outline: 2px solid var(--running-bg);
+    outline-offset: -2px;
+  }
+}
+
 @media (max-width: 900px) {
   .compare-header,
   .compare-outcome {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .steps-pair-title {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  /* Each row stacks A above B. */
+  .steps-table thead {
+    display: none;
+  }
+
+  .steps-table tr {
+    display: block;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .steps-table td {
+    display: block;
+    width: auto;
+    border-bottom: none;
+  }
+
+  .steps-table td::before {
+    content: attr(data-side);
+    display: inline-block;
+    width: 1.5em;
+    color: var(--muted);
+    font-weight: 600;
   }
 }

@@ -1,5 +1,6 @@
 // The Compare view: two runs side by side, as sections of rows the backend
-// built, a chart of context per call and the two final messages. The UI only
+// built, a chart of context per call, the two runs lined up step by step and
+// the two final messages. The UI only
 // formats what `compare_runs` sends; it does no maths on trace data.
 
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
@@ -11,6 +12,7 @@ import {
   formatDifference,
   formatValue,
   hasPartial,
+  jumpSession,
   presenceTag,
   runRef,
   sameRequest,
@@ -29,6 +31,7 @@ import type {
   SessionSummary,
 } from '../types.ts'
 import type { Loadable } from './Sidebar.tsx'
+import StepsSection, { type Side } from './StepsSection.tsx'
 
 /** Live updates refetch the comparison at most this often, in milliseconds. */
 const COMPARE_RELOAD_MS = 5000
@@ -51,9 +54,11 @@ interface Props {
   /** When the session list was read, for relative times. */
   now: number
   onBack: () => void
+  /** A step was clicked: open `session`'s diagram at that trace node. */
+  onJump: (session: SessionSummary, traceId: string) => void
 }
 
-export default function CompareView({ api, left, right, refreshKey, now, onBack }: Props) {
+export default function CompareView({ api, left, right, refreshKey, now, onBack, onJump }: Props) {
   const [swapped, setSwapped] = useState(false)
   // Turn ids per session, '' for the whole session.
   const [scopes, setScopes] = useState<{ left: string; right: string }>({ left: '', right: '' })
@@ -216,7 +221,12 @@ export default function CompareView({ api, left, right, refreshKey, now, onBack 
             {SCOPE_MISSING}
           </div>
         )}
-        {result.status === 'ready' && current && <CompareBody view={result.value} />}
+        {result.status === 'ready' && current && (
+          <CompareBody
+            view={result.value}
+            onJump={(side, traceId) => onJump(jumpSession(side, swapped, left, right), traceId)}
+          />
+        )}
         {result.status === 'ready' && !current && <p className="muted loading">Comparing the two runs...</p>}
       </div>
     </div>
@@ -274,7 +284,7 @@ function RunHeader({ letter, session, now, scope, prompts, summary, onScope }: R
   )
 }
 
-function CompareBody({ view }: { view: CompareResult }) {
+function CompareBody({ view, onJump }: { view: CompareResult; onJump: (side: Side, traceId: string) => void }) {
   const sections = visibleSections(view.comparison.sections)
   const hasTokens = sections.some((s) => s.title === 'Tokens')
   const { a, b } = view.comparison
@@ -287,6 +297,8 @@ function CompareBody({ view }: { view: CompareResult }) {
         </Fragment>
       ))}
       {!hasTokens && <ContextChart a={a} b={b} />}
+      {/* Tolerates a backend that sends no lineup yet. */}
+      {view.alignment && <StepsSection alignment={view.alignment} onJump={onJump} />}
       <section className="compare-section" aria-label="Outcome">
         <h3>Outcome</h3>
         <div className="compare-outcome">

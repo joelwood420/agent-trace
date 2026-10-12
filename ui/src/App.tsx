@@ -86,6 +86,8 @@ export default function App() {
   const [picking, setPicking] = useState(false)
   // The other run of the comparison on screen, or null when the diagram shows.
   const [compareWith, setCompareWith] = useState<SessionSummary | null>(null)
+  // A step to select once its session, opened from the Compare view, has loaded.
+  const pendingJump = useRef<{ project: string; sessionId: string; traceId: string } | null>(null)
   // Ignores capture overview responses overtaken by a newer request.
   const captureToken = useRef(0)
   // When the overview was last requested, and a pending throttled reload.
@@ -293,6 +295,7 @@ export default function App() {
     const token = ++loadToken.current
     // Every load starts again at version 1, so forget the old view.
     viewRef.current = null
+    pendingJump.current = null
     setSession(s)
     setPicking(false)
     setCompareWith(null)
@@ -317,10 +320,17 @@ export default function App() {
       .then((value) => {
         if (token !== loadToken.current) return
         showView(value)
+        // A step jump from the Compare view runs once, on the first view.
+        const jump = pendingJump.current
+        pendingJump.current = null
+        if (jump && jump.project === s.project && jump.sessionId === s.session_id) {
+          selectTraceIn(viewRef.current ?? value, jump.traceId)
+        }
         loadCaptures(s, true)
       })
       .catch((err: unknown) => {
         if (token !== loadToken.current) return
+        pendingJump.current = null
         setView({ status: 'error', message: errorMessage(err) })
         loadCaptures(s, true)
       })
@@ -329,6 +339,7 @@ export default function App() {
   const closeSession = () => {
     loadToken.current++
     viewRef.current = null
+    pendingJump.current = null
     captureToken.current++
     cancelCaptureReload()
     setSession(null)
@@ -374,7 +385,12 @@ export default function App() {
    */
   const selectTrace = (traceId: string) => {
     if (view.status !== 'ready') return
-    for (const p of view.value.diagram.prompts) {
+    selectTraceIn(view.value, traceId)
+  }
+
+  /** `selectTrace` on a given view, for a view that is not in state yet. */
+  const selectTraceIn = (value: SessionView, traceId: string) => {
+    for (const p of value.diagram.prompts) {
       const path = revealPath(p.root, traceId)
       const last = path?.[path.length - 1]
       if (!path || !last) continue
@@ -392,13 +408,29 @@ export default function App() {
       return
     }
     // Events before the first prompt have no diagram; select them as the list does.
-    for (const m of view.value.diagram.markers) {
+    for (const m of value.diagram.markers) {
       const found = findByTraceId(m, traceId)
       if (found) {
         selectNode(found)
         return
       }
     }
+  }
+
+  /**
+   * A step clicked in the Compare view: leave the comparison and select that
+   * step's box in its session's diagram, opening that session first if it is
+   * not the open one.
+   */
+  const jumpToStep = (target: SessionSummary, traceId: string) => {
+    if (session && target.project === session.project && target.session_id === session.session_id) {
+      setCompareWith(null)
+      selectTrace(traceId)
+      return
+    }
+    openSession(target)
+    // Set after `openSession`, which clears any older pending jump.
+    pendingJump.current = { project: target.project, sessionId: target.session_id, traceId }
   }
 
   const selectCapture = (captureId: string) => {
@@ -538,6 +570,7 @@ export default function App() {
             refreshKey={compareRefreshKey}
             now={listedAt}
             onBack={() => setCompareWith(null)}
+            onJump={jumpToStep}
           />
         ) : prompt && session ? (
           <>
