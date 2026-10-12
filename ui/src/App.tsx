@@ -423,12 +423,20 @@ export default function App() {
    * not the open one.
    */
   const jumpToStep = (target: SessionSummary, traceId: string) => {
-    if (session && target.project === session.project && target.session_id === session.session_id) {
+    const open = session !== null && target.project === session.project && target.session_id === session.session_id
+    if (open && view.status === 'ready') {
       setCompareWith(null)
-      selectTrace(traceId)
+      selectTraceIn(view.value, traceId)
       return
     }
-    openSession(target)
+    if (open && view.status === 'loading') {
+      // The load in flight selects the step when it finishes.
+      setCompareWith(null)
+      pendingJump.current = { project: target.project, sessionId: target.session_id, traceId }
+      return
+    }
+    // Another session, or the open one failed to load: load it again.
+    openSession(target, open)
     // Set after `openSession`, which clears any older pending jump.
     pendingJump.current = { project: target.project, sessionId: target.session_id, traceId }
   }

@@ -1,7 +1,7 @@
 // The Compare view: two runs side by side, as sections of rows the backend
 // built, a chart of context per call, the two runs lined up step by step and
-// the two final messages. The UI only
-// formats what `compare_runs` sends; it does no maths on trace data.
+// the two final messages. The UI only formats what `compare_runs` sends; it
+// does no maths on trace data.
 
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
@@ -224,6 +224,7 @@ export default function CompareView({ api, left, right, refreshKey, now, onBack,
         {result.status === 'ready' && current && (
           <CompareBody
             view={result.value}
+            stepsKey={`${swapped}|${scopeA}|${scopeB}`}
             onJump={(side, traceId) => onJump(jumpSession(side, swapped, left, right), traceId)}
           />
         )}
@@ -284,7 +285,17 @@ function RunHeader({ letter, session, now, scope, prompts, summary, onScope }: R
   )
 }
 
-function CompareBody({ view, onJump }: { view: CompareResult; onJump: (side: Side, traceId: string) => void }) {
+interface BodyProps {
+  view: CompareResult
+  /**
+   * Changes with a swap or a scope change. The Steps section starts again
+   * then (no pair expanded), but keeps its state across live refreshes.
+   */
+  stepsKey: string
+  onJump: (side: Side, traceId: string) => void
+}
+
+function CompareBody({ view, stepsKey, onJump }: BodyProps) {
   const sections = visibleSections(view.comparison.sections)
   const hasTokens = sections.some((s) => s.title === 'Tokens')
   const { a, b } = view.comparison
@@ -298,7 +309,7 @@ function CompareBody({ view, onJump }: { view: CompareResult; onJump: (side: Sid
       ))}
       {!hasTokens && <ContextChart a={a} b={b} />}
       {/* Tolerates a backend that sends no lineup yet. */}
-      {view.alignment && <StepsSection alignment={view.alignment} onJump={onJump} />}
+      {view.alignment && <StepsSection key={stepsKey} alignment={view.alignment} onJump={onJump} />}
       <section className="compare-section" aria-label="Outcome">
         <h3>Outcome</h3>
         <div className="compare-outcome">

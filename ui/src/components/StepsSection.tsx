@@ -53,11 +53,17 @@ export default function StepsSection({ alignment, onJump }: Props) {
     return true
   }
 
-  // Runs after every render; scrolls once the pending target exists.
+  // A new lineup drops a scroll asked for on the old one.
+  useEffect(() => {
+    pendingScroll.current = null
+  }, [alignment])
+
+  // Runs after every render; tries the pending scroll once, found or not.
   useEffect(() => {
     const id = pendingScroll.current
     if (id === null) return
-    if (scrollTo(id)) pendingScroll.current = null
+    pendingScroll.current = null
+    scrollTo(id)
   })
 
   const showAll = (pair: number) => setExpanded((prev) => new Set(prev).add(pair))
@@ -112,9 +118,11 @@ export default function StepsSection({ alignment, onJump }: Props) {
   )
 }
 
-/** One side's half of a pair heading; a side without the prompt says which run has it. */
+const NO_PROMPT = 'No matching prompt'
+
+/** One side's half of a pair heading. */
 function sideTitle(letter: 'A' | 'B', side: PromptSide | null): string {
-  if (side === null) return `Only in ${letter === 'A' ? 'B' : 'A'}`
+  if (side === null) return `${letter}: ${NO_PROMPT}`
   return `${letter}: Prompt ${side.index + 1}: ${side.preview}`
 }
 
@@ -130,15 +138,21 @@ interface PairProps {
 function PairView({ index, pair, showAll, flash, onShowAll, onJump }: PairProps) {
   const rows = visibleRows(pair.rows, showAll)
   const headingId = targetId(index, null)
-  const titles = [sideTitle('A', pair.a), sideTitle('B', pair.b)]
+  const halves = [
+    { letter: 'A', side: pair.a },
+    { letter: 'B', side: pair.b },
+  ] as const
   return (
     <div className="steps-pair">
       <h4 id={headingId} className={`steps-pair-title${flash === headingId ? ' steps-flash' : ''}`}>
-        {titles.map((t) => (
-          <span key={t} className="steps-pair-side" title={t}>
-            {t}
-          </span>
-        ))}
+        {halves.map(({ letter, side }) => {
+          const title = sideTitle(letter, side)
+          return (
+            <span key={letter} className={`steps-pair-side${side === null ? ' muted' : ''}`} title={title}>
+              {title}
+            </span>
+          )
+        })}
       </h4>
       {pair.approximate && <p className="muted small steps-note">{APPROXIMATE_NOTE}</p>}
       {pair.rows.length > 0 && (
