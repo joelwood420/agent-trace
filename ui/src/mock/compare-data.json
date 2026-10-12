@@ -933,7 +933,7 @@
               "kind": "only_a",
               "a": {
                 "trace_id": "tool:toolu_example000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
@@ -945,7 +945,7 @@
               "kind": "only_a",
               "a": {
                 "trace_id": "tool:toolu_example000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
@@ -957,7 +957,7 @@
               "kind": "only_a",
               "a": {
                 "trace_id": "tool:toolu_example000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
@@ -993,7 +993,7 @@
               "kind": "only_a",
               "a": {
                 "trace_id": "tool:toolu_example000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136
@@ -2423,7 +2423,7 @@
               "a": null,
               "b": {
                 "trace_id": "tool:toolu_example000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
@@ -2435,7 +2435,7 @@
               "a": null,
               "b": {
                 "trace_id": "tool:toolu_example000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
@@ -2447,7 +2447,7 @@
               "a": null,
               "b": {
                 "trace_id": "tool:toolu_example000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
@@ -2483,7 +2483,7 @@
               "a": null,
               "b": {
                 "trace_id": "tool:toolu_example000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136
@@ -3754,14 +3754,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_example000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
               },
               "b": {
                 "trace_id": "tool:toolu_variant000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
@@ -3772,14 +3772,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_example000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
               },
               "b": {
                 "trace_id": "tool:toolu_variant000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
@@ -3790,14 +3790,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_example000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
               },
               "b": {
                 "trace_id": "tool:toolu_variant000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
@@ -3848,14 +3848,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_example000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136
               },
               "b": {
                 "trace_id": "tool:toolu_variant000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136
@@ -5176,14 +5176,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_variant000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
               },
               "b": {
                 "trace_id": "tool:toolu_example000000000060",
-                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "label": "Grep(Example text 1234.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 98
@@ -5194,14 +5194,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_variant000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
               },
               "b": {
                 "trace_id": "tool:toolu_example000000000068",
-                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1253.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 84
@@ -5212,14 +5212,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_variant000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
               },
               "b": {
                 "trace_id": "tool:toolu_example000000000071",
-                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "label": "Grep(Example text 1263.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 72
@@ -5270,14 +5270,14 @@
               "kind": "both",
               "a": {
                 "trace_id": "tool:toolu_variant000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136
               },
               "b": {
                 "trace_id": "tool:toolu_example000000000095",
-                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "label": "Grep(Example text 1320. / Example text 1322.)",
                 "failed": false,
                 "running": false,
                 "duration_ms": 136

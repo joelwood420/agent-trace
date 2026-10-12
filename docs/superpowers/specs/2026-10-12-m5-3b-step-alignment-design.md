@@ -34,7 +34,7 @@ TargetRule { tool: String, fields: Vec<String> }
 
 A step's target is every listed field that is present, as text, joined with " / ". A tool with no rule uses the first present field of `fallback_fields`. No field present: the target is empty and the key is the tool name alone.
 
-Claude Code rules: Read, Edit, MultiEdit, Write `file_path`; NotebookEdit `notebook_path`; Bash and PowerShell `command`; Grep `pattern`, `path`, `glob`; Glob `pattern`, `path`; WebFetch `url`; WebSearch `query`; Agent and Task `subagent_type`, `description`. Fallback: `command`, `file_path`, `pattern`, `query`, `url`, `path`. Notification prefix: `<task-notification>`.
+Claude Code rules: Read, Edit, MultiEdit, Write `file_path`; NotebookEdit `notebook_path`; Bash and PowerShell `command`; Grep `pattern`, `glob`; Glob `pattern` (`path` is left out because it is optional and defaults to the working folder; found in the real-app check, where one run passed it and the other did not); WebFetch `url`; WebSearch `query`; Agent and Task `subagent_type`, `description`. Fallback: `command`, `file_path`, `pattern`, `query`, `url`, `path`. Notification prefix: `<task-notification>`.
 
 ## Computation (`insights::align`)
 

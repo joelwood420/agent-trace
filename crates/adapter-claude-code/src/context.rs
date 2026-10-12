@@ -110,8 +110,10 @@ pub fn align_rules() -> AlignRules {
             target("NotebookEdit", &["notebook_path"]),
             target("Bash", &["command"]),
             target("PowerShell", &["command"]),
-            target("Grep", &["pattern", "path", "glob"]),
-            target("Glob", &["pattern", "path"]),
+            // `path` is left out: it is optional and defaults to the working
+            // folder, so the same search with and without it is the same step.
+            target("Grep", &["pattern", "glob"]),
+            target("Glob", &["pattern"]),
             target("WebFetch", &["url"]),
             target("WebSearch", &["query"]),
             target("Agent", &["subagent_type", "description"]),
@@ -300,11 +302,8 @@ mod tests {
         for tool in ["Bash", "PowerShell"] {
             assert_eq!(fields(tool), vec!["command".to_string()], "{tool}");
         }
-        assert_eq!(
-            fields("Grep"),
-            vec!["pattern".to_string(), "path".into(), "glob".into()]
-        );
-        assert_eq!(fields("Glob"), vec!["pattern".to_string(), "path".into()]);
+        assert_eq!(fields("Grep"), vec!["pattern".to_string(), "glob".into()]);
+        assert_eq!(fields("Glob"), vec!["pattern".to_string()]);
         assert_eq!(fields("WebFetch"), vec!["url".to_string()]);
         assert_eq!(fields("WebSearch"), vec!["query".to_string()]);
         for tool in ["Agent", "Task"] {
