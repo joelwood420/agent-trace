@@ -68,3 +68,25 @@ pub struct FileEditRule {
     /// string wins.
     pub path_fields: Vec<String>,
 }
+
+/// How to line up tool calls of two runs: which input fields name a
+/// tool's target, and which prompts are notifications.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct AlignRules {
+    /// Target fields per tool.
+    pub targets: Vec<TargetRule>,
+    /// Fields tried in order for a tool with no rule; the first present wins.
+    pub fallback_fields: Vec<String>,
+    /// A prompt whose trimmed text starts with one of these is a
+    /// notification; notifications pair with each other by order.
+    pub notification_prefixes: Vec<String>,
+}
+
+/// The input fields that name one tool's target.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TargetRule {
+    /// Tool name.
+    pub tool: String,
+    /// Fields joined, in this order, when present.
+    pub fields: Vec<String>,
+}

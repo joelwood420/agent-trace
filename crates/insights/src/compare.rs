@@ -135,7 +135,7 @@ pub struct RunSummary {
 }
 
 /// The first root node that is a run.
-fn main_run(trace: &Trace) -> Option<&str> {
+pub(crate) fn main_run(trace: &Trace) -> Option<&str> {
     trace
         .roots()
         .find(|r| matches!(r.node, Node::Run(_)))
@@ -221,7 +221,7 @@ fn bump(list: &mut Vec<Named>, name: &str, by: u64) {
 }
 
 /// The node's duration when both ends are known and in order.
-fn duration(event: &TraceEvent) -> Option<u64> {
+pub(crate) fn duration(event: &TraceEvent) -> Option<u64> {
     let (start, end) = (event.started_at_ms?, event.ended_at_ms?);
     u64::try_from(end.checked_sub(start)?).ok()
 }
