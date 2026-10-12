@@ -236,6 +236,7 @@ Request: `a` and `b`, each a `RunRef`.
 |---|---|---|
 | `comparison` | `Comparison` | The two summaries and the rows. |
 | `a`, `b` | `CompareSide` | Per-side data the picker needs. |
+| `alignment` | `Alignment` | The two runs lined up step by step (see below). |
 
 `CompareSide`:
 
@@ -304,6 +305,49 @@ Words used above:
 Named rows show 0 for a name that one side lacks and carry `only_a` or `only_b` in `presence`, so the UI can tag them "only in". When one side's whole list is unknown (for example tool groups of a transcript-only side), that side's value is `null`, not 0, and `presence` stays `both`.
 
 A prompt that is not found (for example the session changed) falls back to the whole session and sets `scope_missing` on that side.
+
+### Step alignment (M5.3b)
+
+`CompareView.alignment` lines the two runs up step by step. It comes from `insights::align` and the UI shows it as it is. A step is one tool call of the main run. Calls inside a subagent are not steps: a subagent is one step, the call that spawned it.
+
+`Alignment`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `pairs` | list of `PromptPair` | Prompt pairs in order. |
+| `first_difference` | `DiffPoint`, optional | The first difference over all pairs. Missing when the runs match. |
+
+`DiffPoint` is `pair` (index into `pairs`) and `row` (index into that pair's rows).
+
+`PromptPair`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `a`, `b` | `PromptSide`, optional | The prompt on each side. One is missing when only one run has the prompt. |
+| `rows` | list of `AlignRow` | The steps lined up. |
+| `first_difference` | number, optional | Index of the first row that is not the same clean step. `0` for a one-sided pair, even with no rows. |
+| `approximate` | bool | True when the pair was too long to diff exactly and was matched in order instead. |
+
+`PromptSide`: `turn_id` (the turn's trace id), `index` (position among the main run's prompts, from 0), `preview` (one line of the prompt, 80 characters at most).
+
+`AlignRow`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `kind` | string | `both`, `only_a` or `only_b`. |
+| `a`, `b` | `Step`, optional | Each side's step. A one-sided row has only one. |
+| `differs` | bool | Both took the step but exactly one of them failed. |
+
+`Step`: `trace_id` (the tool call's id), `label` (`Tool(target)`, or `Tool` with no target; the target is cut to 40 characters), `failed` (the result is an error), `running` (no result yet) and `duration_ms` (number or null).
+
+How steps line up:
+
+- Step key: the tool name plus its target, with runs of whitespace collapsed to one space. Which input fields make the target is data from the adapter (`AlignRules`): fields per tool, fallback fields for other tools, and prompt prefixes that mark a notification. A tool with no target keys on its name alone.
+- Parallel calls (siblings of one model call) are sorted by key, so the same set in another order matches.
+- Prompts are paired first, by prompt text, with the same diff. Notification prompts share one key, so they pair by order. When both sides are limited to one prompt, those two prompts pair whatever their text.
+- Each pair's steps are lined up with a longest-common-subsequence diff. Swapped steps show as one match plus two one-sided rows.
+- `first_difference` of a pair is the first row that is one-sided or has `differs` set.
+- `approximate` is set when steps of A times steps of B passes `MAX_CELLS` (4,000,000). The pair is then matched in order: equal keys at the same position are `both`, otherwise the two steps are shown as an `only_a` row then an `only_b` row.
 
 ## Example
 

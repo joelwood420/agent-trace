@@ -83,7 +83,7 @@ Keep dependencies few. When you add one, record it and the reason in `docs/DECIS
 - Format: `cargo fmt --all`
 - Print a session tree: `cargo run -p adapter-claude-code --example print_tree -- <session.jsonl>` (add `--stats` for counts only)
 - UI checks: `cd ui; npm run lint; npm run typecheck; npm test; npm run build`
-- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls; open the compaction sample session to see every kind of flag; open a sample session and use Compare with... to compare the two sample sessions)
+- View the UI in a browser with the sanitised sample session (dev only): `cd ui; npm run dev`, then open `http://localhost:5173/?mock` (add `&live` to replay the session growing; the sample session includes invented captured API calls; open the compaction sample session to see every kind of flag; open a sample session and use Compare with... to compare two sample sessions; open the basic sample and compare it with the variant sample, an invented copy with two steps changed, to see the Steps section)
 - Capture a Claude Code session through the app's proxy (app must be running): `$env:ANTHROPIC_BASE_URL='http://127.0.0.1:47821'; claude`
 - Regenerate the invented capture fixture: `cargo run -p capture --example make_fixture`
 - Refresh the UI mock data (`ui/src/mock/fixture-data.json`, `live-steps.json`, `capture-data.json`, `context-data.json`, `flags-data.json` and `compare-data.json`) after a view model change: set `$env:SNITCHCRAFT_UPDATE_SNAPSHOTS='1'`, run `cargo test -p snitchcraft`, then `Remove-Item Env:SNITCHCRAFT_UPDATE_SNAPSHOTS` and review the diff of all the mock files
@@ -119,7 +119,8 @@ M5: insights, split into four sub-milestones, each with its own spec, plan and b
 - 5.1b Hidden context from transcripts: complete. New trace node kind `context_update` (keyed parts plus removals, applied per run), the adapter maps Claude Code `attachment` lines to it, the breakdown counts the parts, and the session overview lists the main agent's hidden context. Spec: `docs/superpowers/specs/2026-10-08-m5-1b-transcript-context-design.md`.
 - 5.2 Waste and problem flags: complete. Schema additions `Marker.compaction` and context part kind `file`, the adapter reads compaction details and re-attached files, `insights::session_flags` (repeated reads, failed retries, loops, large results, compactions, re-reads after compaction) with Claude Code rules from the adapter, `session_flags` command, badges on boxes, Flags section in the details panel, Flags card in the session overview. Spec: `docs/superpowers/specs/2026-10-11-m5-2-waste-flags-design.md`.
 - 5.3 Compare two runs: complete. `insights::compare` (a summary per run, rows side by side), the `compare_runs` command, a run picker and a Compare view in the UI. Spec: `docs/superpowers/specs/2026-10-12-m5-3-compare-runs-design.md`.
-- 5.3b step-by-step alignment, 5.4 shareable report: planned; plan each with me before starting.
+- 5.3b Line two runs up step by step: complete. `insights::align` pairs prompts and lines up each pair's tool calls with a diff, using target rules from the adapter (`align_rules`), and the Compare view has a Steps section with jumps to the first difference and to each step. Spec: `docs/superpowers/specs/2026-10-12-m5-3b-step-alignment-design.md`.
+- 5.4 shareable report: planned; plan it with me before starting.
 
 Out of scope for now: capturing scratchpad files, token cost breakdowns, other harnesses, and the toy harness.
 

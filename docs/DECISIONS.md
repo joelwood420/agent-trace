@@ -380,3 +380,16 @@ Waste flags need to say what a compaction dropped, and they must work for any ha
 - The picker does not block the open session. Picking it compares two of its prompts, chosen in each side's scope drop-down.
 - Clicking in the sidebar while comparing (a prompt, a box, a hidden context row or a capture) closes the comparison and shows that item. Back to diagram keeps the selection the diagram had.
 - The setup separates "Not captured" from "Everything else". "Everything else" is the context that was seen outside the setup slices (files read, tool results, conversation); "Not captured" is what could not be seen, so a transcript-only side does not pass off unseen context as conversation.
+
+### 2026-10-12: M5.3b: lining up two runs step by step
+
+- The lineup uses a longest-common-subsequence diff over step keys. It is simple, exact and easy to test. A swap shows as one match plus two one-sided rows, which is honest about what happened.
+- The diff table is capped at `MAX_CELLS` (4,000,000). A pair larger than that is matched in order and flagged `approximate`, so a very long run cannot use unbounded memory, and the UI says the lineup is rough.
+- Calls made in parallel are sorted by key within their model call. Their order is a timing accident, so the same set in another order should match.
+- A subagent is one step, the call that spawned it. Its inner steps are not lined up, because two subagents rarely take the same path and the main run is what the owner compares.
+- Which input fields make a tool's target is adapter data (`AlignRules`, built by `align_rules` in the adapter), not code in `insights`. `insights` stays free of Claude Code tool names, and the owner's own harness can supply its own rules.
+- Background task notifications are prompts with different text each time (an id). Rules name their prefixes, they share one key, and they pair by order.
+- Prompts are paired first, so an extra prompt in one run does not shift every later pair. When both sides are limited to one prompt, they pair whatever the text.
+- A one-sided pair has `first_difference` of 0 even with no rows, so a prompt only one run has still counts as a difference.
+- The UI keeps a pair's "expanded" state across live refreshes, keyed by the request, so a session that grows does not collapse what the user opened.
+- A jump to a side whose diagram is still loading waits for the load, then selects the box. It runs once, on the first view.
