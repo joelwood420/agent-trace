@@ -265,12 +265,12 @@ pub fn run_steps(trace: &Trace, scope: &Scope, rules: &AlignRules) -> RunSteps {
     }
 }
 
-/// Lines up two key lists. Each item is (index in A, index in B), one of
-/// them `None` for a one-sided item. The flag is true when the table would
-/// exceed `limit` cells and in-order matching was used instead.
 /// One item of a diff: indexes into A and B.
 type Pairing = (Option<usize>, Option<usize>);
 
+/// Lines up two key lists. Each item is (index in A, index in B), one of
+/// them `None` for a one-sided item. The flag is true when the table would
+/// exceed `limit` cells and in-order matching was used instead.
 fn diff(a: &[&str], b: &[&str], limit: usize) -> (Vec<Pairing>, bool) {
     let (n, m) = (a.len(), b.len());
     let cells = (n + 1).checked_mul(m + 1);
@@ -438,10 +438,11 @@ mod tests {
         }
     }
 
-    /// One run: prompts is a list of (prompt text, model calls), each model
-    /// call a list of (tool, input, failed). Ids: T{p}, M{p}_{m}, X{p}_{m}_{t}.
+    /// One tool call of a test trace: (tool, input, failed).
     type Tool = (&'static str, Value, Option<bool>);
 
+    /// One run: prompts is a list of (prompt text, model calls), each model
+    /// call a list of (tool, input, failed). Ids: T{p}, M{p}_{m}, X{p}_{m}_{t}.
     fn trace(prefix: &str, prompts: &[(&str, Vec<Vec<Tool>>)]) -> Trace {
         let mut t = Trace::new();
         let root = format!("{prefix}R");
