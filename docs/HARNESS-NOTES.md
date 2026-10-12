@@ -122,3 +122,9 @@ Checked by comparing real sessions in the app:
 - Transcript timestamps make a model call start at the event before it. When nothing happens for a long time first, the wait lands on the model call: a subagent that stalled and was resumed hours later showed an 11-hour model call, and the first call after a late background notification showed almost two hours. The diagram shows the same durations. Summed model time in a comparison inherits this (parked).
 - Without captures, the first call has no tool definitions (the tools snapshot is written just after it, see the 5.1 notes), so most of its context is "Not captured" and setup comparisons show "?" for tools. The system prompt and instructions files are there and compare well. Comparing two captured runs is what shows tool differences such as MCP servers.
 - Two large sessions (about 6 MB each, roughly 800 model calls each) compared in about 3 seconds, most of it reading the session that was not open.
+
+## Lining up real runs (seen during M5.3b)
+
+- The same task run twice with different models (haiku and sonnet, captured): both ran Glob, then read the same two files, but haiku also ran a Grep that sonnet skipped. The lineup shows that as the one step only in A.
+- The two runs called Glob differently for the same search: one passed `path` (the project folder), the other left it out, which means the working folder. Optional arguments with defaults make the same step look different, so the Grep and Glob keys leave `path` out.
+- Two unrelated long sessions (about 6 to 7 MB each) share almost no prompts, so the lineup is mostly one-sided prompt pairs. Lining them up and summarising both took about 4 seconds in a debug build.
