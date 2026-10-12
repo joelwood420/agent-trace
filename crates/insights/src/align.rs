@@ -252,7 +252,7 @@ pub fn run_steps(trace: &Trace, scope: &Scope, rules: &AlignRules) -> RunSteps {
                 preview: shorten(&text, PREVIEW_CHARS),
             },
             key: if is_notification {
-                "notification".to_string()
+                "\u{0}notification".to_string()
             } else {
                 text
             },
@@ -664,6 +664,15 @@ mod tests {
         assert_eq!(al.pairs.len(), 2);
         assert!(al.pairs.iter().all(|p| p.a.is_some() && p.b.is_some()));
         assert_eq!(al.first_difference, None);
+    }
+
+    #[test]
+    fn a_prompt_reading_notification_is_not_a_notification() {
+        let a = trace("a", &[("notification", vec![vec![open("a")]])]);
+        let b = trace("b", &[("<note> id 2", vec![vec![open("a")]])]);
+        let al = lineup(&a, &b);
+        assert!(al.pairs.iter().any(|p| p.a.is_some() && p.b.is_none()));
+        assert!(al.pairs.iter().any(|p| p.a.is_none() && p.b.is_some()));
     }
 
     #[test]
