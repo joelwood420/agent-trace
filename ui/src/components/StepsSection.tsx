@@ -26,13 +26,17 @@ function targetId(pair: number, row: number | null): string {
   return row === null ? `steps-pair-${pair}` : `steps-row-${pair}-${row}`
 }
 
+function pairKey(pair: PromptPair | undefined): string {
+  return `${pair?.a?.turn_id ?? ''}|${pair?.b?.turn_id ?? ''}`
+}
+
 function reducedMotion(): boolean {
   return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 export default function StepsSection({ alignment, onJump }: Props) {
-  // Pairs whose rows all show, by index.
-  const [expanded, setExpanded] = useState<ReadonlySet<number>>(new Set())
+  // Pairs whose rows all show, by the turn ids of the pair.
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
   // The element the header link highlighted, by id.
   const [flash, setFlash] = useState<string | null>(null)
   // An element to scroll to once it is rendered (after "Show all").
@@ -66,7 +70,7 @@ export default function StepsSection({ alignment, onJump }: Props) {
     scrollTo(id)
   })
 
-  const showAll = (pair: number) => setExpanded((prev) => new Set(prev).add(pair))
+  const showAll = (pair: number) => setExpanded((prev) => new Set(prev).add(pairKey(alignment.pairs[pair])))
 
   const goToDifference = () => {
     const point = alignment.first_difference
@@ -75,7 +79,7 @@ export default function StepsSection({ alignment, onJump }: Props) {
     if (!pair) return
     const hasRow = point.row < pair.rows.length
     const id = targetId(point.pair, hasRow ? point.row : null)
-    if (hasRow && point.row >= STEP_ROW_LIMIT && !expanded.has(point.pair)) {
+    if (hasRow && point.row >= STEP_ROW_LIMIT && !expanded.has(pairKey(pair))) {
       pendingScroll.current = id
       showAll(point.pair)
     } else {
@@ -108,7 +112,7 @@ export default function StepsSection({ alignment, onJump }: Props) {
           key={i}
           index={i}
           pair={pair}
-          showAll={expanded.has(i)}
+          showAll={expanded.has(pairKey(pair))}
           flash={flash}
           onShowAll={() => showAll(i)}
           onJump={onJump}
@@ -181,7 +185,7 @@ function PairView({ index, pair, showAll, flash, onShowAll, onJump }: PairProps)
       )}
       {rows.length < pair.rows.length && (
         <button type="button" className="link-button steps-show-all" onClick={onShowAll}>
-          Show all {pair.rows.length} steps
+          Show all {pair.rows.length} rows
         </button>
       )}
     </div>
@@ -196,12 +200,13 @@ interface RowProps {
 }
 
 function RowView({ id, className, row, onJump }: RowProps) {
+  const marker = className?.includes('steps-first-difference') === true
   const tags = stepTags(row)
   // The tags go in the empty slot of a one-sided row, else in B's cell.
   const tagsIn: Side = row.a === null ? 'a' : 'b'
   return (
     <tr id={id} className={className}>
-      <StepCell side="a" step={row.a} tags={tagsIn === 'a' ? tags : []} onJump={onJump} />
+      <StepCell side="a" step={row.a} tags={tagsIn === 'a' ? tags : []} marker={marker} onJump={onJump} />
       <StepCell side="b" step={row.b} tags={tagsIn === 'b' ? tags : []} onJump={onJump} />
     </tr>
   )
@@ -211,14 +216,17 @@ interface CellProps {
   side: Side
   step: AlignStep | null
   tags: string[]
+  /** Adds hidden text naming the first-difference row. */
+  marker?: boolean
   onJump: (side: Side, traceId: string) => void
 }
 
-function StepCell({ side, step, tags, onJump }: CellProps) {
+function StepCell({ side, step, tags, marker, onJump }: CellProps) {
   const letter = side === 'a' ? 'A' : 'B'
   const duration = step ? formatDuration(step.duration_ms) : null
   return (
     <td className={step ? 'steps-cell' : 'steps-cell steps-empty'} data-side={letter}>
+      {marker === true && <span className="visually-hidden">First difference</span>}
       {step && (
         <>
           <button
