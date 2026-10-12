@@ -347,7 +347,7 @@ How steps line up:
 - Prompts are paired first, by prompt text, with the same diff. Notification prompts share one key, so they pair by order. When both sides are limited to one prompt, those two prompts pair whatever their text.
 - Each pair's steps are lined up with a longest-common-subsequence diff. Swapped steps show as one match plus two one-sided rows.
 - `first_difference` of a pair is the first row that is one-sided or has `differs` set.
-- `approximate` is set when steps of A times steps of B passes `MAX_CELLS` (4,000,000). The pair is then matched in order: equal keys at the same position are `both`, otherwise the two steps are shown as an `only_a` row then an `only_b` row.
+- `approximate` is set when the diff table size, (steps of A + 1) times (steps of B + 1), passes `MAX_CELLS` (4,000,000). The pair is then matched in order: equal keys at the same position are `both`, otherwise the two steps are shown as an `only_a` row then an `only_b` row.
 
 ## Example
 

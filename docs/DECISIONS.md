@@ -384,7 +384,7 @@ Waste flags need to say what a compaction dropped, and they must work for any ha
 ### 2026-10-12: M5.3b: lining up two runs step by step
 
 - The lineup uses a longest-common-subsequence diff over step keys. It is simple, exact and easy to test. A swap shows as one match plus two one-sided rows, which is honest about what happened.
-- The diff table is capped at `MAX_CELLS` (4,000,000). A pair larger than that is matched in order and flagged `approximate`, so a very long run cannot use unbounded memory, and the UI says the lineup is rough.
+- The diff table, (steps of A + 1) times (steps of B + 1), is capped at `MAX_CELLS` (4,000,000). A pair whose table is larger than that is matched in order and flagged `approximate`, so a very long run cannot use unbounded memory, and the UI says the lineup is rough.
 - Calls made in parallel are sorted by key within their model call. Their order is a timing accident, so the same set in another order should match.
 - A subagent is one step, the call that spawned it. Its inner steps are not lined up, because two subagents rarely take the same path and the main run is what the owner compares.
 - Which input fields make a tool's target is adapter data (`AlignRules`, built by `align_rules` in the adapter), not code in `insights`. `insights` stays free of Claude Code tool names, and the owner's own harness can supply its own rules.
