@@ -1,7 +1,9 @@
 //! What Claude Code's injected reminders and file reads look like, as plain
 //! data for the harness neutral `insights` crate.
 
-use insights::{ContextRules, FileEditRule, FileReadRule, FlagRules, LabelRule};
+use insights::{
+    AlignRules, ContextRules, FileEditRule, FileReadRule, FlagRules, LabelRule, TargetRule,
+};
 
 /// The rules that let `insights` recognise Claude Code's system reminders
 /// and its `Read` tool. Specific content rules (SessionStart hook, MCP
@@ -89,6 +91,37 @@ pub fn flag_rules() -> FlagRules {
             edit("Write", &["file_path"]),
             edit("NotebookEdit", &["notebook_path", "file_path"]),
         ],
+    }
+}
+
+/// Which input fields name each Claude Code tool's target, for lining up two
+/// runs, and the prefix of background-agent notification prompts.
+pub fn align_rules() -> AlignRules {
+    let target = |tool: &str, fields: &[&str]| TargetRule {
+        tool: tool.into(),
+        fields: fields.iter().map(|f| f.to_string()).collect(),
+    };
+    AlignRules {
+        targets: vec![
+            target("Read", &["file_path"]),
+            target("Edit", &["file_path"]),
+            target("MultiEdit", &["file_path"]),
+            target("Write", &["file_path"]),
+            target("NotebookEdit", &["notebook_path"]),
+            target("Bash", &["command"]),
+            target("PowerShell", &["command"]),
+            target("Grep", &["pattern", "path", "glob"]),
+            target("Glob", &["pattern", "path"]),
+            target("WebFetch", &["url"]),
+            target("WebSearch", &["query"]),
+            target("Agent", &["subagent_type", "description"]),
+            target("Task", &["subagent_type", "description"]),
+        ],
+        fallback_fields: ["command", "file_path", "pattern", "query", "url", "path"]
+            .iter()
+            .map(|f| f.to_string())
+            .collect(),
+        notification_prefixes: vec!["<task-notification>".to_string()],
     }
 }
 
@@ -247,5 +280,44 @@ mod tests {
         let read = ("Read", json!({ "file_path": NOTES }));
         let edit = ("MultiEdit", json!({ "file_path": NOTES, "edits": [] }));
         assert_eq!(repeated_reads(&[read.clone(), edit, read.clone(), read]), 0);
+    }
+
+    #[test]
+    fn align_rules_name_each_tools_target() {
+        let rules = align_rules();
+        let fields = |tool: &str| {
+            rules
+                .targets
+                .iter()
+                .find(|r| r.tool == tool)
+                .map(|r| r.fields.clone())
+                .unwrap_or_default()
+        };
+        for tool in ["Read", "Edit", "MultiEdit", "Write"] {
+            assert_eq!(fields(tool), vec!["file_path".to_string()], "{tool}");
+        }
+        assert_eq!(fields("NotebookEdit"), vec!["notebook_path".to_string()]);
+        for tool in ["Bash", "PowerShell"] {
+            assert_eq!(fields(tool), vec!["command".to_string()], "{tool}");
+        }
+        assert_eq!(
+            fields("Grep"),
+            vec!["pattern".to_string(), "path".into(), "glob".into()]
+        );
+        assert_eq!(fields("Glob"), vec!["pattern".to_string(), "path".into()]);
+        assert_eq!(fields("WebFetch"), vec!["url".to_string()]);
+        assert_eq!(fields("WebSearch"), vec!["query".to_string()]);
+        for tool in ["Agent", "Task"] {
+            assert_eq!(
+                fields(tool),
+                vec!["subagent_type".to_string(), "description".into()],
+                "{tool}"
+            );
+        }
+        assert_eq!(
+            rules.fallback_fields,
+            vec!["command", "file_path", "pattern", "query", "url", "path"]
+        );
+        assert_eq!(rules.notification_prefixes, vec!["<task-notification>"]);
     }
 }
