@@ -453,9 +453,10 @@ mod tests {
 
     const FIXTURE_SESSION: &str = "00000000-0000-4000-8000-000000000002";
     /// The fixture sessions the UI mock data covers, as (project, session id).
-    const FIXTURE_SESSIONS: [(&str, &str); 2] = [
+    const FIXTURE_SESSIONS: [(&str, &str); 3] = [
         ("basic", FIXTURE_SESSION),
         ("compaction", "00000000-0000-4000-8000-000000000003"),
+        ("variant", "00000000-0000-4000-8000-000000000004"),
     ];
 
     #[test]
@@ -467,8 +468,8 @@ mod tests {
     #[test]
     fn lists_fixture_session_and_skips_subagents() {
         let sessions = list_sessions(&fixture_root()).expect("list");
-        // The basic and compaction fixture projects, one session each.
-        assert_eq!(sessions.len(), 2, "{sessions:?}");
+        // The basic, compaction and variant fixture projects, one session each.
+        assert_eq!(sessions.len(), 3, "{sessions:?}");
         let s = sessions
             .iter()
             .find(|s| s.project == "basic")
@@ -845,7 +846,7 @@ mod tests {
             };
             crate::compare::side_summary(&loaded.trace, None, &records)
         };
-        let [first, second] = FIXTURE_SESSIONS;
+        let [first, second, _variant] = FIXTURE_SESSIONS;
         let mut all = serde_json::Map::new();
         for (a, b) in [(first, second), (second, first)] {
             let view = crate::compare::compare_view(side(a.0, a.1), side(b.0, b.1));
