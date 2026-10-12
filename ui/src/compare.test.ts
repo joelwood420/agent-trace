@@ -181,7 +181,14 @@ test('stepTags names one-sided rows and differing outcomes', () => {
 
 test('diffLabel points at the first difference, counting from 1', () => {
   const alignment: Alignment = {
-    pairs: [pair({}), pair({ a: { turn_id: 'ta2', index: 1, preview: 'More' }, first_difference: 2 })],
+    pairs: [
+      pair({}),
+      pair({
+        a: { turn_id: 'ta2', index: 1, preview: 'More' },
+        b: { turn_id: 'tb2', index: 1, preview: 'More' },
+        first_difference: 2,
+      }),
+    ],
     first_difference: { pair: 1, row: 2 },
   }
   assert.equal(diffLabel(alignment), 'First difference: prompt 2, step 3')
