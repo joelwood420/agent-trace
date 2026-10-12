@@ -846,9 +846,14 @@ mod tests {
             };
             crate::compare::side_summary(&loaded.trace, None, &records)
         };
-        let [first, second, _variant] = FIXTURE_SESSIONS;
+        let [first, second, variant] = FIXTURE_SESSIONS;
         let mut all = serde_json::Map::new();
-        for (a, b) in [(first, second), (second, first)] {
+        for (a, b) in [
+            (first, second),
+            (second, first),
+            (first, variant),
+            (variant, first),
+        ] {
             let view = crate::compare::compare_view(side(a.0, a.1), side(b.0, b.1));
             all.insert(
                 format!("{}/{}|{}/{}", a.0, a.1, b.0, b.1),

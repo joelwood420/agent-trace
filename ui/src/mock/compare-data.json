@@ -882,6 +882,420 @@
         }
       ],
       "scope_missing": false
+    },
+    "alignment": {
+      "pairs": [
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000079",
+                "label": "Read(C:\\work\\example\\file-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000116",
+                "label": "Bash(echo example-1365)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000001",
+            "index": 0,
+            "preview": "Tidy up the calculator module."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000301",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000302",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000303",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000305",
+                "label": "Read(C:\\work\\demo\\NOTES.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 2000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000304",
+                "label": "Read(C:\\work\\demo\\src\\main.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 2000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000306",
+                "label": "Bash(python -m pytest)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000307",
+                "label": "Bash(python -m pytest)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000308",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000309",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000310",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000311",
+                "label": "WebFetch(https://example.com/doc)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000026",
+            "index": 1,
+            "preview": "/compact"
+          },
+          "rows": [],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000032",
+            "index": 2,
+            "preview": "This session is being continued from an earlier conversation. Summary: the us..."
+          },
+          "rows": [],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000040",
+            "index": 3,
+            "preview": "Now add a multiply function."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000312",
+                "label": "Read(C:\\work\\demo\\src\\main.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        }
+      ],
+      "first_difference": {
+        "pair": 0,
+        "row": 0
+      }
     }
   },
   "compaction/00000000-0000-4000-8000-000000000003|basic/00000000-0000-4000-8000-000000000002": {
@@ -1767,6 +2181,3264 @@
         }
       ],
       "scope_missing": false
+    },
+    "alignment": {
+      "pairs": [
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000001",
+            "index": 0,
+            "preview": "Tidy up the calculator module."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000301",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000302",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000303",
+                "label": "Read(C:\\work\\demo\\src\\calc.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000305",
+                "label": "Read(C:\\work\\demo\\NOTES.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 2000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000304",
+                "label": "Read(C:\\work\\demo\\src\\main.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 2000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000306",
+                "label": "Bash(python -m pytest)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000307",
+                "label": "Bash(python -m pytest)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000308",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000309",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000310",
+                "label": "Bash(git status)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000311",
+                "label": "WebFetch(https://example.com/doc)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000026",
+            "index": 1,
+            "preview": "/compact"
+          },
+          "b": null,
+          "rows": [],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000032",
+            "index": 2,
+            "preview": "This session is being continued from an earlier conversation. Summary: the us..."
+          },
+          "b": null,
+          "rows": [],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-100000000040",
+            "index": 3,
+            "preview": "Now add a multiply function."
+          },
+          "b": null,
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000312",
+                "label": "Read(C:\\work\\demo\\src\\main.py)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1000
+              },
+              "b": null,
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000079",
+                "label": "Read(C:\\work\\example\\file-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000116",
+                "label": "Bash(echo example-1365)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": null,
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "rows": [
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        }
+      ],
+      "first_difference": {
+        "pair": 0,
+        "row": 0
+      }
+    }
+  },
+  "basic/00000000-0000-4000-8000-000000000002|variant/00000000-0000-4000-8000-000000000004": {
+    "comparison": {
+      "a": {
+        "first_call_source": "captured",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 3437,
+        "tool_definition_tokens": 43857,
+        "instruction_tokens": 22990,
+        "other_context_tokens": 435,
+        "not_captured_tokens": 0,
+        "tool_count": 7,
+        "tool_groups": [
+          {
+            "name": "MCP: docs",
+            "value": 2
+          },
+          {
+            "name": "built-in",
+            "value": 5
+          }
+        ],
+        "instruction_parts": [
+          {
+            "name": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+            "value": 21666
+          },
+          {
+            "name": "memory: C:\\work\\example\\memory\\MEMORY.md",
+            "value": 981
+          },
+          {
+            "name": "other reminders",
+            "value": 344
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_example000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_example000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_example000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_example000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "b": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 14,
+        "tool_definition_tokens": null,
+        "instruction_tokens": 196,
+        "other_context_tokens": 11,
+        "not_captured_tokens": 70498,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": [
+          {
+            "name": "environment",
+            "value": 65
+          },
+          {
+            "name": "hook output",
+            "value": 49
+          },
+          {
+            "name": "session context",
+            "value": 16
+          },
+          {
+            "name": "MCP server instructions",
+            "value": 14
+          },
+          {
+            "name": "agent list",
+            "value": 13
+          },
+          {
+            "name": "deferred tools list",
+            "value": 13
+          },
+          {
+            "name": "date",
+            "value": 4
+          },
+          {
+            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
+            "value": 4
+          },
+          {
+            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
+            "value": 4
+          },
+          {
+            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
+            "value": 4
+          },
+          {
+            "name": "model",
+            "value": 4
+          },
+          {
+            "name": "skills list",
+            "value": 4
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_variant000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_variant000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_variant000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_variant000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_variant000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_variant000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_variant000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_variant000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_variant000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_variant000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_variant000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_variant000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_variant000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_variant000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_variant000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_variant000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_variant000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "sections": [
+        {
+          "title": "Setup",
+          "rows": [
+            {
+              "label": "First call context",
+              "unit": "tokens",
+              "a": 70719,
+              "b": 70719,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "System prompt",
+              "unit": "tokens",
+              "a": 3437,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -3423,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Tool definitions",
+              "unit": "tokens",
+              "a": 43857,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Instructions and reminders",
+              "unit": "tokens",
+              "a": 22990,
+              "b": 196,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -22794,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Everything else",
+              "unit": "tokens",
+              "a": 435,
+              "b": 11,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -424,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Not captured",
+              "unit": "tokens",
+              "a": 0,
+              "b": 70498,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 70498,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Tools",
+              "unit": "count",
+              "a": 7,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Models",
+          "rows": [
+            {
+              "label": "claude-opus-5-5",
+              "unit": "count",
+              "a": 19,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tool groups",
+          "rows": [
+            {
+              "label": "MCP: docs",
+              "unit": "count",
+              "a": 2,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "built-in",
+              "unit": "count",
+              "a": 5,
+              "b": null,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Instructions",
+          "rows": [
+            {
+              "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+              "unit": "tokens",
+              "a": 21666,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -21666,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
+              "unit": "tokens",
+              "a": 981,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -981,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "other reminders",
+              "unit": "tokens",
+              "a": 344,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -344,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "environment",
+              "unit": "tokens",
+              "a": 0,
+              "b": 65,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 65,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "hook output",
+              "unit": "tokens",
+              "a": 0,
+              "b": 49,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 49,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "session context",
+              "unit": "tokens",
+              "a": 0,
+              "b": 16,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 16,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "MCP server instructions",
+              "unit": "tokens",
+              "a": 0,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 14,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "agent list",
+              "unit": "tokens",
+              "a": 0,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 13,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "deferred tools list",
+              "unit": "tokens",
+              "a": 0,
+              "b": 13,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 13,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "date",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "model",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "skills list",
+              "unit": "tokens",
+              "a": 0,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 4,
+              "higher": "b",
+              "presence": "only_b"
+            }
+          ]
+        },
+        {
+          "title": "Work",
+          "rows": [
+            {
+              "label": "Prompts",
+              "unit": "count",
+              "a": 5,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Model calls",
+              "unit": "count",
+              "a": 19,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Tool calls",
+              "unit": "count",
+              "a": 14,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Subagents",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Wall-clock time",
+              "unit": "ms",
+              "a": 567224,
+              "b": 567224,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Time in model calls",
+              "unit": "ms",
+              "a": 78238,
+              "b": 78238,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Time in tools",
+              "unit": "ms",
+              "a": 113388,
+              "b": 113388,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tools used",
+          "rows": [
+            {
+              "label": "PowerShell",
+              "unit": "count",
+              "a": 2,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Grep",
+              "unit": "count",
+              "a": 4,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Read",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Bash",
+              "unit": "count",
+              "a": 6,
+              "b": 6,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Skill",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tokens",
+          "rows": [
+            {
+              "label": "Input (not cached)",
+              "unit": "tokens",
+              "a": 40,
+              "b": 40,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Output",
+              "unit": "tokens",
+              "a": 6676,
+              "b": 6676,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Cache read",
+              "unit": "tokens",
+              "a": 1285833,
+              "b": 1285833,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Cache write",
+              "unit": "tokens",
+              "a": 149126,
+              "b": 149126,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Largest context",
+              "unit": "tokens",
+              "a": 85078,
+              "b": 85078,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Problems",
+          "rows": [
+            {
+              "label": "Repeated reads",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Failed retries",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Loops",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Large results",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Re-reads after compaction",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Failed tool calls",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Compactions",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        }
+      ]
+    },
+    "a": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    },
+    "b": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    },
+    "alignment": {
+      "pairs": [
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000079",
+                "label": "Read(C:\\work\\example\\file-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_variant000000000079",
+                "label": "Read(C:\\work\\example\\notes-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 3,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_example000000000116",
+                "label": "Bash(echo example-1365)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_variant000000000116",
+                "label": "Bash(echo example-1365-variant)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_example000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "b": {
+                "trace_id": "tool:toolu_variant000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        }
+      ],
+      "first_difference": {
+        "pair": 1,
+        "row": 3
+      }
+    }
+  },
+  "variant/00000000-0000-4000-8000-000000000004|basic/00000000-0000-4000-8000-000000000002": {
+    "comparison": {
+      "a": {
+        "first_call_source": "transcript",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 14,
+        "tool_definition_tokens": null,
+        "instruction_tokens": 196,
+        "other_context_tokens": 11,
+        "not_captured_tokens": 70498,
+        "tool_count": null,
+        "tool_groups": null,
+        "instruction_parts": [
+          {
+            "name": "environment",
+            "value": 65
+          },
+          {
+            "name": "hook output",
+            "value": 49
+          },
+          {
+            "name": "session context",
+            "value": 16
+          },
+          {
+            "name": "MCP server instructions",
+            "value": 14
+          },
+          {
+            "name": "agent list",
+            "value": 13
+          },
+          {
+            "name": "deferred tools list",
+            "value": 13
+          },
+          {
+            "name": "date",
+            "value": 4
+          },
+          {
+            "name": "file-599.txt: C:\\work\\example\\file-599.txt",
+            "value": 4
+          },
+          {
+            "name": "file-601.txt: C:\\work\\example\\file-601.txt",
+            "value": 4
+          },
+          {
+            "name": "file-603.txt: C:\\work\\example\\file-603.txt",
+            "value": 4
+          },
+          {
+            "name": "model",
+            "value": 4
+          },
+          {
+            "name": "skills list",
+            "value": 4
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_variant000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_variant000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_variant000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_variant000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_variant000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_variant000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_variant000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_variant000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_variant000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_variant000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_variant000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_variant000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_variant000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_variant000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_variant000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_variant000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_variant000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "b": {
+        "first_call_source": "captured",
+        "first_call_tokens": 70719,
+        "system_prompt_tokens": 3437,
+        "tool_definition_tokens": 43857,
+        "instruction_tokens": 22990,
+        "other_context_tokens": 435,
+        "not_captured_tokens": 0,
+        "tool_count": 7,
+        "tool_groups": [
+          {
+            "name": "MCP: docs",
+            "value": 2
+          },
+          {
+            "name": "built-in",
+            "value": 5
+          }
+        ],
+        "instruction_parts": [
+          {
+            "name": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+            "value": 21666
+          },
+          {
+            "name": "memory: C:\\work\\example\\memory\\MEMORY.md",
+            "value": 981
+          },
+          {
+            "name": "other reminders",
+            "value": 344
+          }
+        ],
+        "models": [
+          {
+            "name": "claude-opus-5-5",
+            "value": 19
+          }
+        ],
+        "prompts": 5,
+        "model_calls": 19,
+        "tool_calls": 14,
+        "subagents": 1,
+        "tools_by_name": [
+          {
+            "name": "PowerShell",
+            "value": 2
+          },
+          {
+            "name": "Grep",
+            "value": 4
+          },
+          {
+            "name": "Read",
+            "value": 1
+          },
+          {
+            "name": "Bash",
+            "value": 6
+          },
+          {
+            "name": "Skill",
+            "value": 1
+          }
+        ],
+        "wall_ms": 567224,
+        "model_ms": {
+          "value": 78238,
+          "partial": false
+        },
+        "tool_ms": {
+          "value": 113388,
+          "partial": false
+        },
+        "input_tokens": {
+          "value": 40,
+          "partial": false
+        },
+        "output_tokens": {
+          "value": 6676,
+          "partial": false
+        },
+        "cache_read_tokens": {
+          "value": 1285833,
+          "partial": false
+        },
+        "cache_write_tokens": {
+          "value": 149126,
+          "partial": false
+        },
+        "largest_context": 85078,
+        "context_per_call": [
+          {
+            "index": 1,
+            "trace_id": "model:msg_example000000000027",
+            "tokens": 70719
+          },
+          {
+            "index": 2,
+            "trace_id": "model:msg_example000000000037",
+            "tokens": 71302
+          },
+          {
+            "index": 3,
+            "trace_id": "model:msg_example000000000046",
+            "tokens": 71808
+          },
+          {
+            "index": 4,
+            "trace_id": "model:msg_example000000000056",
+            "tokens": 72081
+          },
+          {
+            "index": 5,
+            "trace_id": "model:msg_example000000000064",
+            "tokens": 73075
+          },
+          {
+            "index": 6,
+            "trace_id": "model:msg_example000000000075",
+            "tokens": 73781
+          },
+          {
+            "index": 7,
+            "trace_id": "model:msg_example000000000083",
+            "tokens": 74507
+          },
+          {
+            "index": 8,
+            "trace_id": "model:msg_example000000000094",
+            "tokens": 75274
+          },
+          {
+            "index": 9,
+            "trace_id": "model:msg_example000000000101",
+            "tokens": 76651
+          },
+          {
+            "index": 10,
+            "trace_id": "model:msg_example000000000112",
+            "tokens": 77362
+          },
+          {
+            "index": 11,
+            "trace_id": "model:msg_example000000000122",
+            "tokens": 78806
+          },
+          {
+            "index": 12,
+            "trace_id": "model:msg_example000000000132",
+            "tokens": 81423
+          },
+          {
+            "index": 13,
+            "trace_id": "model:msg_example000000000143",
+            "tokens": 81843
+          },
+          {
+            "index": 14,
+            "trace_id": "model:msg_example000000000152",
+            "tokens": 83078
+          },
+          {
+            "index": 15,
+            "trace_id": "model:msg_example000000000161",
+            "tokens": 83235
+          },
+          {
+            "index": 16,
+            "trace_id": "model:msg_example000000000171",
+            "tokens": 84157
+          },
+          {
+            "index": 17,
+            "trace_id": "model:msg_example000000000182",
+            "tokens": 85078
+          }
+        ],
+        "flags_by_kind": [
+          {
+            "kind": "repeated_read",
+            "count": 0
+          },
+          {
+            "kind": "failed_retry",
+            "count": 0
+          },
+          {
+            "kind": "loop",
+            "count": 0
+          },
+          {
+            "kind": "large_result",
+            "count": 0
+          },
+          {
+            "kind": "compaction",
+            "count": 0
+          },
+          {
+            "kind": "reread_after_compaction",
+            "count": 0
+          }
+        ],
+        "failed_tool_calls": 1,
+        "compactions": 0,
+        "final_message": "Example text 1762."
+      },
+      "sections": [
+        {
+          "title": "Setup",
+          "rows": [
+            {
+              "label": "First call context",
+              "unit": "tokens",
+              "a": 70719,
+              "b": 70719,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "System prompt",
+              "unit": "tokens",
+              "a": 14,
+              "b": 3437,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 3423,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Tool definitions",
+              "unit": "tokens",
+              "a": null,
+              "b": 43857,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "Instructions and reminders",
+              "unit": "tokens",
+              "a": 196,
+              "b": 22990,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 22794,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Everything else",
+              "unit": "tokens",
+              "a": 11,
+              "b": 435,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 424,
+              "higher": "b",
+              "presence": "both"
+            },
+            {
+              "label": "Not captured",
+              "unit": "tokens",
+              "a": 70498,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -70498,
+              "higher": "a",
+              "presence": "both"
+            },
+            {
+              "label": "Tools",
+              "unit": "count",
+              "a": null,
+              "b": 7,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Models",
+          "rows": [
+            {
+              "label": "claude-opus-5-5",
+              "unit": "count",
+              "a": 19,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tool groups",
+          "rows": [
+            {
+              "label": "MCP: docs",
+              "unit": "count",
+              "a": null,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            },
+            {
+              "label": "built-in",
+              "unit": "count",
+              "a": null,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": null,
+              "higher": "unknown",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Instructions",
+          "rows": [
+            {
+              "label": "environment",
+              "unit": "tokens",
+              "a": 65,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -65,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "hook output",
+              "unit": "tokens",
+              "a": 49,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -49,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "session context",
+              "unit": "tokens",
+              "a": 16,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -16,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "MCP server instructions",
+              "unit": "tokens",
+              "a": 14,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -14,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "agent list",
+              "unit": "tokens",
+              "a": 13,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -13,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "deferred tools list",
+              "unit": "tokens",
+              "a": 13,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -13,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "date",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "file-599.txt: C:\\work\\example\\file-599.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "file-601.txt: C:\\work\\example\\file-601.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "file-603.txt: C:\\work\\example\\file-603.txt",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "model",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "skills list",
+              "unit": "tokens",
+              "a": 4,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": -4,
+              "higher": "a",
+              "presence": "only_a"
+            },
+            {
+              "label": "CLAUDE.md: C:\\work\\example\\CLAUDE.md",
+              "unit": "tokens",
+              "a": 0,
+              "b": 21666,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 21666,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "memory: C:\\work\\example\\memory\\MEMORY.md",
+              "unit": "tokens",
+              "a": 0,
+              "b": 981,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 981,
+              "higher": "b",
+              "presence": "only_b"
+            },
+            {
+              "label": "other reminders",
+              "unit": "tokens",
+              "a": 0,
+              "b": 344,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 344,
+              "higher": "b",
+              "presence": "only_b"
+            }
+          ]
+        },
+        {
+          "title": "Work",
+          "rows": [
+            {
+              "label": "Prompts",
+              "unit": "count",
+              "a": 5,
+              "b": 5,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Model calls",
+              "unit": "count",
+              "a": 19,
+              "b": 19,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Tool calls",
+              "unit": "count",
+              "a": 14,
+              "b": 14,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Subagents",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Wall-clock time",
+              "unit": "ms",
+              "a": 567224,
+              "b": 567224,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Time in model calls",
+              "unit": "ms",
+              "a": 78238,
+              "b": 78238,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Time in tools",
+              "unit": "ms",
+              "a": 113388,
+              "b": 113388,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tools used",
+          "rows": [
+            {
+              "label": "PowerShell",
+              "unit": "count",
+              "a": 2,
+              "b": 2,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Grep",
+              "unit": "count",
+              "a": 4,
+              "b": 4,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Read",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Bash",
+              "unit": "count",
+              "a": 6,
+              "b": 6,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Skill",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Tokens",
+          "rows": [
+            {
+              "label": "Input (not cached)",
+              "unit": "tokens",
+              "a": 40,
+              "b": 40,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Output",
+              "unit": "tokens",
+              "a": 6676,
+              "b": 6676,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Cache read",
+              "unit": "tokens",
+              "a": 1285833,
+              "b": 1285833,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Cache write",
+              "unit": "tokens",
+              "a": 149126,
+              "b": 149126,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Largest context",
+              "unit": "tokens",
+              "a": 85078,
+              "b": 85078,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        },
+        {
+          "title": "Problems",
+          "rows": [
+            {
+              "label": "Repeated reads",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Failed retries",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Loops",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Large results",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Re-reads after compaction",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Failed tool calls",
+              "unit": "count",
+              "a": 1,
+              "b": 1,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            },
+            {
+              "label": "Compactions",
+              "unit": "count",
+              "a": 0,
+              "b": 0,
+              "a_partial": false,
+              "b_partial": false,
+              "difference": 0,
+              "higher": "equal",
+              "presence": "both"
+            }
+          ]
+        }
+      ]
+    },
+    "a": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000100170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    },
+    "b": {
+      "prompts": [
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+          "index": 0,
+          "preview": "List the PowerShell scripts in this folder."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+          "index": 1,
+          "preview": "Find every TODO comment in the source files."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+          "index": 2,
+          "preview": "Which file defines the greeting function?"
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+          "index": 3,
+          "preview": "Run the tests and review the result."
+        },
+        {
+          "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+          "index": 4,
+          "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+        }
+      ],
+      "scope_missing": false
+    },
+    "alignment": {
+      "pairs": [
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000009",
+            "index": 0,
+            "preview": "List the PowerShell scripts in this folder."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000032",
+                "label": "PowerShell(echo example-696)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 1900
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000042",
+                "label": "PowerShell(echo example-1180)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 8995
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000053",
+            "index": 1,
+            "preview": "Find every TODO comment in the source files."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000060",
+                "label": "Grep(Example text 1234. / C:\\work\\example)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 98
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000068",
+                "label": "Grep(Example text 1253. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 84
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000071",
+                "label": "Grep(Example text 1263. / C:\\work\\example\\...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 72
+              },
+              "differs": false
+            },
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000079",
+                "label": "Read(C:\\work\\example\\notes-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000079",
+                "label": "Read(C:\\work\\example\\file-1285.txt)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 29
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 3,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000091",
+            "index": 2,
+            "preview": "Which file defines the greeting function?"
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000095",
+                "label": "Grep(Example text 1320. / C:\\work\\example...)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 136
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000109",
+            "index": 3,
+            "preview": "Run the tests and review the result."
+          },
+          "rows": [
+            {
+              "kind": "only_a",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000116",
+                "label": "Bash(echo example-1365-variant)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "b": null,
+              "differs": false
+            },
+            {
+              "kind": "only_b",
+              "a": null,
+              "b": {
+                "trace_id": "tool:toolu_example000000000116",
+                "label": "Bash(echo example-1365)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 14607
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000126",
+                "label": "Bash(echo example-1477)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 5459
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000137",
+                "label": "Bash(echo example-1535)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 48525
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000144",
+                "label": "Bash(echo example-1597)",
+                "failed": false,
+                "running": false,
+                "duration_ms": 13653
+              },
+              "differs": false
+            },
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000156",
+                "label": "Skill",
+                "failed": false,
+                "running": false,
+                "duration_ms": 49
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": 0,
+          "approximate": false
+        },
+        {
+          "a": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000100170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "b": {
+            "turn_id": "turn:00000000-0000-4000-8000-000000000170",
+            "index": 4,
+            "preview": "<task-notification>Example text 1701.<task-id>Example text 1701.</task-id>Exa..."
+          },
+          "rows": [
+            {
+              "kind": "both",
+              "a": {
+                "trace_id": "tool:toolu_variant000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "b": {
+                "trace_id": "tool:toolu_example000000000176",
+                "label": "Bash(echo example-1711)",
+                "failed": true,
+                "running": false,
+                "duration_ms": 16990
+              },
+              "differs": false
+            }
+          ],
+          "first_difference": null,
+          "approximate": false
+        }
+      ],
+      "first_difference": {
+        "pair": 1,
+        "row": 3
+      }
     }
   }
 }

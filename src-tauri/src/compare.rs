@@ -2,7 +2,7 @@
 //! one prompt of it; the numbers come from the harness-neutral `insights`
 //! crate, with the Claude Code flag rules from the adapter.
 
-use adapter_claude_code::flag_rules;
+use adapter_claude_code::{align_rules, flag_rules};
 use serde::{Deserialize, Serialize};
 use trace_core::Trace;
 
@@ -51,6 +51,8 @@ pub struct CompareView {
     pub a: CompareSide,
     /// Run B's prompts and scope note.
     pub b: CompareSide,
+    /// The two runs lined up step by step.
+    pub alignment: insights::Alignment,
 }
 
 /// One side summarised, ready to compare.
@@ -60,6 +62,8 @@ pub struct SideSummary {
     pub summary: insights::RunSummary,
     /// The prompts and scope note.
     pub side: CompareSide,
+    /// The side's steps, for lining up.
+    pub steps: insights::RunSteps,
 }
 
 /// Summarises one side. `captures` must be summarised, as for the context
@@ -77,6 +81,7 @@ pub fn side_summary(trace: &Trace, prompt: Option<&str>, captures: &SessionRecor
         let facts = ContextFacts::of_call(trace, &id);
         context::call_context(&facts, captures, &id)
     });
+    let steps = insights::run_steps(trace, &scope, &align_rules());
     let flags = insights::session_flags(trace, &flag_rules());
     let summary = insights::run_summary(trace, &scope, first.as_ref(), &flags);
     let prompts = trace_view::build_session(trace)
@@ -94,12 +99,15 @@ pub fn side_summary(trace: &Trace, prompt: Option<&str>, captures: &SessionRecor
             prompts,
             scope_missing,
         },
+        steps,
     }
 }
 
 /// Puts two sides together.
 pub fn compare_view(a: SideSummary, b: SideSummary) -> CompareView {
+    let alignment = insights::align_steps(&a.steps, &b.steps);
     CompareView {
+        alignment,
         comparison: insights::compare(a.summary, b.summary),
         a: a.side,
         b: b.side,
@@ -114,6 +122,7 @@ mod tests {
     use std::path::{Path, PathBuf};
 
     const BASIC: &str = "00000000-0000-4000-8000-000000000002";
+    const VARIANT: &str = "00000000-0000-4000-8000-000000000004";
     const COMPACTION: &str = "00000000-0000-4000-8000-000000000003";
 
     fn fixture_root() -> PathBuf {
@@ -179,5 +188,48 @@ mod tests {
         let missing = side("basic", BASIC, Some("no-such-turn"));
         assert!(missing.side.scope_missing);
         assert_eq!(missing.summary, whole.summary);
+    }
+
+    fn rows(view: &CompareView, kind: insights::RowKind) -> usize {
+        view.alignment
+            .pairs
+            .iter()
+            .flat_map(|p| &p.rows)
+            .filter(|r| r.kind == kind)
+            .count()
+    }
+
+    #[test]
+    fn a_session_against_itself_lines_up_with_no_difference() {
+        let view = compare_view(side("basic", BASIC, None), side("basic", BASIC, None));
+        assert_eq!(view.alignment.first_difference, None);
+        assert!(!view.alignment.pairs.is_empty());
+        assert_eq!(rows(&view, insights::RowKind::OnlyA), 0);
+        assert_eq!(rows(&view, insights::RowKind::OnlyB), 0);
+        assert!(rows(&view, insights::RowKind::Both) > 0);
+    }
+
+    #[test]
+    fn basic_against_the_variant_differs_in_two_steps_from_prompt_two() {
+        let view = compare_view(side("basic", BASIC, None), side("variant", VARIANT, None));
+        let first = view
+            .alignment
+            .first_difference
+            .as_ref()
+            .expect("a difference");
+        assert_eq!(first.pair, 1);
+        assert_eq!(rows(&view, insights::RowKind::OnlyA), 2);
+        assert_eq!(rows(&view, insights::RowKind::OnlyB), 2);
+    }
+
+    #[test]
+    fn one_prompt_against_one_prompt_gives_one_pair() {
+        let whole = side("basic", BASIC, None);
+        let id = whole.side.prompts[0].turn_id.clone();
+        let view = compare_view(
+            side("basic", BASIC, Some(&id)),
+            side("basic", BASIC, Some(&id)),
+        );
+        assert_eq!(view.alignment.pairs.len(), 1);
     }
 }
