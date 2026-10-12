@@ -187,10 +187,19 @@ test('diffLabel points at the first difference, counting from 1', () => {
   assert.equal(diffLabel(alignment), 'First difference: prompt 2, step 3')
 })
 
-test('diffLabel uses the B prompt when the pair has no A prompt', () => {
-  const extra = pair({ a: null, b: { turn_id: 'tb2', index: 4, preview: 'Extra' }, rows: [], first_difference: 0 })
-  const alignment: Alignment = { pairs: [pair({}), extra], first_difference: { pair: 1, row: 0 } }
-  assert.equal(diffLabel(alignment), 'First difference: prompt 5, step 1')
+test('diffLabel names a one-sided prompt without a step', () => {
+  const extraB = pair({ a: null, b: { turn_id: 'tb2', index: 4, preview: 'Extra' }, rows: [], first_difference: 0 })
+  const onlyB: Alignment = { pairs: [pair({}), extraB], first_difference: { pair: 1, row: 0 } }
+  assert.equal(diffLabel(onlyB), 'First difference: prompt 5 (only in B)')
+  const extraA = pair({ b: null, a: { turn_id: 'ta2', index: 2, preview: 'Extra' }, rows: [], first_difference: 0 })
+  const onlyA: Alignment = { pairs: [extraA], first_difference: { pair: 0, row: 0 } }
+  assert.equal(diffLabel(onlyA), 'First difference: prompt 3 (only in A)')
+})
+
+test('diffLabel names both prompt numbers when they differ', () => {
+  const shifted = pair({ b: { turn_id: 'tb2', index: 3, preview: 'Fix it' }, first_difference: 1 })
+  const alignment: Alignment = { pairs: [shifted], first_difference: { pair: 0, row: 1 } }
+  assert.equal(diffLabel(alignment), 'First difference: prompt 1 in A, prompt 4 in B, step 2')
 })
 
 test('diffLabel says when the runs match or have no steps', () => {

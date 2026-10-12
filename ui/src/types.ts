@@ -516,7 +516,7 @@ export interface CompareSide {
   scope_missing: boolean
 }
 
-/** One step of a run in the step lineup: a tool call or a notification. */
+/** One step of a run in the step lineup: always a tool call (notifications are prompts). */
 export interface AlignStep {
   /** The trace node to jump to in that run's diagram. */
   trace_id: string

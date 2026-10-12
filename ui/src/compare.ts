@@ -97,9 +97,16 @@ export function diffLabel(alignment: Alignment): string {
   const point = alignment.first_difference
   if (point === null) return 'The runs took the same steps.'
   const pair = alignment.pairs[point.pair]
-  const side = pair?.a ?? pair?.b ?? null
-  const prompt = side === null ? point.pair + 1 : side.index + 1
-  return `First difference: prompt ${prompt}, step ${point.row + 1}`
+  const a = pair?.a ?? null
+  const b = pair?.b ?? null
+  if (a !== null && b !== null) {
+    const step = point.row + 1
+    if (a.index === b.index) return `First difference: prompt ${a.index + 1}, step ${step}`
+    return `First difference: prompt ${a.index + 1} in A, prompt ${b.index + 1} in B, step ${step}`
+  }
+  if (a !== null) return `First difference: prompt ${a.index + 1} (only in A)`
+  if (b !== null) return `First difference: prompt ${b.index + 1} (only in B)`
+  return `First difference: prompt ${point.pair + 1}, step ${point.row + 1}`
 }
 
 /** The session a step of side `side` belongs to, given the order on screen. */
