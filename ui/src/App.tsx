@@ -373,6 +373,7 @@ export default function App() {
   }, [])
 
   const selectHidden = (row: HiddenRow) => {
+    pendingJump.current = null
     setCompareWith(null)
     setSelectedCapture(null)
     setSelected(null)
@@ -442,6 +443,7 @@ export default function App() {
   }
 
   const selectCapture = (captureId: string) => {
+    pendingJump.current = null
     setCompareWith(null)
     setSelected(null)
     setSelectedHidden(null)
@@ -462,6 +464,8 @@ export default function App() {
   /** Shows the comparison of the open session with `other`. */
   const startCompare = (other: SessionSummary) => {
     setPicking(false)
+    // A step jump still waiting on a load is dropped.
+    pendingJump.current = null
     // The selection stays, hidden while comparing, so Back to diagram
     // returns to it.
     setCompareWith(other)
